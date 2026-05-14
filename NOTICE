@@ -1,0 +1,31 @@
+MTM Contract Methodology
+Copyright 2026 Vast Intelligence Limited
+
+This work documents the MTM Contract methodology authored by
+Vast Intelligence Limited.
+
+Original repository: https://github.com/jewanchen/mtm-contract
+
+Licensed under the Apache License, Version 2.0 (the "License").
+See LICENSE file for the full license text.
+
+Attribution required in all derivative works:
+
+    Based on MTM Contract methodology by Vast Intelligence Limited.
+    Source: https://github.com/jewanchen/mtm-contract
+
+This attribution requirement applies to:
+  - Forks of this repository
+  - Tools, libraries, or services implementing the MTM Contract
+    specification described in this work
+  - Academic citations and technical articles building on this
+    methodology
+  - Adapted or translated versions of the documentation
+
+Trademark notice: "MTM Contract" and "Vast Intelligence" are not
+registered trademarks. The terms may be used freely to refer to
+this methodology, provided attribution is preserved per the
+Apache 2.0 license terms.
+
+Contact: jeremy.chen@vastitw.com
+Website: vastitw.com/mtm

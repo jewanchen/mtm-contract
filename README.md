@@ -1,26 +1,37 @@
 # MTM Contract
 
-> **A pre-execution specification layer for reliable AI software engineering.**
+> **A framework for preventing hallucination and architectural drift in agentic AI coding.**
+> A discipline for containing agentic AI's two recurring failure modes.
 > Markdown-only, zero dependencies, Apache 2.0. From **Vast Intelligence Limited**.
 
 ---
 
 ## The 30-second pitch
 
-AI coding agents fail in five recurring ways: hallucinated APIs, silent cross-module overwrites, context drift across long tasks, unscoped escalation, and no post-hoc verification.
+Agentic AI coding agents fail in two recurring ways that current tooling does not address:
 
-**MTM Contract** is an 11-field markdown specification the agent fills out *before* writing code, and audits *after* the code ships. Each field addresses a specific failure mode.
+- They **hallucinate** APIs, entities, and endpoints that do not exist — confidently, because the agent does not know it does not know.
+- They suffer **architectural drift** across multi-step tasks — where decisions made in step 3 are silently contradicted by code generated in step 15.
 
-In a six-task production trial:
+Function-calling schemas and type checkers do not catch either failure mode: both occur in the gap between intent and code generation.
 
-| Metric | Result |
+**MTM Contract** is an 11-field markdown specification the agent fills out *before* writing implementation code, and audits *after* the code ships. The contract externalizes intent into an artifact that survives the agent's context window — binding the agent's future decisions to its declared scope, and giving uncertainty a legal place to live.
+
+Across nine production scenarios on a multi-tenant SaaS application, MTM Contract demonstrated **nine distinct mechanisms of value**:
+
+| # | Mechanism |
 |---|---|
-| First-pass commits (tsc + build + analyze all green) | **6 / 6** |
-| Compile-time hallucinations | **0** |
-| Contracts that surfaced unanticipated cross-module work | **4 / 6** |
-| Major redesigns caught during contract-phase escalation | **1** (would have cost a production rollback if shipped) |
+| 1 | Hallucination prevention through forced grounding |
+| 2 | Cross-module discovery during the contract phase |
+| 3 | Architectural decision inheritance across tasks |
+| 4 | Design-time architectural reasoning |
+| 5 | Direction correction at the escalation step (the canonical case — `v1` → `v2` redesign in 5 minutes that would have cost a production rollback) |
+| 6 | Methodology overrides stale planning |
+| 7 | User intent disambiguation |
+| 8 | Knowledge-graph reuse across tasks |
+| 9 | Emergent meta-pattern crystallization |
 
-Full methodology, trial data, and reasoning: [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md).
+Full methodology, scenario walkthroughs, and reasoning: [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md).
 
 ---
 

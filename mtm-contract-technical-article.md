@@ -1,7 +1,8 @@
-# MTM Contract: A Pre-Execution Specification Layer for Reliable AI Software Engineering
+# MTM Contract: A Framework for Preventing Hallucination and Architectural Drift in Agentic AI Coding
 
-**An open-source methodology from Vast Intelligence Limited.**
-**Observed in production: 6/6 first-pass success, zero compile-time hallucinations, one v1→v2 redesign caught before implementation.**
+**A discipline for containing agentic AI's two recurring failure modes.**
+
+**An open-source methodology from Vast Intelligence Limited. Observed across 9 production scenarios — hallucination prevention, mid-task architectural drift correction, user intent disambiguation, and emergent design-pattern crystallization.**
 
 ---
 
@@ -16,11 +17,15 @@
 
 ## Abstract
 
-We present **MTM Contract**, a specification pattern that AI coding agents fill out *before* writing implementation code, enforcing explicit declaration of intent, preconditions, schema assumptions, cross-module obligations, and escalation triggers. Contracts are persisted as plain markdown alongside source code, then audited clause-by-clause after the change ships — marking each as `PASS`, `FAIL`, or `MUTATED` with a reason.
+Agentic AI coding agents fail in two recurring ways that current tooling does not address. They **hallucinate** APIs, entities, and endpoints that do not exist — confidently, because token prediction landed in a plausible neighborhood and the agent does not know it does not know. And they suffer **architectural drift** across multi-step tasks — where decisions made in step 3 are silently contradicted by code generated in step 15, because the long context window dilutes earlier commitments rather than preserving them. Function-calling schemas and type checkers do not catch these failures: both occur in the gap between intent and code generation, before any token the runtime can validate.
 
-In a six-task production trial on a multi-tenant SaaS application, every task committed on the first attempt with zero compile-time hallucinations, and one task underwent a fundamental redesign (`v1` → `v2`) during the contract's escalation phase — at a fraction of the cost of catching that redesign after implementation. The same 11-field structure, observed working for human-AI clarification, maps directly onto the requirements for AI-to-AI agent coordination, multi-agent state handoff, and structured function-calling schemas — suggesting MTM Contract is not a workflow but a substrate.
+We present **MTM Contract**, a specification framework that agents fill out *before* writing implementation code. It externalizes intent, preconditions, schema assumptions, cross-module obligations, and escalation triggers into a markdown artifact that survives the agent's context window and binds the agent's future decisions to its declared scope. Contracts are audited clause-by-clause after the change ships — marking each as `PASS`, `FAIL`, or `MUTATED` with a reason — closing the loop between declared intent and observable outcome.
 
-This article documents the pattern, the trial results, the reasoning that connects each contract field to a specific class of AI failure, and a phased distribution strategy (markdown convention → CLI toolchain → MCP server + IDE plugins).
+Across nine production scenarios on a multi-tenant SaaS application, MTM Contract demonstrated nine distinct mechanisms of value: hallucination prevention through mandatory `verified_by` references, mid-task architectural drift correction through persistent markdown anchors, cross-module discovery during the contract phase, user intent disambiguation through structured escalation, methodology overrides of stale planning documents, decision-graph reuse through a logged paywall framework, and emergent meta-pattern crystallization. One scenario produced a fundamental `v1` → `v2` redesign during the contract's escalation phase — at five minutes of conversation cost, compared with the production rollback and migration the wrong-shaped `v1` would have required.
+
+The same 11-field structure, observed working for human-AI clarification, maps directly onto the requirements for AI-to-AI agent coordination, multi-agent state handoff, and structured function-calling schemas — suggesting MTM Contract is not a workflow but a substrate.
+
+This article documents the pattern, the nine observed mechanisms, the reasoning that connects each contract field to a specific class of agentic failure, and a phased distribution strategy (markdown convention → CLI toolchain → MCP server + IDE plugins).
 
 ---
 
@@ -158,67 +163,51 @@ Without a post-hoc audit, the contract is a planning aid that decays into noise 
 
 ---
 
-## 5. Empirical Validation: Six Production Tasks
+## 5. Empirical Validation: Nine Mechanisms of Value
 
-We applied MTM Contract for two weeks on a production multi-tenant SaaS application during the build-out of its enterprise feature set. Six tasks of varying scope completed under the methodology. All commit references are real and live in the application's repository; business specifics are abstracted to preserve operational confidentiality.
+We applied MTM Contract on a production multi-tenant SaaS application during the build-out of its enterprise feature set. Across nine distinct production scenarios, we observed **nine distinct mechanisms** by which the methodology delivered value. We document the mechanisms rather than the task count: the persuasive evidence is the *kinds* of failure the contract intercepted, not the cumulative number of intercepts.
 
-### 5.1 Trial setup
+All commit hashes are real and live in the application's repository; business specifics are abstracted to preserve operational confidentiality. Each mechanism is documented in detail in `examples/`, with full original contract + audit text.
 
-- **Sample size:** Six build-mode tasks plus two retroactive audits of two earlier (pre-trial) commits.
-- **Scope range:** From single-endpoint refactors to multi-entity workflows spanning backend, web admin dashboard, and mobile clients.
-- **Failure mode definition:** A "hallucination" is a call to a non-existent entity, field, or endpoint, *or* a violation of a schema invariant that should have been visible from prior commits.
-- **One-pass commit definition:** First commit attempt passes type checking, build, and static analysis on every affected codebase (backend tsc + framework build + frontend tsc + mobile analyze).
+### 5.1 Methodology of observation
 
-### 5.2 The six tasks at a glance
+- **Scope of work:** nine production scenarios over a working period, ranging from single-endpoint refactors to multi-entity workflows spanning backend, web-admin dashboard, and mobile clients.
+- **What we tracked:** for each scenario, we recorded (a) the contract text before implementation, (b) the implementation diff, (c) the audit text after shipping. The triple — pre-plan, code, post-review — makes each scenario auditable in perpetuity.
+- **What we did not measure:** we did not run a matched-pair control without contracts. The claims in this section are therefore about *the kinds of value* the methodology produced, not about a quantitative reduction relative to a control group. We discuss this limitation explicitly in §9.
 
-| Task | Domain | Scope | Code-level result | Hallucinations |
-|---|---|---|---|---|
-| **01: Push dispatcher** | Notification fanout with two-tier UX (banner vs silent) | Backend service + mobile push router | First-pass PASS | 0 |
-| **02: Entity update with broadcast and email** | Multi-tenant write path adds push fanout + audit email | Backend DTO + service + email template + mobile push router + web admin | First-pass PASS | 0 |
-| **03: Status lifecycle transitions** | Three state-machine endpoints with derived UI (paid-feature-aware) | Backend service + endpoints + web admin + mobile derived field | First-pass PASS | 0 |
-| **04: Aggregated dashboard endpoint** | Replace 4-query + N+1 page with single endpoint, parallel queries | Backend service + endpoint + web admin rewrite | First-pass PASS | 0 |
-| **05: Recovered-entity database (paid)** | New entity, migration, paid-feature paywall, dashboard query page, CSV export | Backend entity + migration + service + endpoints + web admin (2 pages + sidebar nav) | First-pass PASS | 0 |
-| **06: Batch operations** | Three batch flows on existing selection panels | Backend service + endpoints + web admin (2 pages, modals) | First-pass PASS | 0 |
+### 5.2 The nine mechanisms
 
-**Aggregate trial metrics:**
+| # | Mechanism | Scenario | What the contract caught that an unstructured prompt would have missed |
+|---|---|---|---|
+| **1** | **Hallucination prevention through forced grounding** | Multi-tenant entity update (Ex. 02) | DTO drift bug — fields declared on the entity and used by frontend code but absent from the update DTO. The PATCH endpoint had been silently dropping them. The contract's `schema_assumptions` field forced a grep that surfaced the gap before the agent referenced the missing fields in implementation. |
+| **2** | **Cross-module discovery during the contract phase** | Push notification dispatcher (Ex. 01) | An existing private helper that did half the work for one of the two callers was discovered during the contract's `affected_layers` grep. The two adjacent tasks merged into one commit and removed the duplicate helper, instead of shipping a parallel implementation. |
+| **3** | **Architectural decision inheritance** | Status lifecycle transitions (Ex. 03) | A prior architectural decision (banner-vs-silent push policy from a previous task) was carried over into the new task because `cross_module_contract` explicitly cited the prior decision-log entry. Resignation events would otherwise have re-litigated whether the resigning employee should be banner-notified ("you were resigned") — a decision already settled and recorded. |
+| **4** | **Design-time architectural reasoning** | Aggregated dashboard endpoint (Ex. 04) | An N+1 query pattern was identified at the contract stage, not at the implementation stage. The replacement (single aggregated endpoint with `Promise.all` parallel queries) was treated as the design itself rather than a refactoring follow-up. Three new endpoints, one new query pattern, one paywall guard — all reasoned about as a unit. |
+| **5** | **Direction correction at the escalation step** | Recovered-entity database (Ex. 05) | The agent's `v1` contract proposed copying recovered customer records into a chosen recipient admin's personal address book on the mobile client. The user, reading the contract before implementation, rejected `v1` outright: it would pollute an admin's personal contacts with a former employee's customer history. `v2` shifted to a dedicated enterprise-owned dashboard store with CSV export. **Five minutes of escalation conversation prevented a multi-day migration to extract personally-owned rows back into a shared store.** This is the canonical case for the methodology. |
+| **6** | **Methodology overrides stale planning** | Concurrency lock (Ex., commit `5e9198d`) | The project's planning document specified the conflict-lock feature as paid-only. The contract's escalation phase walked through the engineering cost (one int compare) and the failure mode it addresses (silent data overwrite), and the user reversed the planning decision: always-on, every tier. The contract surfaced a question the planning document had not asked, and the answer overrode the planning document. |
+| **7** | **User intent disambiguation** | Batch operations (Ex. 06) | The user-facing task description was "bulk send invitations." The contract enumerated four candidate populations the phrase could refer to (never-invited, pending, expired, deleted-card-after-accept) and asked the user to choose. The user selected two of the four for this scope, with a separate single-flow planned for the fourth. Without the four-way enumeration, the agent would have shipped whichever subset its tokens-leaning predicted, and the user would have discovered the wrong subset after the change shipped. |
+| **8** | **Knowledge-graph reuse across tasks** | Audit log (Ex., commit `958e04b`) | The contract directly referenced a previously-logged decision (a typology of paywall strategies, see mechanism 9) instead of re-deriving the paywall posture from scratch. The escalation question "should this feature be Premium-only or always-on?" became a one-line lookup into the decision log rather than a fresh five-option enumeration. |
+| **9** | **Emergent meta-pattern crystallization** | Paywall framework (decision log entry D-5) | Three earlier audits had each made an ad-hoc paywall decision (do-not-nag, actively-upsell, always-on hygiene). After the third audit, the implicit pattern was crystallized into a three-strategy framework with explicit conditions of use. Future Premium tasks now pick A / B / C from the framework instead of re-deriving from scratch — a methodology that improves with use. |
 
-- **One-pass commit rate:** 6 / 6 (100%)
-- **Compile-time hallucinations:** 0 / 6 (one *resolved* schema-name mismatch on task 04 was caught by the type checker within seconds; we count it as zero because it never reached commit).
-- **Contracts that surfaced cross-module work the agent had not anticipated:** 4 / 6 (tasks 01, 02, 04, 05)
-- **Contracts that produced a major redesign during escalation:** 1 / 6 (task 05, see below)
-- **Contracts that produced architectural decisions worth recording separately:** 4 distinct decisions over 6 tasks
+### 5.3 What these nine mechanisms add up to
 
-### 5.3 The most informative result: task 05's v1 → v2 redesign
+Reading the mechanisms in sequence, a structural observation emerges:
 
-We highlight task 05 because it is the case that justifies the contract's existence.
+- **Mechanisms 1–4** are the *direct* value the contract delivers in a single task: it forces a grep, it surfaces a cross-cutting helper, it carries forward a prior decision, it lets architecture be reasoned about before code.
+- **Mechanism 5** is the *highest-leverage* moment: a contract escalation rerouted a multi-day mistake into a five-minute conversation. This single case alone justifies the discipline.
+- **Mechanism 6** is *the contract overruling the planning document*. The plan said one thing; the contract surfaced a question the plan had not asked; the answer reversed the plan. A planning document is a checkpoint; the contract is an exception-raising mechanism that can override it.
+- **Mechanisms 7, 8, and 9** are *compounding effects*: as more contracts accumulate, the decision log accumulates, and future contracts reuse rather than re-derive. The methodology is not a flat overhead; it has a positive feedback loop.
 
-The task was to let admins recover a list of customers exchanged via a former employee's enterprise card, after that employee resigned. The agent wrote a `v1` contract proposing to *copy* the recovered records into a chosen recipient admin's personal address book on the mobile client. The contract surfaced this routing decision as an explicit `escalation` question with three options.
+We do not claim the methodology is statistically validated. We claim that across nine production scenarios, nine distinct kinds of value were observable, each documented with original contract text, implementation diff, and audit text — and that the cost of the methodology (~5–20 minutes of contract writing per non-trivial task) was, in each case, recovered many times over by the specific mechanism the contract triggered.
 
-The user, reading the contract before implementation, rejected `v1` outright: routing recovered customers into anyone's personal address book would pollute that admin's contacts with a former employee's customer history, and would not survive that admin's own future departure. The user proposed a `v2`: dedicated enterprise-owned data store, queryable on the dashboard, CSV-exportable.
+### 5.4 What the methodology did not catch
 
-The escalation conversation took roughly five minutes. The implementation, redesigned, took the same time it would have taken in `v1`. Had the work shipped in `v1`, the cost to discover the same issue would have been one production deploy plus a non-trivial migration to extract personally-owned rows back into a shared store — a substantial loss that the contract converted into a no-op.
+Equally important — what fell through:
 
-The full text of both `v1` and `v2` is preserved in the contract artifact (see `examples/05-recovered-entity-database.md`), making the deviation auditable in perpetuity.
+- **Every audit closed with "code-level PASS, observation-level UNVERIFIED-IN-STAGING."** The contract closed the loop between intent and code, but not between code and observable production behaviour. Closing that second loop requires staging discipline that the methodology does not itself provide.
+- **Self-evaluation bias:** the trial author, implementer, and reviewer were the same human-AI pair. The MUTATED reasons in each audit are honest, but they are not independent. Replication studies are needed to test whether contracts written by Team A and audited by Team B produce the same quality of insight.
 
-### 5.4 Architectural decisions surfaced during the trial
-
-Four decisions emerged from contract-phase discussion that would not have surfaced from the original task description:
-
-- **D-1 (continuous-edit handling):** Conflict between concurrent admins editing the same record was deferred to a UX-level "confirm-save" button rather than backend deduplication. The decision was reached by enumerating three options in `escalation`; the chosen option turned out to be the cheapest and most reviewable.
-- **D-2 (commit-boundary merge):** Two adjacent tasks (push-to-employee and push-to-contact-holder) collapsed into a single commit after `affected_layers` revealed they would touch the same dispatcher function. The decision avoided shipping a deliberately-incomplete PR that a follow-up PR would patch.
-- **D-3 (notification tiering):** Mandatory `expected_outcome` per audience surfaced an industry-UX question: should employees be notified differently from contact-holders, and should resignation events be silent for privacy? The decision became a documented invariant followed by every subsequent push-dispatching task.
-- **D-4 (race-latest concurrency):** A bug in a mobile-client cache layer, discovered during review-mode audit of an earlier commit, escalated to a refactor of the concurrency primitive across four providers. The decision (`fetchGen` race-latest replacing inflight-future gating) was named, debated, and recorded as a class-of-bug ruling rather than a one-off fix.
-
-Decisions of this kind, recorded in a dated log, become institutional memory rather than tribal knowledge.
-
-### 5.5 Retroactive audit on pre-trial commits
-
-Two earlier commits, made before the trial began, were audited backwards. Reconstructing the contract from session memory plus commit messages plus shipped code surfaced:
-
-- **Drift between declared and shipped behaviour:** in one case the contract's `expected_outcome` declared three observable end-states; on retroactive review, *zero* of them had been verified in staging. The shipped behaviour was "compile-time correct, observation-untested."
-- **Workflow gap:** contracts written conversationally were not persisted as artifacts and were lost when the session ended. The retroactive audit could only reconstruct them imperfectly. This led to a process change: **contracts must be written to disk before implementation begins.**
-
-This gap — between "code-level shipped" and "observation-level shipped" — appeared in every audit. We do not yet have a clean mechanism for closing it short of staging discipline; we record the gap explicitly in every contract's `Overall` summary.
+These two limitations are revisited in §9.
 
 ---
 
@@ -403,10 +392,12 @@ We are not aware of prior published work that combines (a) pre-execution declare
 
 We deliberately list this article's limitations rather than burying them.
 
-- **Sample size is small.** Six tasks on one application over two weeks is suggestive, not statistically conclusive. Independent replication on additional codebases is the most valuable next step.
-- **The trial was single-agent.** All six tasks were executed by a single AI agent in conversation with a single human decision-maker. AI-to-AI claims in Section 6 are extrapolation, not measurement.
-- **No A/B comparison.** We do not have matched-pair data for the same six tasks performed *without* contracts. The one-pass commit rate (6/6) could in principle reflect easy tasks rather than effective methodology. We mitigate this by including task 05 — a task where the v1 contract was clearly inadequate and required a redesign that, in our judgement, would not have surfaced from a plain prompt.
-- **Observation-level verification is incomplete.** Every audit in the trial closes with "code-level PASS, observation-level UNVERIFIED-IN-STAGING." The trial recorded the gap honestly but did not close it. Closing this gap is part of the team's next two weeks of work and not part of this article's claims.
+- **Single-codebase observation.** All nine documented mechanisms were observed on a single multi-tenant SaaS application. The mechanisms are described and individually traceable through the artifacts in `examples/`, but independent replication on additional codebases — different domains, different team compositions, different AI agent stacks — is the most valuable next step for the methodology, and the one we cannot perform alone.
+- **The methodology is phenomenological, not statistical.** This article does not claim a measured reduction in hallucination rate or in iteration count. It claims that nine distinct kinds of value were observable across nine scenarios, each with auditable artifacts. Readers who require a statistically powered control study should treat this article as motivation for one, not as one.
+- **No matched-pair control.** We did not run the same nine scenarios without contracts. We mitigate the absence of a control by documenting each mechanism specifically: scenario 5 (direction correction) in particular describes a `v1` design the user rejected at the contract stage that, in our judgement, would not have surfaced from an unstructured prompt — the contract artifact itself is the evidence.
+- **Self-evaluation bias.** The trial author, implementer, and reviewer were the same human-AI pair. The `MUTATED` reasons in each audit are honest but not independent. We treat this as a fundamental limitation that only external replication can resolve.
+- **Single-agent observation.** All nine scenarios were executed by a single AI coding agent in conversation with a single human decision-maker. AI-to-AI claims in Section 6 are structural extrapolation, not measurement.
+- **Observation-level verification is incomplete.** Every audit in the trial closes with "code-level PASS, observation-level UNVERIFIED-IN-STAGING." The methodology closes the loop between intent and code, but not between code and observed production behaviour. Closing that second loop requires staging discipline that the methodology does not itself provide; we record the gap explicitly in every contract's `Overall` summary.
 - **`grounding` requires honest reporting.** The methodology assumes the agent (or the human) does not fabricate citations. We have no automated guard against fabricated `verified_by` references. CLI-stage tooling (Phase 2) will validate at least file-existence and commit-hash-existence; deeper semantic grounding remains a discipline question.
 - **Audit discipline decays in absence of pressure.** Without external review of the audit (e.g., a code review reviewer who checks audit clauses against the contract), the audit becomes self-reported by the implementer. We recommend pairing MTM Contract with code review that examines the audit section before merge.
 - **Bureaucratic cost on trivial work.** A typo fix or one-line config bump does not benefit from an eleven-field contract. The methodology is appropriate when the agent would otherwise touch multiple files, multiple subsystems, or any novel API surface. We codify this as: "if writing the contract takes longer than writing the code, skip the contract."

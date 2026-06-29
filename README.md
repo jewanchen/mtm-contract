@@ -60,8 +60,15 @@ That's it. No SDK, no plugin, no language lock-in. The methodology is the file.
 
 | File | Purpose |
 |---|---|
+| [`MTM-CORE.md`](./MTM-CORE.md) | **v0.2 entry point (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. |
+| [`EVOLUTION.md`](./EVOLUTION.md) | **Self-hosting evolution engine.** Case ledger → proposal queue → discussion gate → changelog. MTM evolves from case experience, with every rule change gated by the user. |
 | [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md) | The full methodology paper (~450 lines): failure modes, field-by-field rationale, six production task case study, AI-to-AI extension, distribution strategy, comparison to related work. |
-| [`TEMPLATE.md`](./TEMPLATE.md) | The ready-to-copy contract template. 11 fields + audit section. |
+| [`TEMPLATE.md`](./TEMPLATE.md) | The ready-to-copy contract template (v0.1 11-field; v0.2 canonical template lives in `MTM-CORE.md` §4 with `status` header + `observed_result`). |
+| [`MTM-Plan.md`](./MTM-Plan.md) | CORE phase 0 greenfield branch: turn a non-technical user's one-liner into a buildable architecture skeleton by eliciting the hard-to-reverse foundational forks in plain language. |
+| [`MTM-Arch.md`](./MTM-Arch.md) | CORE phase 1-2 detail: architecture grounding, dialogue, ADR. |
+| [`MTM-Verify.md`](./MTM-Verify.md) | CORE phase 6 detail: independent Auditor Agent protocol, 10 vibe-coding failure modes. |
+| [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md) | The structured audit report template used by the Auditor Agent. |
+| [`contracts/`](./contracts/) | MTM contracts for changes to MTM itself (dog-fooding), incl. the v0.2 self-optimization contract. |
 | [`examples/`](./examples/) | Six real production contracts, sanitised for confidentiality. Includes the v1 → v2 redesign case study (example 05) in full. |
 | [`integrations/`](./integrations/) | Guides for using MTM Contract alongside Claude Code, Cursor, and the Model Context Protocol (MCP). |
 | [`LICENSE`](./LICENSE) | Apache 2.0. |

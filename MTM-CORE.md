@@ -1,4 +1,4 @@
-# MTM v0.2 — CORE
+# MTM v0.6 — CORE
 
 > **一條 lifecycle 的單一規格。** 取代「Contract / Arch / Verify 三份各自為政」的心智模型——它們其實是同一條 pipeline 的三個 phase。
 > 為 agentic AI coding 設計，對治兩個復發失效：**hallucination**（叫不存在的 API/entity）與 **architectural drift**（step 3 的決定被 step 15 默默推翻）。
@@ -18,6 +18,12 @@
 4. **artifact 外部化優於 session memory。** contract 落檔、audit 對著檔案跑——不靠對話記憶（證據：nicemeet E7.1「audit 不再依賴 session memory」）。
 5. **escalation 階段改方向，成本趨近於零；implementation 階段改方向，成本是 rollback。** 把判斷往前推。
 6. **驗證是「執行」不是「宣告」（v0.3）。** `verified_by` / `observed_result` 必須指向**本 session 真的跑過的東西**（grep/read 結果、指令輸出、測試或 build log、實際觀察值），**不准在 promise 上標 PASS**。沒真正執行的 → 醒目標 `UNVERIFIED` 並讓它活進 phase 6 audit。理由：對強模型，失效不是「不填欄位」，是「把欄位填得很有說服力、底下的查根本沒做」——填了 plausible 值的欄位跟真閉合的欄位長得一樣，這條讓它們**長不一樣**。
+7. **客戶核心需求優先（v0.5 · #13）。** 使用者**字面講出來的核心體驗需求**——那個「工具之所以存在的理由」（例：貝斯 App 的「真實貝斯音色」、相機 App 的「拍得清楚」）——是**一等交付物**，不可降級成佔位 / TODO。
+   - 現成的真實方案唾手可得時（免費取樣庫 / soundfont / 現成 API），**預設直接交付真的**，不先擺佔位。
+   - 真的必須延後 → 在 confirm 階段當**頭條「還不能做」明示**，不准默默 TODO 掉。
+   - 與 #11 的關係：「便宜的可延後」只適用**次要**功能；**核心體驗需求永不延後**。
+   - 警訊（altitude error）：架構顧得很好、卻把使用者「來就是為了這個」的東西擺成 placeholder——結構對、但沒交付他真正要的。
+   - 證據：bass-app A/B 對照——無 MTM 版用線上 soundfont 當場交付「真實音色」，MTM 版只擺合成佔位，在使用者字面核心需求上輸了。
 
 ---
 
@@ -168,8 +174,8 @@ Verify 不是另一張獨立 checklist——它是「每個預防欄位實際有
 ---
 
 ## 7. 進化（self-hosting）
-MTM v0.2 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四段閉環：
-1. **Case ledger**：每個跑完的 task append 一行（一次過？幻覺數？哪個欄位抓到/漏掉什麼？escalation 價值？）。
+MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四段閉環：
+1. **Case ledger（硬 gate · v0.6 #14）**：每個非 T0 task **append 一行才算 done**——未 append 不算完成（與 phase 5「執行綁定」同邏輯：軟紀律會開天窗，故綁硬 gate；nicemeet trial log 結算表從沒填即前例）。記：一次過？幻覺數？哪個欄位抓到/漏掉什麼？escalation 價值？ledger 位置由消費端專案自訂（§A）。
 2. **Proposal queue**：當一個 pattern 復發、或 user/auditor 點出規格缺口 → 提案進 queue（**status: pending-signoff**）。
 3. **討論 gate**：提案**不自動生效**。跟 user 討論後才 promote 進 CORE——進化的 gate 在人，不在 AI。
 4. **Changelog + 版本 bump**：promote 時記 changelog、bump 版本。
@@ -178,5 +184,5 @@ MTM v0.2 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`�
 
 ---
 
-*MTM v0.4 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。*
-*v0.2 #1–#7 / v0.3 #9–#11 / v0.4 #12（綠地 Plan 分支：小白一句話→地基 fork→seed project-architecture/→交棒 phase 1）。#8 仍 pending。*
+*MTM v0.6 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。*
+*v0.2 #1–#7 / v0.3 #9–#11 / v0.4 #12（綠地 Plan）/ v0.5 #13（客戶核心需求優先，invariant 7，由 bass-app A/B 對照實驗得出）/ v0.6 #14（case-ledger append 硬 gate）。#8 仍 pending。*

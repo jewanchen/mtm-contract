@@ -8,7 +8,7 @@
 
 ## §D 進化協議（先讀這段——它定義另外三段怎麼動）
 
-**何時 append case ledger**：每個非 T0 的 task 跑完 phase 5/6 後，append §A 一行。誠實計，幻覺數不算錯、是核心觀察值。
+**何時 append case ledger（硬 gate · v0.6 #14）**：每個非 T0 的 task 跑完 phase 5/6 後，append §A 一行**才算 done——未 append 不算完成**（與 phase 5 執行綁定同邏輯；軟紀律會開天窗，nicemeet trial log 結算表從沒填即前例）。誠實計，幻覺數不算錯、是核心觀察值。
 
 **何時開 proposal（進 §B）**——主模式 + 三條 backstop：
 - **主模式（inline 機會主義 · Q2 拍板 2026-06-29）**：AI 在**執行任何 task 的過程中**，一看到方法論本身有實質改善機會，就**當場用白話**提出「論點 + 原因」給 user。不必等復發、不必等盤點。
@@ -38,6 +38,8 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 
 > 欄位：Date | Task | Tier | 一次過? | 幻覺數 | 哪個欄位抓到/漏掉什麼 | escalation 價值 | → proposal?
 
+> **位置規則（v0.6 #14）**：本 §A 只記**對 MTM 本身的改動**（dogfooding）；**消費端專案的 task ledger 放各自專案本地**（如 NiceMeet → 該專案本地 ledger，user 2026-06-30 拍板）。
+
 **Seed（nicemeet 試行，2026-05-14 起，完整見 該專案本地 ledger；總計 56 份 contract）**
 
 | Date | Task | Tier | 一次過 | 幻覺 | 關鍵觀察 | escalation 價值 | proposal |
@@ -59,6 +61,10 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 | 2026-06-29 | 三方獨立評價 MTM(adoption/方法論/對抗) | T2 | — | — | 評價收斂:承重樑=escalation/candidate-set + 獨立 audit + artifact>memory;最大缺口=驗證「宣告≠執行」、自分級 self-defeating | → #9/#10/#11 |
 
 | 2026-06-29 | MTM Plan 設計 + 三方評審 | T2 | — | — | gap 確認真;補強=孤島vs整合 fork + 想像式問法 + 4 永不default + handoff 寫 phase-1 詞彙 | → #12 promoted v0.4 |
+
+| 2026-06-29 | **bass-app A/B 對照**(MTM vs 無 MTM,同一句話) | T2 | — | — | **MTM 首個真正 control**。中立 agent 裁:意圖吻合 ≈5/5 vs 2穩1半2失;MTM 翻對「原生vs網頁」(最高風險決定)、「音階格vs指板";但「真實音色」MTM 擺佔位、無 MTM 接 soundfont 當場交付→輸。誠實:點數獲勝非 KO | → #13 promoted v0.5 |
+
+| 2026-06-30 | MTM 自我優化 v0.6(ledger 硬 gate + 版本標籤修) | T2 | ✅ | 0 | nicemeet 6 週效益分析發現 trial log 結算從沒填→「軟紀律會開天窗」是跨任務 pattern；CORE/README 殘留 v0.2(MTM 自己也 drift) | ledger append 從軟紀律升硬 gate | → #14 promoted v0.6 |
 
 <!-- 新 case append 在這行之上 -->
 
@@ -132,12 +138,25 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 - 三方獨立評審(完整性/小白UX/邊界)GO-with-additions,已併入：①「孤島vs整合」fork ②裝置能力併平台 ③法規升級成 regime+residency ④難回頭 fork 改「想像 A/B」非「對嗎」⑤4 個永不靜默 default ⑥確認用「第一天能做/不能做」⑦handoff 必寫 phase-1 詞彙+UNKNOWN ⑧#8 規模降成推測 default。
 - 兩道測試:實質✅(填真 gap) / 通用✅(所有綠地+一句話起手)。來源:user 2026-06-29「MTM Plan 值不值得做」。
 
+### #13 — 客戶核心需求優先（核心體驗不可降級成佔位）  `✅ promoted v0.5 (2026-06-29)`
+- 證據:bass-app **A/B 對照實驗**(MTM vs 無 MTM,同一句話)。MTM 把架構顧好但「真實貝斯音色」擺合成佔位;無 MTM 版用線上 soundfont **當場交付真音色**——在使用者**字面核心需求**上,無 MTM 反而贏。
+- 改動:CORE invariant 7 + MTM-Plan 紀律 #8。使用者字面講出的核心體驗=一等交付物;現成真實方案可得就直接交付、別佔位;非延後不可就在 confirm 當頭條「還不能做」明示。
+- 與 #11 共存:「便宜的可延後」只適用次要功能,核心體驗永不延後。
+- 兩道測試:實質✅(對照組證明是真短板) / 通用✅(任何「使用者點名核心體驗」的專案)。來源:user 2026-06-29「確實要以客戶核心需求作為主要」。
+
+### #14 — case-ledger append 綁成 phase 完成硬 gate  `✅ promoted v0.6 (2026-06-30)`
+- 證據:§D「每個非 T0 task append」只是軟紀律、無觸發綁定。nicemeet 6 週效益分析發現:trial log 結算表從沒填、前 12 筆後停更——同個「meta 紀錄開天窗」洞。治本檔(MTM 自身)也會犯。
+- 改動:CORE §7 step1 + §D「何時 append」改硬 gate——未 append 不算 task done(與 phase 5 執行綁定 invariant 6 同邏輯)。
+- 兩道測試:實質✅(補已咬過兩次的 meta-record 洞) / 通用✅(每個非 T0 task 都成立)。來源:user 2026-06-30「C: 同意修」。
+
 <!-- 新 proposal append 在這行之上 -->
 
 ---
 
 ## §C Changelog（版本史——只有 promote 過 gate 的才進這）
 
+- **v0.6**（2026-06-30）：promote **#14 case-ledger append 硬 gate**——未 append ledger 不算 task done(與 phase-5 執行綁定 invariant 6 同邏輯)，修「軟紀律→開天窗」的跨任務洞(nicemeet 6 週分析發現結算表從沒填)。同批:修正 CORE 標題/§7/README 殘留 v0.2 版本標籤漂移、確立「消費端 task ledger 放各自專案本地」(nicemeet→該專案本地 ledger)。
+- **v0.5**（2026-06-29）：promote **#13 客戶核心需求優先**(invariant 7)——由 **bass-app A/B 對照實驗**得出(MTM 第一個真正 control:同一句話、有問 vs 沒問)。結論誠實:MTM 在「原生vs網頁」「音階格vs指板」翻對方向(點數獲勝),但在「真實音色」字面核心需求上輸給無 MTM 版(它接 soundfont 當場交付、MTM 只擺佔位)→ 直接催生 #13。
 - **v0.4**（2026-06-29）：新增 **MTM Plan**（綠地 phase 0 分支，`MTM-Plan.md`）——把小白一句話的不夠清晰計畫，用生活語言問清難回頭的地基 fork(平台/雲端/多人/租戶/整合/法規)，產出骨架 seed `project-architecture/` 交棒 phase 1。三方獨立評審 GO-with-additions 後定稿。promote #12。
 - **v0.3**（2026-06-29）：焦點=**讓夠強的 AI 用 MTM 跑更有效率**（user 重新對焦：非賣產品/論文，而是實際開發助力）。三方獨立評價收斂出核心訊號 → promote **#9 驗證執行綁定**(補最大成熟度缺口：宣告→執行)、**#10 分級靠可觀察觸發**(修自分級漏洞)、**#11 最小可行 contract**(高價值 20% 零摩擦)。診斷:MTM 矯正的是「能力修不掉的系統性偏誤」(挑字面/scope漂移/忘前文/討好)——這幾條最值錢;中段欄位強模型本來就會做、調輕。
 - **v0.2**（2026-06-29，draft 轉正）：

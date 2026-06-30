@@ -60,7 +60,7 @@ That's it. No SDK, no plugin, no language lock-in. The methodology is the file.
 
 | File | Purpose |
 |---|---|
-| [`MTM-CORE.md`](./MTM-CORE.md) | **v0.2 entry point (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. |
+| [`MTM-CORE.md`](./MTM-CORE.md) | **v0.6 entry point (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. |
 | [`EVOLUTION.md`](./EVOLUTION.md) | **Self-hosting evolution engine.** Case ledger → proposal queue → discussion gate → changelog. MTM evolves from case experience, with every rule change gated by the user. |
 | [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md) | The full methodology paper (~450 lines): failure modes, field-by-field rationale, six production task case study, AI-to-AI extension, distribution strategy, comparison to related work. |
 | [`TEMPLATE.md`](./TEMPLATE.md) | The ready-to-copy contract template (v0.1 11-field; v0.2 canonical template lives in `MTM-CORE.md` §4 with `status` header + `observed_result`). |

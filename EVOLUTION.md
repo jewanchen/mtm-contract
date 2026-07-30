@@ -66,6 +66,8 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 
 | 2026-06-30 | MTM 自我優化 v0.6(ledger 硬 gate + 版本標籤修) | T2 | ✅ | 0 | nicemeet 6 週效益分析發現 trial log 結算從沒填→「軟紀律會開天窗」是跨任務 pattern；CORE/README 殘留 v0.2(MTM 自己也 drift) | ledger append 從軟紀律升硬 gate | → #14 promoted v0.6 |
 
+| 2026-07-05 | MTM-Plan 加開場「先問目的」discovery(#15) | T2 | ✅ | 0 | 現有 Plan 直接跳 fork、缺目的(靈魂)錨點;user 裁:延伸功能不提、僅綠地 | 目的先問=接 #13 靈魂的開場錨點 → #15 promoted v0.7 |
+
 <!-- 新 case append 在這行之上 -->
 
 ---
@@ -149,12 +151,22 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 - 改動:CORE §7 step1 + §D「何時 append」改硬 gate——未 append 不算 task done(與 phase 5 執行綁定 invariant 6 同邏輯)。
 - 兩道測試:實質✅(補已咬過兩次的 meta-record 洞) / 通用✅(每個非 T0 task 都成立)。來源:user 2026-06-30「C: 同意修」。
 
+### #15 — MTM-Plan 開場「先問目的」+ discovery 覆蓋清單（延伸功能不提、僅綠地）  `✅ promoted v0.7 (2026-07-05)`
+- 證據：user 實測 AI 未完整 follow MTM;綠地開場少了「資深團隊主動補問使用者沒講但該想」的深度。現有 Plan 直接跳難回頭 fork,**沒有先問「你最想達成什麼」的錨點**——目的(靈魂)沒被顯式問。
+- 改動：MTM-Plan §3 加紀律 0「開場先問目的」(唯一預設開放問的題,定方向接 invariant 7)+ 開場一次涵蓋「目的→呈現/平台→誰用/情境」(後二用既有 §4a fork);§6 worked example 補目的問句。**不動 CORE 0→6**,只擴 Plan 開場協議。
+- user 裁決(2026-07-05):**延伸功能整格拿掉**(不主動提,留 §4c/phase 2)、**trigger 僅限綠地**(不變)、其餘照提案。
+- 風險控制:除「目的」外一律「便宜→假設、貴→逼選」,禁止一次丟多個開放問句 → 不回 MTM-Plan 當初要根除的面試地獄/ceremony tax。
+- 兩道測試:實質✅(新增「目的必問」錨點,補「開場不夠 consultative + 直接跳建」的真 gap,非措辭微調)/ 通用✅(所有綠地「幫我做一個 ___」成立;scope 限 Plan phase)。來源:user 2026-07-05「想讓 AI 更深入跟使用者聊、像團隊先問使用者沒提但該考慮的」。
+- **獨立 AI 方法論專家評審(2026-07-05,promote 後)**:有條件同意、6/10。承認原子位置對(=#13 的 elicitation 互補、便宜、正確限縮綠地);抓三洞已於 promote 後補上——①目的答案缺 downstream wiring(posture 非 mechanism)→ 紀律 0 加「答案接線:寫進 glossary/invariants 當靈魂註記 + 決定哪些 fork 先問 + 標 invariant 7 保護對象」;②「開場一次涵蓋」措辭偷渡 ceremony 且與 §4a 重述 → 改成「開場只主動問目的一題,其餘走 §4a 遇到才問」;③缺空泛答案 fallback → 加「答得同義反覆就退回 fork、不追第二輪開放題」。
+- **證據等級自評(專家點出、誠實記錄)**:#15 是本系列**證據最弱**的一次 promote——無 A/B control(對比 #13)、無復發計數(對比 #14),靠「論證通用 + user aspiration」過 gate。**Backstop**:接下來 2 個綠地實跑各記一行「目的答案是否真的改變了任何 downstream 決定」;連 2 次沒有 → 觸發 §D backstop 重審 #15。
+
 <!-- 新 proposal append 在這行之上 -->
 
 ---
 
 ## §C Changelog（版本史——只有 promote 過 gate 的才進這）
 
+- **v0.7**（2026-07-05）：promote **#15 MTM-Plan 開場「先問目的」+ discovery 覆蓋**——綠地起手第一步改成問一個開放的目的題(你最想達成什麼,定靈魂/方向,接 invariant 7),再攤既有 fork;開場只主動問目的一題,其餘走 §4a 遇到才問。user 裁決:延伸功能不主動提(留 §4c/phase 2)、trigger 僅限綠地。機制仍「便宜→假設、貴→逼選」,只有目的開放問,不回面試地獄。**證據等級最弱的一次 promote(無 control/無復發計數)→ 已掛 backstop:接下來 2 個綠地各記一行「目的答案是否真的改變 downstream 決定」,連 2 次沒有就重審。**
 - **v0.6**（2026-06-30）：promote **#14 case-ledger append 硬 gate**——未 append ledger 不算 task done(與 phase-5 執行綁定 invariant 6 同邏輯)，修「軟紀律→開天窗」的跨任務洞(nicemeet 6 週分析發現結算表從沒填)。同批:修正 CORE 標題/§7/README 殘留 v0.2 版本標籤漂移、確立「消費端 task ledger 放各自專案本地」(nicemeet→該專案本地 ledger)。
 - **v0.5**（2026-06-29）：promote **#13 客戶核心需求優先**(invariant 7)——由 **bass-app A/B 對照實驗**得出(MTM 第一個真正 control:同一句話、有問 vs 沒問)。結論誠實:MTM 在「原生vs網頁」「音階格vs指板」翻對方向(點數獲勝),但在「真實音色」字面核心需求上輸給無 MTM 版(它接 soundfont 當場交付、MTM 只擺佔位)→ 直接催生 #13。
 - **v0.4**（2026-06-29）：新增 **MTM Plan**（綠地 phase 0 分支，`MTM-Plan.md`）——把小白一句話的不夠清晰計畫，用生活語言問清難回頭的地基 fork(平台/雲端/多人/租戶/整合/法規)，產出骨架 seed `project-architecture/` 交棒 phase 1。三方獨立評審 GO-with-additions 後定稿。promote #12。
@@ -168,4 +180,4 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 - **v0.1.1**（Arch）：forced-disagreement 強制 surface（**已被 #5 取代**）。
 - **v0.1**（2026-05-14）：nicemeet 試行啟用，11 欄 build/review 雙模式。
 
-<!-- 新版本 append 在這行之上 -->
+<!-- 新版本 append 在 §C 最上方（本清單新→舊） -->

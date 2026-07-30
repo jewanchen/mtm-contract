@@ -1,4 +1,4 @@
-# MTM v0.6 — CORE
+# MTM v0.7 — CORE
 
 > **一條 lifecycle 的單一規格。** 取代「Contract / Arch / Verify 三份各自為政」的心智模型——它們其實是同一條 pipeline 的三個 phase。
 > 為 agentic AI coding 設計，對治兩個復發失效：**hallucination**（叫不存在的 API/entity）與 **architectural drift**（step 3 的決定被 step 15 默默推翻）。
@@ -56,7 +56,7 @@
 
 ### Phase 0-Plan · 綠地分支（v0.4 · 細節見 `MTM-Plan.md`）
 **觸發（可觀察雙訊號）**：`project-architecture/` 空且無 source tree **且** 請求是「要做一個產品」而非「對既有東西的範圍變更」。小白與否不另設 gate——使用者已自定的 fork 逐條 fast-path 跳過。
-**做什麼**：只問**難回頭**的地基 fork（裝置能力·平台 / 資料持久·跨裝置 / 孤島vs整合 / 單人vs多人 / 租戶隔離 / 法規·落地），便宜的自己推 default 收進「我先這樣假設」區塊；難回頭的用「想像 A vs B 你是哪個」逼使用者選、不用「對嗎」逼點頭；4 個永不靜默 default（持久·跨裝置 / 多人登入 / 誰看得到誰 / 碰錢或他人個資）。確認用「第一天能做/還不能做」而非骨架。
+**做什麼**：**開場第一步先問一個開放的目的題**（「你做這個最想達成什麼?」）定靈魂與方向（接 invariant 7）；此為**唯一**預設開放問的題（v0.7 · #15，僅綠地、不主動提延伸功能），答案接線進 handoff 當「靈魂註記」並決定哪些 fork 先問、哪個 feature 受 invariant 7 保護，答得空泛就退回 fork 機制不盤問。再攤**難回頭**的地基 fork（裝置能力·平台 / 資料持久·跨裝置 / 孤島vs整合 / 單人vs多人 / 租戶隔離 / 法規·落地），便宜的自己推 default 收進「我先這樣假設」區塊；難回頭的用「想像 A vs B 你是哪個」逼使用者選、不用「對嗎」逼點頭；4 個永不靜默 default（持久·跨裝置 / 多人登入 / 誰看得到誰 / 碰錢或他人個資）。確認用「第一天能做/還不能做」而非骨架。
 **分界線（Plan fork vs phase-2 candidate-set）**：Plan fork 的答案決定**會有哪些 domain/entity**（先於、生成資料模型）；phase-2 是把 intent 對映到**已決定的模型**上。測試：「有資料模型可列舉候選嗎？」沒有→Plan、有→phase-2。
 **Handoff（硬性）**：Plan 把結論寫成 phase 1 的詞彙——`invariants.md`（不可逆 fork 寫成硬規則）/ `domains/` / `glossary.md` / `decisions/`（每個帶 trade-off 的 fork 一份 seed ADR）/ `INDEX.md`，未解 fork 一律 `UNKNOWN: <why>`。phase 1 於是 fast-path，不重問。**Plan 絕不自決 fork，問不出來就標 UNKNOWN，不准猜。**
 
@@ -184,5 +184,5 @@ MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四
 
 ---
 
-*MTM v0.6 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。*
-*v0.2 #1–#7 / v0.3 #9–#11 / v0.4 #12（綠地 Plan）/ v0.5 #13（客戶核心需求優先，invariant 7，由 bass-app A/B 對照實驗得出）/ v0.6 #14（case-ledger append 硬 gate）。#8 仍 pending。*
+*MTM v0.7 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。*
+*v0.2 #1–#7 / v0.3 #9–#11 / v0.4 #12（綠地 Plan）/ v0.5 #13（客戶核心需求優先，invariant 7，由 bass-app A/B 對照實驗得出）/ v0.6 #14（case-ledger append 硬 gate）/ v0.7 #15（綠地 Plan 開場「先問目的」+ discovery 覆蓋）。#8 仍 pending。*

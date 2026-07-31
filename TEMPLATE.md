@@ -1,9 +1,26 @@
 # MTM Contract — `<task ID + one-line description>`
 
-> Copy this file to `contracts/YYYY-MM-DD_<task>.md` and fill in
-> every section before writing implementation code. Empty sections
-> are not acceptable; `N/A` is a valid answer; "I don't know" must
-> be written as `UNKNOWN: <reason>` so it surfaces in review.
+> **This is the full template, for structural and critical work.**
+> For ordinary tasks you write three fields, not all of these — see
+> [`MTM-LITE.md`](./MTM-LITE.md) for the light version and the
+> triggers that decide which one a task gets.
+>
+> Copy this file to `contracts/YYYY-MM-DD_<task>.md` and fill it in
+> before writing implementation code. Empty sections are not
+> acceptable; `N/A` is a valid answer; "I don't know" must be
+> written as `UNKNOWN: <reason>` so it surfaces in review.
+
+---
+
+## status
+
+Single source of truth when a session is summarized or handed off.
+Read this first on resume.
+
+```
+stage=<0-6> | tier=<trivial|local|structural|critical> |
+blocked_on=[] | unverified_preconditions=[] | open_escalations=[]
+```
 
 ---
 
@@ -83,10 +100,18 @@ as "user does X, observes Y."
 
 - `<outcome 1>`
   verifiable_by: `<manual step / automated test / log line / trace>`
+  observed_result: `<what you actually saw this session — command
+  output, query result, log line, observed value>`
 - `<outcome N>`
 
 Outcomes are the audit checklist. Every clause here must map to a
 PASS / FAIL / MUTATED mark after implementation.
+
+**Execution binding — the rule that makes the rest of this real:**
+a clause may not be marked PASS while its `observed_result` is
+still a promise or `PENDING`. Either paste evidence you actually
+produced this session, or mark it `UNVERIFIED` and carry it into
+the audit as an open item. `PENDING` is a waypoint, not a pass.
 
 ---
 
@@ -149,6 +174,17 @@ a citable source is `SPECULATIVE` and should be reviewed first.
 Append this section after implementation ships. Mark every clause
 above as PASS / FAIL / MUTATED with a one-line reason.
 
+> **Two different things happen here, and they must not be merged.**
+> *Self-check* is done by whoever did the work: mark the clauses,
+> fill in `observed_result`, be honest about what is `UNVERIFIED`.
+> *Verify* — mandatory at critical tier — is done by a reader in a
+> **clean context** who did not write the code, given only this
+> contract, the relevant decisions, and the diff. The author cannot
+> perform the second one; the reasoning that produced a gap is the
+> reasoning that would review it. The reviewer reports and does not
+> fix. Its most severe verdict is `ARCH_VIOLATED`: the code works
+> and contradicts what was agreed.
+
 ## clause-by-clause results
 
 - **intent:** PASS / FAIL / MUTATED — `<reason>`
@@ -174,5 +210,8 @@ above as PASS / FAIL / MUTATED with a one-line reason.
 
 ---
 
-*Template version: 1.0 — Vast Intelligence Limited, 2026.*
-*See `mtm-contract-technical-article.md` for rationale per field.*
+*Template version: 2.0 — Vast Intelligence Limited, 2026.*
+*Light version: [`MTM-LITE.md`](./MTM-LITE.md). Rationale per field:
+[`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md) §4.
+Full specification: [`MTM-CORE.md`](./MTM-CORE.md) (written in
+Traditional Chinese).*

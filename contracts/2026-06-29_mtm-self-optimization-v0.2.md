@@ -27,13 +27,13 @@ resolved        = Q1=CORE 當脊椎、舊三份保留 ｜ Q2=inline 機會主義
 
 ## preconditions
 - 已讀 nicemeet 56 份 contract + WORKFLOW + TRIAL_LOG（12 build-mode 樣本）
-  verified_by: 本 session 直讀 該專案本地 contract 目錄、該專案本地 workflow 文件、該專案本地 ledger
+  verified_by: 本 session 直讀消費端專案本地的 contract 目錄、workflow 與 trial log
 - 7 項調整方向 + forced-disagreement 拆解已在前兩輪對齊
   verified_by: 本 session 對話
 
 ## schema_assumptions
 - 「實戰 template（11 欄含 verified_by / verifiable_by / test_plan / rollback）」比公開 TEMPLATE 強
-  source: 該專案本地 workflow 文件 §3
+  source: 消費端專案本地 workflow 文件 §3
 - escalation 是投報率最高的 phase
   source: TRIAL_LOG E7.2 / E9.5 / D-reinvite 三筆最大價值事件皆發生於 escalation
 
@@ -66,7 +66,7 @@ overall: medium
 立刻停下回報：若 user 要的是「改進舊三份」而非「收斂成單一 lifecycle」——方向不同，停手重對。
 
 ## grounding
-- 該專案本地 workflow 文件 §1（TD↔欄位表，phase 6 脊椎的原型）、§3（實戰 template）
+- 消費端專案本地 workflow 文件 §1（TD↔欄位表，phase 6 脊椎的原型）、§3（實戰 template）
 - 該專案本地 ledger（escalation 最高價值的證據）
 - 前兩輪對話：7 項調整 + forced-disagreement 判準
 

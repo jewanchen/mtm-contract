@@ -26,10 +26,11 @@
 - user 想再想 / 沒當場拍 → 進 §B `pending-signoff` 停著，不入 CORE。
 - **AI 不准自己把未點頭的 proposal 寫進 CORE。** gate 永遠在 user。
 
-**版本規則**：
-- patch（v0.2.x）：措辭 / 範例 / 補 case，不改機制。
-- minor（v0.x）：加/改 phase、欄位、紀律。
-- major（vX）：lifecycle 結構性重構。
+**版本規則（2026-07-30 起改制為 2.x）**：
+- patch（2.0.x）：措辭 / 範例 / 補 case，不改機制。
+- minor（2.x）：加/改 phase、欄位、紀律。
+- major（3.0）：lifecycle 結構性重構。
+> 舊 spec 線 v0.1–v0.7 已於 2.0 併入公開文章線（見 §C 的 2.0 條目）。各檔規則旁的 `v0.x · #N` 是**當初 promote 的版本**、非現行版號。
 promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改的 case ledger 行標 `→ 觸發 proposal #N`。
 
 ---
@@ -38,9 +39,9 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 
 > 欄位：Date | Task | Tier | 一次過? | 幻覺數 | 哪個欄位抓到/漏掉什麼 | escalation 價值 | → proposal?
 
-> **位置規則（v0.6 #14）**：本 §A 只記**對 MTM 本身的改動**（dogfooding）；**消費端專案的 task ledger 放各自專案本地**（如 NiceMeet → 該專案本地 ledger，user 2026-06-30 拍板）。
+> **位置規則（v0.6 #14）**：本 §A 只記**對 MTM 本身的改動**（dogfooding）；**消費端專案的 task ledger 放各自專案本地**（不進本 repo，user 2026-06-30 拍板）。
 
-**Seed（nicemeet 試行，2026-05-14 起，完整見 該專案本地 ledger；總計 56 份 contract）**
+**Seed（消費端專案試行，2026-05-14 起，完整逐筆紀錄留在該專案本地、不對外；總計 56 份 contract）**
 
 | Date | Task | Tier | 一次過 | 幻覺 | 關鍵觀察 | escalation 價值 | proposal |
 |---|---|---|---|---|---|---|---|
@@ -49,14 +50,14 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 | 05-14 | E8 Dashboard 重設計 | T2 | ✅ | 0(1 compile-time) | tsc 抓到 `submittedAt` vs `createdAt` 誤用 | 4 題前置 escalation | — |
 | 05-14 | E9.7 批次操作 | T2 | ✅ | 0 | **intent 字面 vs 資料模型對不上** → 攤開 ABCD 候選人 | 最高：scope 精準化 | → #6 candidate-set |
 | 05-14 | E9.5 離職名單回收 | T3 | ✅ | 0 | 新 entity+migration | **最大 redesign**（單向→資料庫）在 escalation 零成本 | → #6 |
-| 05-16 | E7.2 預告變更 | T2 | ✅ | 0 | — | **user 推翻我的 escalation 結構本身**、unified 設計 | → #5 forced-disagree |
+| 05-16 | E7.2 預告變更 | T2 | ✅ | 0 | — | **拍板者推翻了 escalation 結構本身**、改採 unified 設計 | → #5 forced-disagree |
 | 05-16 | D-reinvite | T3 | ✅ | 0 | acceptInvitation idempotent | escalation 觸發架構決定 D-6 + AI-1 | → #6 |
 
 **觀察彙整（→ 種出 v0.2 的 proposal）**：12 build-mode 樣本，**幻覺事件 0**（少數 compile-time 即抓）、**一次過 commit 12/12**。最高價值一律落在 escalation phase，且皆為「AI 攤真實選項 + user reframe」，**無一來自 AI 製造的反對**。
 
 | Date | Task | Tier | 一次過 | 幻覺 | 關鍵觀察 | proposal |
 |---|---|---|---|---|---|---|
-| 2026-06-29 | MTM 自我優化 v0.2 | T3 | 進行中 | 0 | 用 MTM 跑 MTM；status header + observed_result 首次實戰 | = #1（本批） |
+| 2026-06-29 | MTM 自我優化 v0.2 | T3 | 進行中 | 0 | 用 MTM 跑 MTM；status header + observed_result 首次實戰 | = #1 |
 
 | 2026-06-29 | 三方獨立評價 MTM(adoption/方法論/對抗) | T2 | — | — | 評價收斂:承重樑=escalation/candidate-set + 獨立 audit + artifact>memory;最大缺口=驗證「宣告≠執行」、自分級 self-defeating | → #9/#10/#11 |
 
@@ -67,6 +68,9 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 | 2026-06-30 | MTM 自我優化 v0.6(ledger 硬 gate + 版本標籤修) | T2 | ✅ | 0 | nicemeet 6 週效益分析發現 trial log 結算從沒填→「軟紀律會開天窗」是跨任務 pattern；CORE/README 殘留 v0.2(MTM 自己也 drift) | ledger append 從軟紀律升硬 gate | → #14 promoted v0.6 |
 
 | 2026-07-05 | MTM-Plan 加開場「先問目的」discovery(#15) | T2 | ✅ | 0 | 現有 Plan 直接跳 fork、缺目的(靈魂)錨點;user 裁:延伸功能不提、僅綠地 | 目的先問=接 #13 靈魂的開場錨點 → #15 promoted v0.7 |
+
+| 2026-07-30~31 | **2.0 規格發表：公開文章（英/繁中）+ `MTM-LITE.md` + 版號改制** | T3 | ⚠️ 獨立審查三輪皆有 findings → 全修 | 0 | **文件型任務同樣吃 escalation**：第一版骨架的定位錯誤，在動筆前被推翻重排，成本是一次對話而非重寫。precondition 查核撞出兩件自家壞消息並如實寫進文章：①#14 的 ledger 硬 gate 已破（停更後仍有 10 個符合條件的 task 未 append）②文章的領頭 debug 案例**沒有 contract**——那正是紀律被跳過的那一次。**最大收穫不在交付物、在交付物周邊**：採用者視角的審查判定「不會採用」，理由全是周邊資產（英文入口走到底是中文規格、快速上手指向舊模板、整合指南教的正是規格否定的自審、無輕量級範例）→ 補 `MTM-LITE.md`、TEMPLATE 升 2.0、整合指南改寫、入口改指向；重跑同一視角後翻為「會採用」。證據稽核另抓 6 處不實或無源敘述，含一處**在誠實章節內**把幻覺說成被驗證步驟攔下（實為動工實查、且一筆是審查自己產生的） | 極高：定位一句話重排整個骨架；並定「不給效益估算數字，讀者自行判斷」 | → #16、#17 |
+> **本行的兩條可攜教訓**：①**去敏只掃交付物不夠，要掃「交付物連出去的一跳」**——文章本身零洩漏，但它連過去的檔案有私有路徑與一個環境變數名。②**採用者視角的審查要在補件後重跑**——第一輪的否定理由全部落在交付物之外，不重跑就不知道補件有沒有真的接上。
 
 <!-- 新 case append 在這行之上 -->
 
@@ -160,12 +164,37 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 - **獨立 AI 方法論專家評審(2026-07-05,promote 後)**:有條件同意、6/10。承認原子位置對(=#13 的 elicitation 互補、便宜、正確限縮綠地);抓三洞已於 promote 後補上——①目的答案缺 downstream wiring(posture 非 mechanism)→ 紀律 0 加「答案接線:寫進 glossary/invariants 當靈魂註記 + 決定哪些 fork 先問 + 標 invariant 7 保護對象」;②「開場一次涵蓋」措辭偷渡 ceremony 且與 §4a 重述 → 改成「開場只主動問目的一題,其餘走 §4a 遇到才問」;③缺空泛答案 fallback → 加「答得同義反覆就退回 fork、不追第二輪開放題」。
 - **證據等級自評(專家點出、誠實記錄)**:#15 是本系列**證據最弱**的一次 promote——無 A/B control(對比 #13)、無復發計數(對比 #14),靠「論證通用 + user aspiration」過 gate。**Backstop**:接下來 2 個綠地實跑各記一行「目的答案是否真的改變了任何 downstream 決定」;連 2 次沒有 → 觸發 §D backstop 重審 #15。
 
+### #16 — 「硬 gate」必須有機械執行點，否則仍是軟紀律  `pending-signoff`
+- 證據：#14（2026-06-30 promote）把 case-ledger append 從軟紀律升為**硬 gate**（未 append 不算 done），論證是「軟紀律會開天窗」。**一個月後這道 gate 自己被忽略**：2026-07-30 查核 — 消費端 ledger 末行 07-20，其後 **10 份**符合條件的 contract（07-21～07-30）零 append。規則全程都在規格裡。
+- 診斷：#14 只把「軟」字改成「硬」字，**沒有增加任何機械觸發點**。文件裡宣稱強制 ≠ 強制。這是同型 gap 的**第三次**發生（試行結算表從沒填 → ledger 前 12 筆後停更 → 07-21 起再度停更）。
+- 提案改動（三選一或並用，待討論）：①ledger append 綁進既有可觀察觸發（contract 檔建立即產生待辦、未閉合則 status header 顯示 `ledger_pending`）②把 append 降級為**契約內一欄**（`ledger_line:`），隨 contract 一起寫、不另開檔＝消除「換檔案」這個摩擦點 ③承認純文件無法自我強制，把 gate 移交 §14 的 CI/腳本層。
+- 兩道測試：實質✅（修一條已證實無效的規則，非措辭）/ 通用✅（凡「規格宣稱強制但無執行點」的規則皆適用，不限 ledger — 同一診斷可套 phase 5 執行綁定、去敏掃描等）。
+- 來源：2026-07-30 一次 T3 任務的 precondition 查核撞出。**已寫入文章 §12 當公開誠實案**（結論：a "hard" gate with no mechanical enforcement point is still soft discipline）。
+- 註：本提案**未經 user 點頭**，依 §D 停在 §B，不入 CORE。
+
+### #17 — phase 0 加 **debug 分支**（症狀進來、scope 未知時走這條）  `pending-signoff`
+- **證據（缺口為真，四路匯聚）**：
+  1. 現行分級表**整個靠已知 scope**（碰不碰 auth／有無 migration／跨幾個 domain／改幾個檔）。但 **bug 的 scope 未知才叫 bug** —— 症狀進來時，「會動到哪」正是要查出來的東西，不是拿來分級的輸入。表在這裡分不了級。
+  2. `MTM-LITE.md` §6 寫「已確立根因的一行修正可跳過」——**那正是不難的那種**。真正吃掉一個下午的是「還沒確立根因」，而規格對它沒有任何 phase。
+  3. 文章 §10.1 的旗艦 debug 案例**自己承認沒有 contract**（紀律被一輪接一輪跳過，直到有人堅持才做那次搜尋）。方法論最貴的失效案例，恰好是方法論沒有形狀可以套的那一類。
+  4. **採用者視角的獨立審查（2026-07-31）**把這條列為「最想要卻沒拿到」的東西：真正吃掉時間與成本的是 debug 迴圈，而規格對它只給得出一條習慣、給不出 artifact。同一份審查最終判定為會採用——但只採用輕量三欄。
+- **消費端專案早已有本地實踐**（尚未升進規格）：bug 第一輪沒解 → 停手寫 contract，欄位含 `prior_guesses`（連同各自的結果）；值顯示錯 → evidence 第一步固定＝grep 該值全部產生點；證據來源在形成假設之前先選。
+- **提案改動**：phase 0 新增 **debug 分支**（與綠地 Plan 分支並列，同為「表分不了級時走的側路」）：
+  - **觸發（可觀察，避免每個 bug 都上儀式）**：①已經試修過一輪但沒解 **或** ②症狀是「某個值不對」而根因未確立。未命中＝照常走 T0/T1。
+  - **最小 debug 契約**：`symptom`（可觀察）／`prior_guesses`（連結果，防重複繞圈）／`preconditions` 每條附**可執行**的驗證步驟／`evidence_source`（在形成假設之前先寫下證據要從哪來）／`affected_layers: UNKNOWN 直到 PC 閉合`。
+  - **一條硬規則**：第一輪沒解 → **停止改 code**，先確立一個事實。連續猜測會留下殘渣，讓後面的輪次比前面更糟。
+- **兩道測試**：實質 ✅（補的是「表分不了級」的結構性洞，不是措辭）／ 通用跨任務 ✅（每個 codebase 都有 bug；提出的是**任務類型**的形狀，不是某次事件的補丁；且證據來自四個彼此獨立的來源，非單一事件）。
+- **風險控制**：觸發若寫成「任何 bug」會變成 ceremony tax，正是 #11 要防的；故綁死在「已試修一輪」或「值錯而根因未明」兩個可觀察訊號上。
+- **來源**：2026-07-31，由採用者視角審查的「拿一個真實任務實走一遍」測試撞出。
+- 註：本提案**未經 user 點頭**，依 §D 停在 §B，不入 CORE。
+
 <!-- 新 proposal append 在這行之上 -->
 
 ---
 
 ## §C Changelog（版本史——只有 promote 過 gate 的才進這）
 
+- **2.0**（2026-07-30）：**版號改制 + 對外發表**。①**改制**：spec 線的 v0.1–v0.7 併入公開文章線，現行版號一律 **2.0**（理由：第一篇公開文章以 `Methodology v1.0` 發表，spec 另走 v0.x → 外部讀者看到「v1.0 五月 → v0.7 七月」會誤判為倒退。user 2026-07-30 拍板「全面改 2.0」）。各檔規則旁的 `v0.x · #N` 保留為**當初 promote 的版本**索引，不回頭改寫（改了等於偽造 changelog）。②**發表** `mtm-contract-2.0-article.md` + 繁中版：以「**把便宜的查證擺到昂貴的生成之前**」單一主張收斂全篇，受眾＝用 AI agent 做產品的人，四個結果（效率／少試錯／正確性／整體花費）寫成該主張的下游。誠實面：明載 token 無實測（僅代理指標）、「12/12 幻覺 0」不可外推、對照實驗輸掉的那一道、領頭案例沒有 contract（紀律被跳過那次）、以及 **#14 硬 gate 一個月內破功**（→ §B #16）。**規則機制本身零變動** —— 2.0 不新增 phase / 欄位 / 紀律。
 - **v0.7**（2026-07-05）：promote **#15 MTM-Plan 開場「先問目的」+ discovery 覆蓋**——綠地起手第一步改成問一個開放的目的題(你最想達成什麼,定靈魂/方向,接 invariant 7),再攤既有 fork;開場只主動問目的一題,其餘走 §4a 遇到才問。user 裁決:延伸功能不主動提(留 §4c/phase 2)、trigger 僅限綠地。機制仍「便宜→假設、貴→逼選」,只有目的開放問,不回面試地獄。**證據等級最弱的一次 promote(無 control/無復發計數)→ 已掛 backstop:接下來 2 個綠地各記一行「目的答案是否真的改變 downstream 決定」,連 2 次沒有就重審。**
 - **v0.6**（2026-06-30）：promote **#14 case-ledger append 硬 gate**——未 append ledger 不算 task done(與 phase-5 執行綁定 invariant 6 同邏輯)，修「軟紀律→開天窗」的跨任務洞(nicemeet 6 週分析發現結算表從沒填)。同批:修正 CORE 標題/§7/README 殘留 v0.2 版本標籤漂移、確立「消費端 task ledger 放各自專案本地」(nicemeet→該專案本地 ledger)。
 - **v0.5**（2026-06-29）：promote **#13 客戶核心需求優先**(invariant 7)——由 **bass-app A/B 對照實驗**得出(MTM 第一個真正 control:同一句話、有問 vs 沒問)。結論誠實:MTM 在「原生vs網頁」「音階格vs指板」翻對方向(點數獲勝),但在「真實音色」字面核心需求上輸給無 MTM 版(它接 soundfont 當場交付、MTM 只擺佔位)→ 直接催生 #13。

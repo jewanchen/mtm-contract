@@ -1,4 +1,4 @@
-> **v0.2 起：本檔為 `MTM-CORE.md` 的 phase 1-2（Ground / Escalate / ADR）延伸細節。** 入口與 lifecycle 全貌看 CORE；本檔保留作架構對話的展開規格。Stage E Layer 2（架構自審）已併入 CORE phase 6 的獨立 Verify。
+> **本檔為 `MTM-CORE.md`（現行規格 **2.0**）的 phase 1-2（Ground / Escalate / ADR）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；本檔保留作架構對話的展開規格。Stage E Layer 2（架構自審）已併入 CORE phase 6 的獨立 Verify。
 
 # MTM Arch — 架構先行版的 MTM Contract
 
@@ -454,4 +454,4 @@ MTM Arch 是 MTM Contract 的衍生方法論。
 ---
 
 *MTM Arch v0.1.2 — 加入「對話 UX 紀律」六條 + meta 原則，machinery 留在內部、對 user 自然。*
-*跑 3-5 個 task 後回頭看，調整 prompt、迭代至 v0.2。*
+*（歷史註記：上面兩行寫於 v0.1.2 當時。本檔現為 CORE **2.0** 的 phase 1-2 細節檔；lifecycle 全貌與現行規則以 `MTM-CORE.md` 為準。）*

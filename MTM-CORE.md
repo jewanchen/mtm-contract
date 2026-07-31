@@ -1,4 +1,6 @@
-# MTM v0.7 — CORE
+# MTM 2.0 — CORE
+
+> **MTM = machine to machine**（機器對機器）。契約是一種**交接格式**——目前多半是人寫給 agent，設計上同樣適用於 agent 之間；編碼會換，欄位不換。
 
 > **一條 lifecycle 的單一規格。** 取代「Contract / Arch / Verify 三份各自為政」的心智模型——它們其實是同一條 pipeline 的三個 phase。
 > 為 agentic AI coding 設計，對治兩個復發失效：**hallucination**（叫不存在的 API/entity）與 **architectural drift**（step 3 的決定被 step 15 默默推翻）。
@@ -184,5 +186,6 @@ MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四
 
 ---
 
-*MTM v0.7 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。*
-*v0.2 #1–#7 / v0.3 #9–#11 / v0.4 #12（綠地 Plan）/ v0.5 #13（客戶核心需求優先，invariant 7，由 bass-app A/B 對照實驗得出）/ v0.6 #14（case-ledger append 硬 gate）/ v0.7 #15（綠地 Plan 開場「先問目的」+ discovery 覆蓋）。#8 仍 pending。*
+*MTM 2.0 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
+***版號沿革**：2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
+*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）。#8 仍 pending。*

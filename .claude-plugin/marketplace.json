@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mtm-contract",
+  "description": "MTM Contract — a contract-first discipline for delegating implementation to AI agents. Put the cheap checks before the expensive generation.",
+  "owner": {
+    "name": "Vast Intelligence Limited",
+    "email": "jeremy.chen@vastitw.com"
+  },
+  "plugins": [
+    {
+      "name": "mtm",
+      "description": "Classify a task by observable triggers, ground your assumptions before generating code, enumerate what an ambiguous request could mean instead of guessing, never mark a check passed on a promise, and get a clean-context review before merging risky work. Ships a zero-dependency validator that enforces the mechanical half.",
+      "author": {
+        "name": "Vast Intelligence Limited",
+        "email": "jeremy.chen@vastitw.com"
+      },
+      "source": "./plugins/mtm",
+      "category": "development",
+      "homepage": "https://github.com/jewanchen/mtm-contract"
+    }
+  ]
+}

@@ -125,10 +125,10 @@ Ask by making the future imaginable — "you get a new phone: is your work still
 Documents do not enforce themselves. After writing or updating a contract:
 
 ```bash
-python3 ~/.claude/skills/mtm/scripts/validate.py contracts/<file>.md
+python3 <this-skill-directory>/scripts/validate.py contracts/<file>.md
 ```
 
-(That is the path for a user-level install. For a project-level install it is `.claude/skills/mtm/scripts/validate.py`.)
+The script sits beside this file. Resolve the directory from wherever this skill was loaded — `~/.claude/skills/mtm/` for a copied-folder install, somewhere under `~/.claude/plugins/` for a plugin install. If you are unsure, `find ~/.claude -name validate.py -path '*mtm*'` settles it once; remember the answer for the session.
 
 It fails on: a missing or unfilled `status` header, a required section left blank or still holding template placeholders, a precondition with no `verified_by`, a clause marked `PASS` whose `observed_result` is empty or still a promise, and implementation begun with preconditions open. It warns when the declared tier looks understated for the contract's own content.
 

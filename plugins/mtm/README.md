@@ -6,10 +6,23 @@ Copy one folder. After that you keep delegating work in plain language — the a
 
 ## Install
 
+In Claude Code, two commands:
+
+```
+/plugin marketplace add jewanchen/mtm-contract
+/plugin install mtm@mtm-contract
+```
+
+That is the whole installation. Nothing to build, nothing to configure, no dependencies — the bundled validator is Python 3 standard library only.
+
+### Or copy the folder
+
+If you would rather read the files first, use a different agent, or keep it scoped to one repository:
+
 ```bash
 git clone https://github.com/jewanchen/mtm-contract.git
 mkdir -p ~/.claude/skills
-cp -r mtm-contract/skill/mtm ~/.claude/skills/
+cp -r mtm-contract/plugins/mtm/skills/mtm ~/.claude/skills/
 ```
 
 Verify it landed:
@@ -18,10 +31,8 @@ Verify it landed:
 python3 ~/.claude/skills/mtm/scripts/validate.py --help
 ```
 
-That is the whole installation. Nothing to build, nothing to configure, no dependencies — the bundled validator is Python 3 standard library only.
-
 - `~/.claude/skills/` makes it available in every project.
-- `<your-project>/.claude/skills/` scopes it to one repository, if you would rather try it somewhere contained first.
+- `<your-project>/.claude/skills/` scopes it to one repository.
 
 ## Using it
 
@@ -32,7 +43,10 @@ To invoke it deliberately, type `/mtm`.
 To check a contract by hand, or wire the check into CI:
 
 ```bash
+# copied-folder install
 python3 ~/.claude/skills/mtm/scripts/validate.py contracts/*.md
+# plugin install — ask the agent for the path, or find it with:
+find ~/.claude/plugins -name validate.py -path '*mtm*'
 ```
 
 It exits non-zero on: a missing or unfilled `status` header, a required section left blank or still holding template placeholders, a precondition with no `verified_by`, a clause marked `PASS` whose `observed_result` is empty or still a promise, and implementation begun with preconditions open. It warns when the declared tier looks understated for the contract's own content. Warnings do not fail the run.

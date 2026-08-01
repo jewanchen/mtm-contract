@@ -1,0 +1,9 @@
+{
+  "name": "mtm",
+  "description": "Contract-first discipline for delegating implementation to an agent, with a bundled zero-dependency validator.",
+  "author": {
+    "name": "Vast Intelligence Limited",
+    "email": "jeremy.chen@vastitw.com"
+  },
+  "homepage": "https://github.com/jewanchen/mtm-contract"
+}

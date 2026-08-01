@@ -58,6 +58,8 @@ That's it. No SDK, no plugin, no language lock-in. The methodology is the file.
 
 Heavier work — schema changes, permissions, anything touching money or tenant visibility — gets the full [`TEMPLATE.md`](./TEMPLATE.md) and a clean-context review before merge. `MTM-LITE.md` §1 has the triggers that decide which.
 
+**Or skip the reading.** If you use Claude Code, `cp -r skill/mtm ~/.claude/skills/` installs the whole thing as agent behaviour — see [`skill/`](./skill/).
+
 ---
 
 ## What's in this repository
@@ -65,6 +67,7 @@ Heavier work — schema changes, permissions, anything touching money or tenant 
 | File | Purpose |
 |---|---|
 | [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md) | **Start here.** The 2.0 article — what the discipline buys you, why it is shaped this way, one task end to end. Traditional Chinese: [`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md). |
+| [`skill/`](./skill/) | **Install it instead of remembering it.** A Claude Skill: copy one folder into `~/.claude/skills/` and the discipline becomes your agent's default behaviour, with a bundled zero-dependency validator that enforces the parts a document cannot. |
 | [`MTM-LITE.md`](./MTM-LITE.md) | **One page, in English.** Tier triggers, the three fields, the one rule, the clean-context review, and a complete light-tier example. This is what to paste into your agent's rules file. |
 | [`MTM-CORE.md`](./MTM-CORE.md) | **2.0 specification (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. ⚠️ **Written in Traditional Chinese** — English readers should use the 2.0 article and `MTM-LITE.md`; a translation is outstanding. |
 | [`EVOLUTION.md`](./EVOLUTION.md) | **How this specification changes itself.** Case ledger → proposal queue → human gate → changelog; no rule takes effect without a person approving it. ⚠️ Traditional Chinese — the English summary is §12 of the 2.0 article. |

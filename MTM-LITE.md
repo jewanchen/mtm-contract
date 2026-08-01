@@ -2,6 +2,8 @@
 
 **The version you can start with on Monday.** Paste this into your agent's rules file (`CLAUDE.md`, `.cursorrules`, or your project's system prompt), or just keep it open while you work.
 
+> Using Claude Code? `cp -r skill/mtm ~/.claude/skills/` installs all of this as agent behaviour, with a validator that enforces the mechanical parts. See [`skill/`](./skill/).
+
 MTM is *machine to machine*: a contract is a handoff format — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
 
 Why it exists: agent-assisted work is not usually limited by how fast the agent writes code. It is limited by how often it writes the *wrong* code, and by what it costs to discover that afterwards. Everything below moves the cheap checks in front of the expensive generation.

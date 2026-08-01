@@ -395,6 +395,8 @@ That is the whole minimum. It fits in a few lines, and in our experience it capt
 
 **Wrapping it around your existing tools.** The specification is a markdown file, so the delivery mechanism is whatever your setup reads: instructions to your agent about how to behave, a rules file your editor loads automatically, or a starting prompt you paste once per project. Same core, different envelope. Nothing to install.
 
+For Claude Code specifically there is a packaged version — copy one folder into `~/.claude/skills/` and the behaviour above becomes the default, with the validator described below bundled alongside it. See [`skill/`](./skill/).
+
 **Enforcement.** Some parts of this are mechanically checkable — no empty fields, no clause marked passing while its evidence is a promise, no task closed without a ledger line — and §12 is the argument for why checking them matters more than documenting them. That tooling is deliberately downstream of the specification rather than bundled with it: it belongs in continuous integration and in advanced setups, not in the path of someone trying the method for the first time.
 
 **If you would like to test it properly.** The most useful contribution is not adoption — it is a replication we cannot run ourselves: the same tasks, on a different codebase, with and without the discipline, judged by someone who did not write it.

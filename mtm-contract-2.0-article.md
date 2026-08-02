@@ -8,7 +8,7 @@ Fewer wrong turns, less rework, more of the work correct on the first pass, and 
 **Published:** July 30, 2026
 **Author:** Vast Intelligence Limited
 **The name:** MTM is *machine to machine*. A contract is a handoff format — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
-**Specification version:** 2.0 — one lifecycle, a greenfield branch, and an evolution engine. Reference implementation: [`MTM-CORE.md`](./MTM-CORE.md) (currently in Traditional Chinese; English readers start with [`MTM-LITE.md`](./MTM-LITE.md))
+**Specification version:** 2.0 at publication; currently **2.1**, which adds the invariant described in §9. One lifecycle, a greenfield branch, and an evolution engine. Reference implementation: [`MTM-CORE.md`](./MTM-CORE.md) (currently in Traditional Chinese; English readers start with [`MTM-LITE.md`](./MTM-LITE.md))
 **Repository:** github.com/jewanchen/mtm-contract
 **License:** Apache 2.0 ([`LICENSE`](./LICENSE)), attribution required ([`NOTICE`](./NOTICE))
 **繁體中文版本：** [`mtm-contract-2.0-article.zh-TW.md`](./mtm-contract-2.0-article.zh-TW.md)
@@ -291,6 +291,18 @@ What this actually catches, from four consecutive high-risk batches in one week 
 Two disciplines make the audit useful rather than decorative. It reports and does not fix, so findings go back to whoever owns the work instead of being quietly patched by the reviewer. And its most severe verdict is not "this is broken" but **"this works and violates the design that was agreed"** — because code that works while contradicting a recorded decision is the failure that compounds.
 
 **The honest bound:** this independence is context-level, not organizational. A fresh agent context with no memory of the implementation is demonstrably good at finding gaps the author cannot see. It is not a second team, and it is not immune to the blind spots of the model family it belongs to.
+
+### Findings are input to your judgement, not a verdict
+
+The review's value comes from a restricted view — and the same restriction means it **cannot see intent**. It was given the contract, the decisions, and the diff. It was not given the conversation in which something was deliberately chosen.
+
+So when the report arrives, the person or agent holding the full context owes it a judgement, not compliance. One question per finding: **is this a defect, or a decision?**
+
+A defect you fix. A decision is not yours to reverse — state the original reason and put the choice back to whoever made it. Quietly reverting something that was decided is the most expensive form of compliance, because it looks like rigour while discarding the one thing the delegating human was still contributing.
+
+Two guards keep this from becoming a shield. **Symmetric burden**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands.
+
+Afterwards, write the reason where the next reviewer will see it. A finding that collides with an unrecorded decision is itself a signal: that decision was under-recorded.
 
 ---
 

@@ -1,4 +1,4 @@
-> **本檔為 `MTM-CORE.md`（現行規格 **2.0**）的 phase 1-2（Ground / Escalate / ADR）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；本檔保留作架構對話的展開規格。Stage E Layer 2（架構自審）已併入 CORE phase 6 的獨立 Verify。
+> **本檔為 `MTM-CORE.md`（現行規格 **2.1**）的 phase 1-2（Ground / Escalate / ADR）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；本檔保留作架構對話的展開規格。Stage E Layer 2（架構自審）已併入 CORE phase 6 的獨立 Verify。
 
 # MTM Arch — 架構先行版的 MTM Contract
 

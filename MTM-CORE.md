@@ -1,4 +1,4 @@
-# MTM 2.0 — CORE
+# MTM 2.1 — CORE
 
 > **MTM = machine to machine**（機器對機器）。契約是一種**交接格式**——目前多半是人寫給 agent，設計上同樣適用於 agent 之間；編碼會換，欄位不換。
 
@@ -26,6 +26,15 @@
    - 與 #11 的關係：「便宜的可延後」只適用**次要**功能；**核心體驗需求永不延後**。
    - 警訊（altitude error）：架構顧得很好、卻把使用者「來就是為了這個」的東西擺成 placeholder——結構對、但沒交付他真正要的。
    - 證據：bass-app A/B 對照——無 MTM 版用線上 soundfont 當場交付「真實音色」，MTM 版只擺合成佔位，在使用者字面核心需求上輸了。
+8. **已知不得棄守（v2.1 · #18）。** 不准丟棄你**已經確立**的東西。當帶著自信的外部輸入（獨立審查 findings / CI / linter / subagent 回報 / 文件 / 另一個模型的意見）與**先前的決定**衝突時，**必須先取出並說出當初的理由，才能對它動作**；說不出理由就據實說「當初沒有理由，是疏忽」——那也是資訊。
+   - **與 invariant 6 成對**：6 說「不准宣稱你沒查的」，8 說「不准丟棄你已經知道的」。兩者都是**不使用手上的證據**，方向相反；只寫其中一條，失效就從另一邊發生。
+   - **審查者是證人，不是裁判**：它的位置**刻意**被限制（只給 contract / 決策 / diff），所以它**系統性看不見意圖**。findings 是**判斷的輸入**，不是判決。有 context 的一方負責判斷。
+   - **一個問題就夠**：這條 finding 撞到的是**缺陷**還是**決定**？撞缺陷 → 修。**撞決定 → 不歸執行者翻，上呈。**（這不是新原則，是把既有的「不自決」套用到它原本漏掉的地方——phase 6 一直在違反 MTM 自己的升級決策原則。）
+   - **對稱舉證**：要**接受**一條 finding，說得出**它會怎麼壞**；要**拒絕**，指得出**當初的決定**。「審查者說的」不是理由，「我有我的考量」也不是。
+   - **自我檢驗**：**說不出理由的就不是決定，是疏忽。** 當場、不編造地說出理由，這兩者才會分開。
+   - **上游閉環**：一條 finding 撞到「沒被記錄的決定」，這件事本身就是訊號——那個決定記錄不足。處理完把理由補進 `grounding` / 決策紀錄，下次審查者看得到，同一條不會再被提。
+   - **為什麼會越來越要緊**：模型越強，審查報告越有結構、越有說服力、越難反駁——**審查者越強，順從的代價越高、也越難抗拒**。
+   - 證據：2026-08-02 一次獨立審查指出某數字「無出處」（它在 corpus 裡確實找不到），執行者當場移除；但該數字有出處，只是**不在審查者拿得到的三樣東西裡**。把「看不到」讀成「不存在」＝棄守已知。同批另有一次把**刻意的編輯決定**當成缺陷改掉。
 
 ---
 
@@ -86,6 +95,8 @@
 
 ### Phase 6 · Verify（獨立 context——這是 gate，不是自評）
 **必須換一個乾淨的 agent**（subagent / 另開 session），只餵三樣：contract、ADR、git diff。不准是 executor 對話的延續（否則 auditor 帶著 executor 的 rationalization = 表演）。產出 §6 報告。`ARCH_VIOLATED`（能跑但違反 ADR/contract）是唯一最重判定，需 rollback 或立即 ADR 修訂。
+
+**收到 findings 之後（v2.1 · #18，硬規則）**：auditor 是**證人不是裁判**——它的視野是刻意被限制的，因此**看不見意圖**。executor 握有 context，判斷責任在 executor：逐條問「撞到的是**缺陷**還是**決定**？」撞缺陷就修；**撞到決定不歸 executor 翻，上呈 user**（同 phase 2「不自決」）。接受要說得出它會怎麼壞，拒絕要指得出當初的決定；**說不出理由的就不是決定、是疏忽**。處理完把理由補回 `grounding` / ADR，讓下一輪審查看得到。詳見 invariant 8。
 > v0.1 的「Stage E Layer 2 自評四題」併入此處：self-check（phase 5）留給 executor，audit（phase 6）交獨立 agent。同一個「audit」不再分裂在兩份文件。
 
 ---
@@ -186,6 +197,6 @@ MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四
 
 ---
 
-*MTM 2.0 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
-***版號沿革**：2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
-*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）。#8 仍 pending。*
+*MTM 2.1 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
+***版號沿革**：2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
+*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）。#8 · #16 · #17 仍 pending。*

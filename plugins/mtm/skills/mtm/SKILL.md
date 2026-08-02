@@ -108,7 +108,17 @@ recorded decision. Report only — do not fix anything.
 
 You cannot do this yourself in the working session. The reasoning that produced a gap is the reasoning that would review it.
 
-The reviewer **reports and does not fix**, and its most severe verdict is not "this is broken" but **"this works and contradicts what was agreed."** Then act on the findings and tell the user only what is actionable for them.
+The reviewer **reports and does not fix**, and its most severe verdict is not "this is broken" but **"this works and contradicts what was agreed."**
+
+**Then adjudicate — do not simply comply.** The reviewer is a *witness*, not a judge: its view was deliberately restricted to the contract, the decisions, and the diff, so it **cannot see intent**. You hold the context, so the judgement is yours. Ask one question of each finding: **is this a defect, or a decision?**
+
+- **A defect** — fix it.
+- **A decision** — it is not yours to reverse. State the original reason, put the options to the user, and let them decide. Silently reverting something the user decided is the most expensive kind of compliance, because it looks like rigour.
+- **Symmetric burden**: to accept a finding, say what would break. To reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons".
+- **Self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight. Fix it.
+- Afterwards, write the reason into `grounding` or the decision record, so the next reviewer does not raise it again. A finding that collides with an unrecorded decision is itself a signal: that decision was under-recorded.
+
+Then tell the user only what is actionable for them.
 
 ## 7. Starting from nothing
 

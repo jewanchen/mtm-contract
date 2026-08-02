@@ -8,7 +8,7 @@ Fewer wrong turns, less rework, more of the work correct on the first pass, and 
 **Published:** July 30, 2026
 **Author:** Vast Intelligence Limited
 **The name:** MTM is *machine to machine*. A contract is a handoff format — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
-**Specification version:** 2.0 at publication; currently **2.3**, which adds the invariant described in §9, a debug branch for symptoms whose scope is not yet known, the rule that a gate is only hard if something mechanically enforces it, and a check that the work asked for actually serves the purpose the person stated. One lifecycle, a greenfield branch, and an evolution engine. Reference implementation: [`MTM-CORE.md`](./MTM-CORE.md) (currently in Traditional Chinese; English readers start with [`MTM-LITE.md`](./MTM-LITE.md))
+**Specification version:** 2.0 at publication; currently **2.4**, which adds the invariant described in §9 (and the requirement that a decision cited against a finding must itself be grounded), a debug branch for symptoms whose scope is not yet known, the rule that a gate is only hard if something mechanically enforces it, and a check that the work asked for actually serves the purpose the person stated. One lifecycle, a greenfield branch, and an evolution engine. Reference implementation: [`MTM-CORE.md`](./MTM-CORE.md) (currently in Traditional Chinese; English readers start with [`MTM-LITE.md`](./MTM-LITE.md))
 **Repository:** github.com/jewanchen/mtm-contract
 **License:** Apache 2.0 ([`LICENSE`](./LICENSE)), attribution required ([`NOTICE`](./NOTICE))
 **繁體中文版本：** [`mtm-contract-2.0-article.zh-TW.md`](./mtm-contract-2.0-article.zh-TW.md)
@@ -306,7 +306,7 @@ So when the report arrives, the person or agent holding the full context owes it
 
 A defect you fix. A decision is not yours to reverse — state the original reason and put the choice back to whoever made it. Quietly reverting something that was decided is the most expensive form of compliance, because it looks like rigour while discarding the one thing the delegating human was still contributing.
 
-Two guards keep this from becoming a shield. **Symmetric burden**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands.
+Two guards keep this from becoming a shield. **Symmetric burden**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands. If you *can* state it, ask whether that reason was ever checked. A decision resting on an unverified premise counts as an oversight too; otherwise this rule ends up shielding exactly the failure the review exists to expose.
 
 Afterwards, write the reason where the next reviewer will see it. A finding that collides with an unrecorded decision is itself a signal: that decision was under-recorded.
 

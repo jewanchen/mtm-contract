@@ -112,4 +112,4 @@ phase 1 只認得它讀的那幾個檔裡的 grounding(INDEX / invariants / glos
 
 ---
 
-*MTM Plan（隨 CORE 2.3）：加開場「先問目的」錨點 + discovery 覆蓋(目的→呈現/平台→誰用/情境)、不主動提延伸功能、僅綠地觸發（EVOLUTION #15，user 2026-07-05 拍板）。v0.1 三方獨立評審 GO-with-additions 定稿。*
+*MTM Plan（隨 CORE 2.4）：加開場「先問目的」錨點 + discovery 覆蓋(目的→呈現/平台→誰用/情境)、不主動提延伸功能、僅綠地觸發（EVOLUTION #15，user 2026-07-05 拍板）。v0.1 三方獨立評審 GO-with-additions 定稿。*

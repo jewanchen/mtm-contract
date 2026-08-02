@@ -127,7 +127,7 @@ The reviewer **reports and does not fix**, and its most severe verdict is not "t
 - **A defect** — fix it.
 - **A decision** — it is not yours to reverse. State the original reason, put the options to the user, and let them decide. Silently reverting something the user decided is the most expensive kind of compliance, because it looks like rigour.
 - **Symmetric burden**: to accept a finding, say what would break. To reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons".
-- **Self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight. Fix it.
+- **Self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight. And if you *can* state it, ask one more thing: **was that reason ever checked?** A decision resting on an unverified premise counts as an oversight too, and the finding stands. Rejecting a finding takes the decision *and* the grounding that closed it — otherwise this rule ends up protecting the very failure the review exists to expose.
 - Afterwards, write the reason into `grounding` or the decision record, so the next reviewer does not raise it again. A finding that collides with an unrecorded decision is itself a signal: that decision was under-recorded.
 
 Then tell the user only what is actionable for them.

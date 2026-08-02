@@ -58,7 +58,9 @@ decided: state the original reason before acting on it. The reviewer is a
 witness, not a judge — it was not shown the reasoning. Ask of each finding:
 defect, or decision? A defect I fix. A decision is not mine to reverse —
 I put it back to the person who made it. If I cannot state the reason
-without inventing one, it was not a decision and the finding stands.
+without inventing one, it was not a decision and the finding stands. If I
+can state it, I check whether that reason was ever verified — a decision
+resting on an unchecked premise counts the same way.
 ```
 
 ---

@@ -1,4 +1,4 @@
-# MTM 2.1 — CORE
+# MTM 2.2 — CORE
 
 > **MTM = machine to machine**（機器對機器）。契約是一種**交接格式**——目前多半是人寫給 agent，設計上同樣適用於 agent 之間；編碼會換，欄位不換。
 
@@ -64,6 +64,13 @@
 > **T3 不可自降。** 「寫 contract 比寫 code 久 → 降級」只適用 T0↔T1，不適用 T2/T3。
 
 **最小可行 contract（v0.3 · #11）**：T1 預設只填三條**承重欄**——`intent` + `escalation/candidate-set` + `affected_layers`——讓高價值的 20% 摩擦趨近零、永遠不會因嫌麻煩連它一起跳過。其餘欄位（schema_assumptions / cross_module / test_plan…）強模型本來就會做，T1 可省，T2/T3 才補滿。
+
+### Phase 0-Debug · 症狀分支（v2.2 · #17）
+**為什麼需要**：分級表整個靠**已知 scope**（碰不碰 auth / 有無 migration / 跨幾個 domain / 改幾個檔），但 **bug 的 scope 未知才叫 bug**——症狀進來時，「會動到哪」正是要查出來的東西，不是拿來分級的輸入。表在這裡分不了級。
+**觸發（可觀察，二擇一即可；避免每個 bug 都上儀式）**：①**已經試修過一輪但沒解**；②症狀是「**某個值不對**」而根因未確立。都沒命中 → 照常走 T0/T1。
+**最小 debug 契約（只四欄）**：`symptom`（可觀察）/ `prior_guesses`（**連同各自的結果**，防重複繞圈）/ `preconditions`（每條附**可執行**的驗證步驟）/ `evidence_source`（**在形成假設之前**先寫下證據要從哪來）。`affected_layers` 標 `UNKNOWN: 直到 PC 閉合`。
+**一條硬規則**：**第一輪沒解 → 停止改 code**，先確立一個事實。連續猜測會留下殘渣，讓後面的輪次比前面更糟。
+**閉合後**：根因確立 → 回 phase 0 用**已知的** scope 重新分級（多數 bug 修起來是 T1，少數會跳 T3）。
 
 ### Phase 0-Plan · 綠地分支（v0.4 · 細節見 `MTM-Plan.md`）
 **觸發（可觀察雙訊號）**：`project-architecture/` 空且無 source tree **且** 請求是「要做一個產品」而非「對既有東西的範圍變更」。小白與否不另設 gate——使用者已自定的 fork 逐條 fast-path 跳過。
@@ -193,10 +200,15 @@ MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四
 3. **討論 gate**：提案**不自動生效**。跟 user 討論後才 promote 進 CORE——進化的 gate 在人，不在 AI。
 4. **Changelog + 版本 bump**：promote 時記 changelog、bump 版本。
 
+**規則要硬，必須有機械執行點（v2.2 · #16）**：在規格裡寫「強制」不會讓它變成強制。#14 把 ledger append 從軟紀律升成硬 gate，**一個月後仍有連續 10 個符合條件的 task 沒 append**——規則全程都在規格裡。故：**沒有機械執行點的硬 gate，本質上仍是軟紀律。**
+
+> 這條有第二半，而且更重要：**執行點必須對著「自己文件所教的排版」測過。** 證據：本專案夾帶的驗證器，招牌檢查只在 `PASS` 與 `observed_result` **同一行**時觸發，而自己的模板刻意把它們分行寫——於是「每條 PASS、每個證據都是承諾」的關鍵級契約乾淨通過。**一個沉默放行的 gate，信任損失大於沒有 gate**，因為它把未驗的工作洗成看起來審過的。
+> 操作上：宣稱強制的規則，要嘛給它一個**會 fire** 的檢查（CI / 腳本 / 工具），要嘛在規格裡誠實降級成「建議」。兩者之間沒有第三種誠實的狀態。
+
 這就是 MTM 自己的 `revisit_trigger / needs_revisit` 反身套用：方法論被它自己的紀律治理。
 
 ---
 
-*MTM 2.1 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
-***版號沿革**：2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
-*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）。#8 · #16 · #17 仍 pending。*
+*MTM 2.2 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
+***版號沿革**：2.2 = 2.1 + phase 0-Debug（#17）+ 硬 gate 需機械執行點（#16）；2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
+*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）/ #16 · #17（v2.2）。**#8 掛畢業條件、未升**。*

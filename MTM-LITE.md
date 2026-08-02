@@ -48,7 +48,17 @@ observed value — or write UNVERIFIED. "Pending" is never a pass.
 A green build is a prediction, not an observation.
 
 When a fix does not work on the first attempt: stop changing code and
-establish one fact first.
+establish one fact first. A bug cannot be classified by the table above —
+its scope is what I do not know yet. Write symptom / prior guesses AND
+their results / preconditions with an executable check each / where the
+evidence will come from, decided before the hypothesis.
+
+When a review or any other confident input contradicts something already
+decided: state the original reason before acting on it. The reviewer is a
+witness, not a judge — it was not shown the reasoning. Ask of each finding:
+defect, or decision? A defect I fix. A decision is not mine to reverse —
+I put it back to the person who made it. If I cannot state the reason
+without inventing one, it was not a decision and the finding stands.
 ```
 
 ---
@@ -67,6 +77,18 @@ Decide by **observable triggers**, not by how risky it feels. Feelings degrade e
 Any trigger hit promotes the task. **The agent may not argue it back down**, and critical never self-demotes.
 
 The old rule of thumb — *if writing the contract takes longer than writing the code, skip the contract* — still applies, but only between Trivial and Local. A migration does not become Local because the contract felt long.
+
+**The table cannot classify a bug.** Every trigger above keys off scope, and a bug's scope is exactly what you do not know yet — that is what makes it a bug. So there is one route around the table: **a fix has already failed once, or a value is displaying wrong and the cause is not established.** Do not change code again. Write four fields instead:
+
+```markdown
+## symptom          <what is observably wrong>
+## prior_guesses    <each attempt AND its result — this is what stops you circling>
+## preconditions    <each with the executable check that would settle it>
+## evidence_source  <where the evidence comes from — decided BEFORE the hypothesis>
+## affected_layers  UNKNOWN: until the preconditions close
+```
+
+Then, once the cause is established, come back and classify normally with the scope you now know.
 
 ## 2. The three fields
 
@@ -164,7 +186,9 @@ If you are adopting this solo and only want what pays for itself immediately, sk
 
 ## 6. When to skip all of this
 
-Typos, copy and styling, version bumps, a one-line fix whose cause you have already established, and exploratory work that will not produce a commit.
+Typos, copy and styling, version bumps, a one-line fix **whose cause you have already established**, and exploratory work that will not produce a commit.
+
+Note the emphasis: a fix is skippable once you *know* the cause. The expensive case is the one where you do not — and that case has its own four fields in §1, not an exemption.
 
 And the honest part: this reduces wrong turns, it does not eliminate them. First-draft contracts tend to over-engineer — expect to write a simpler second version. Being thorough can delay shipping. See §11 of the article for what got through anyway.
 

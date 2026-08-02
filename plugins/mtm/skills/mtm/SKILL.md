@@ -92,6 +92,18 @@ Three corollaries, each of which has cost somebody an afternoon:
 
 - **A green build is a prediction, not an observation.** For anything deployed, ask the running service which commit it is on. For a new persisted entity, start the service against a real database before calling it done — type checks, builds, and DI smoke tests do not reach the failure.
 - **When a fix does not work on the first attempt, stop changing code.** Establish one fact first — a query, a search, a device log. Consecutive guesses leave residue that makes later rounds worse than earlier ones.
+**When the symptom arrives and the cause is not established, write four fields before touching code** — the tier table cannot classify a bug, because a bug's scope is exactly what you do not know yet:
+
+```markdown
+## symptom            <what is observably wrong>
+## prior_guesses      <each attempt AND its result — this is what stops you circling>
+## preconditions      <each with the executable check that would settle it>
+## evidence_source    <where the evidence will come from — decided BEFORE the hypothesis>
+## affected_layers    UNKNOWN: until the preconditions close
+```
+
+Once the cause is established, go back and classify normally with the scope you now know.
+
 - **For a wrong-value bug, enumerate every place that value is produced and read all of them.** Not one hypothesis — all producers. A fallback added to a shared helper does not fix the copies that never call it. And choose where the evidence will come from *before* forming the hypothesis; five preconditions checked against the weakest available source produce a confidently wrong contract.
 
 ## 6. Critical work gets a clean-context review
@@ -141,6 +153,8 @@ python3 <this-skill-directory>/scripts/validate.py contracts/<file>.md
 The script sits beside this file. Resolve the directory from wherever this skill was loaded — `~/.claude/skills/mtm/` for a copied-folder install, somewhere under `~/.claude/plugins/` for a plugin install. If you are unsure, `find ~/.claude -name validate.py -path '*mtm*'` settles it once; remember the answer for the session.
 
 It fails on: a missing or unfilled `status` header, a required section left blank or still holding template placeholders, a precondition with no `verified_by`, a clause marked `PASS` whose `observed_result` is empty or still a promise, and implementation begun with preconditions open. It warns when the declared tier looks understated for the contract's own content.
+
+**A gate you have not tested is worse than no gate.** Before trusting any mechanical check — this one or your own — run it against the layout your own documentation teaches. This validator originally missed its own headline rule because it only fired when `PASS` and `observed_result` were on the same line, while the template puts them on separate lines by design. A check that silently passes unverified work launders it into something that looks audited, and you stop reading the contract. Either a rule has an enforcement point that demonstrably fires, or it is a recommendation — there is no honest state in between.
 
 **Be clear about what it cannot do.** It cannot tell whether you actually ran a check — nothing can. It tells you whether you claimed a pass without recording an observation. A clean run means "nothing is obviously unclosed", never "this was verified". Do not let a green line stand in for the review in §6.
 

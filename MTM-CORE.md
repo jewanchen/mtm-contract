@@ -1,4 +1,4 @@
-# MTM 2.2 — CORE
+# MTM 2.3 — CORE
 
 > **MTM = machine to machine**（機器對機器）。契約是一種**交接格式**——目前多半是人寫給 agent，設計上同樣適用於 agent 之間；編碼會換，欄位不換。
 
@@ -74,7 +74,7 @@
 
 ### Phase 0-Plan · 綠地分支（v0.4 · 細節見 `MTM-Plan.md`）
 **觸發（可觀察雙訊號）**：`project-architecture/` 空且無 source tree **且** 請求是「要做一個產品」而非「對既有東西的範圍變更」。小白與否不另設 gate——使用者已自定的 fork 逐條 fast-path 跳過。
-**做什麼**：**開場第一步先問一個開放的目的題**（「你做這個最想達成什麼?」）定靈魂與方向（接 invariant 7）；此為**唯一**預設開放問的題（v0.7 · #15，僅綠地、不主動提延伸功能），答案接線進 handoff 當「靈魂註記」並決定哪些 fork 先問、哪個 feature 受 invariant 7 保護，答得空泛就退回 fork 機制不盤問。再攤**難回頭**的地基 fork（裝置能力·平台 / 資料持久·跨裝置 / 孤島vs整合 / 單人vs多人 / 租戶隔離 / 法規·落地），便宜的自己推 default 收進「我先這樣假設」區塊；難回頭的用「想像 A vs B 你是哪個」逼使用者選、不用「對嗎」逼點頭；4 個永不靜默 default（持久·跨裝置 / 多人登入 / 誰看得到誰 / 碰錢或他人個資）。確認用「第一天能做/還不能做」而非骨架。
+**做什麼**：**開場第一步先問一個開放的目的題**（「你做這個最想達成什麼?」）定靈魂與方向（接 invariant 7）；此為**唯一**預設開放問的題（v0.7 · #15，僅綠地、不主動提延伸功能），答案接線進 handoff 當「靈魂註記」並決定哪些 fork 先問、哪個 feature 受 invariant 7 保護，答得空泛就退回 fork 機制不盤問。**目的也回頭檢查請求本身（v2.3 · #19）**：交代的東西與剛講的目的**明顯矛盾**時，把矛盾攤出來問——不照做、也不自決；門檻守在「明顯矛盾」（放寬會退化成對每個請求都反問的 cry-wolf），且**輸出是問題不是拒絕**。再攤**難回頭**的地基 fork（裝置能力·平台 / 資料持久·跨裝置 / 孤島vs整合 / 單人vs多人 / 租戶隔離 / 法規·落地），便宜的自己推 default 收進「我先這樣假設」區塊；難回頭的用「想像 A vs B 你是哪個」逼使用者選、不用「對嗎」逼點頭；4 個永不靜默 default（持久·跨裝置 / 多人登入 / 誰看得到誰 / 碰錢或他人個資）。確認用「第一天能做/還不能做」而非骨架。
 **分界線（Plan fork vs phase-2 candidate-set）**：Plan fork 的答案決定**會有哪些 domain/entity**（先於、生成資料模型）；phase-2 是把 intent 對映到**已決定的模型**上。測試：「有資料模型可列舉候選嗎？」沒有→Plan、有→phase-2。
 **Handoff（硬性）**：Plan 把結論寫成 phase 1 的詞彙——`invariants.md`（不可逆 fork 寫成硬規則）/ `domains/` / `glossary.md` / `decisions/`（每個帶 trade-off 的 fork 一份 seed ADR）/ `INDEX.md`，未解 fork 一律 `UNKNOWN: <why>`。phase 1 於是 fast-path，不重問。**Plan 絕不自決 fork，問不出來就標 UNKNOWN，不准猜。**
 
@@ -209,6 +209,6 @@ MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四
 
 ---
 
-*MTM 2.2 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
-***版號沿革**：2.2 = 2.1 + phase 0-Debug（#17）+ 硬 gate 需機械執行點（#16）；2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
-*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）/ #16 · #17（v2.2）。**#8 掛畢業條件、未升**。*
+*MTM 2.3 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
+***版號沿革**：2.3 = 2.2 + 目的回頭檢查請求（#19）；2.2 = 2.1 + phase 0-Debug（#17）+ 硬 gate 需機械執行點（#16）；2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
+*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）/ #16 · #17（v2.2）/ #19（v2.3）。**#8 掛畢業條件、未升**。*

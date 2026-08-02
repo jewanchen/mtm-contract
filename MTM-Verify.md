@@ -1,4 +1,4 @@
-> **本檔為 `MTM-CORE.md`（現行規格 **2.2**）的 phase 6（獨立 audit）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；CORE §6 的「10 失效 ↔ 該擋它的欄位」脊椎是查核主軸，本檔保留作 Auditor Agent 的行為規格與流程展開。
+> **本檔為 `MTM-CORE.md`（現行規格 **2.3**）的 phase 6（獨立 audit）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；CORE §6 的「10 失效 ↔ 該擋它的欄位」脊椎是查核主軸，本檔保留作 Auditor Agent 的行為規格與流程展開。
 
 # MTM Verify — 系統化的獨立審計機制 (Auditor Agent)
 

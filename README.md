@@ -23,7 +23,7 @@ What that buys you, concretely. A join starts returning nothing for records that
 
 The contract does not make you smarter. It makes you write down what must be true and how you checked it, *before* the agent generates anything — so the query happens in minute one instead of minute forty. That is the whole idea, and [§10 of the 2.0 article](./mtm-contract-2.0-article.md#10-seven-situations-where-it-pays) has six more shapes of it.
 
-Since then the specification has moved to **2.2**: one unified lifecycle, a greenfield branch, and an evolution engine — built around a single idea, *put the cheap checks before the expensive generation*.
+Since then the specification has moved to **2.3**: one unified lifecycle, a greenfield branch, and an evolution engine — built around a single idea, *put the cheap checks before the expensive generation*.
 
 ### Papers
 
@@ -69,7 +69,7 @@ Heavier work — schema changes, permissions, anything touching money or tenant 
 | [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md) | **Start here.** The 2.0 article — what the discipline buys you, why it is shaped this way, one task end to end. Traditional Chinese: [`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md). |
 | [`plugins/mtm/`](./plugins/mtm/) | **Install it instead of remembering it.** A Claude Code plugin — two commands, or copy one folder — and the discipline becomes your agent's default behaviour, with a bundled zero-dependency validator that enforces the parts a document cannot. |
 | [`MTM-LITE.md`](./MTM-LITE.md) | **One page, in English.** Tier triggers, the three fields, the one rule, the clean-context review, and a complete light-tier example. This is what to paste into your agent's rules file. |
-| [`MTM-CORE.md`](./MTM-CORE.md) | **2.2 specification (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. ⚠️ **Written in Traditional Chinese** — English readers should use the 2.0 article and `MTM-LITE.md`; a translation is outstanding. |
+| [`MTM-CORE.md`](./MTM-CORE.md) | **2.3 specification (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify. The three docs below are retained as phase-level detail. ⚠️ **Written in Traditional Chinese** — English readers should use the 2.0 article and `MTM-LITE.md`; a translation is outstanding. |
 | [`EVOLUTION.md`](./EVOLUTION.md) | **How this specification changes itself.** Case ledger → proposal queue → human gate → changelog; no rule takes effect without a person approving it. ⚠️ Traditional Chinese — the English summary is §12 of the 2.0 article. |
 | [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md) | The full methodology paper (~450 lines): failure modes, field-by-field rationale, six production task case study, AI-to-AI extension, distribution strategy, comparison to related work. |
 | [`TEMPLATE.md`](./TEMPLATE.md) | The ready-to-copy contract template, **2.0** — includes the `status` header and `observed_result`. Use this for structural and critical work; ordinary tasks need only the three fields in `MTM-LITE.md`. |

@@ -140,6 +140,8 @@ Then ask only about choices that are expensive to reverse, phrased as consequenc
 
 Ask by making the future imaginable — "you get a new phone: is your work still there, or is starting over fine?" — not by asking them to approve an architecture word. Confirm in capabilities: "on day one you can A, B, C; you cannot yet D, E." The exclusion list is what makes someone say *wait, my partner can't log in?*
 
+**Use the purpose as a check, not just as direction.** If what they are asking for **plainly contradicts** the goal they just stated, do not build it and do not quietly redesign it — put the contradiction to them: *"You said the point was X, but this would lead to Y — have I misread it, or is there something here I don't know about?"* Keep the bar at **plainly contradicts**. Widening it to "could align better" produces an agent that interrogates every request, which trains the person to skip the question, and then the one that mattered gets skipped too. And the output is a question, never a refusal — the decision stays theirs.
+
 **Never decide one of these yourself.** What you could not get an answer to is written down as `UNKNOWN: <why>`, not guessed. Write the results as the project's architecture record — invariants, domains, glossary, one note per decision that carried a trade-off — so §2 finds them already grounded.
 
 ## 8. Enforce it mechanically

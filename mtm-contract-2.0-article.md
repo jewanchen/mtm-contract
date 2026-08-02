@@ -158,6 +158,10 @@ A methodology that applies uniformly is a tax. The routing rules are the efficie
 
 This looks like bureaucracy and is the opposite. Self-assessment is the one thing that cannot be trusted here, because the judgement being asked for — "is this risky enough to be careful about?" — is exactly the judgement that carefulness exists to backstop. Under deadline pressure it degrades precisely when it matters. A short list of observable triggers is both cheaper to apply and harder to rationalize around.
 
+**The table cannot classify a bug.** Every trigger above keys off scope — and a bug's scope is exactly what you do not know yet. That is what makes it a bug. So there is one route around the table, with two observable triggers of its own: **a fix has already failed once**, or **a value is displaying wrong and the cause is not established**. When either fires, stop changing code and write four things instead — the symptom; the guesses already made *and what each one returned*; the preconditions that would settle it, each with the check that would run; and where the evidence will come from, decided *before* the hypothesis. Mark the affected layers unknown until those close, then classify normally with the scope you now have.
+
+It is a separate route rather than another tier because the expensive part of debugging is the loop, and the loop is fed by acting before establishing one fact. A tier cannot help with that; a refusal to proceed can.
+
 The rule of thumb still holds and is worth stating plainly: **if writing the contract takes longer than writing the code, you don't need a contract.** But note its scope — it is admissible only at the two lightest tiers. A schema migration does not become local because the contract felt long, and the specification says so explicitly: the critical tier cannot be self-demoted, and neither can the structural one on this argument. The tier table exists so that call is made by rule, once, rather than ad hoc every time you are in a hurry.
 
 ---
@@ -264,6 +268,8 @@ The pipeline above assumes a codebase. If you are starting from a sentence — "
 The branch has one opening question and then a short list of forks.
 
 **Ask the purpose first.** Before any fork: what are you most hoping this does for you? This is the only open-ended question the process asks by default, and its answer does real work downstream — it names the experience that must not be quietly downgraded to a placeholder, and it determines which forks matter enough to ask about. If the answer is circular, do not press; fall through to the forks.
+
+**And use the answer as a check, not only as a direction.** If what they are asking for **plainly contradicts** the goal they just stated, do not build it and do not quietly redesign it — put the contradiction to them: *"you said the point was X, but this leads to Y — have I misread it, or is there something here I don't know about?"* Keep the bar at *plainly contradicts*. Widened to "could align better", this produces an agent that interrogates every request, which teaches the person to stop reading the question — and then the one that mattered gets skipped too. The output is a question, never a refusal; the decision stays theirs.
 
 **Then only the choices that are expensive to reverse**, phrased as consequences rather than architecture. Not "do you want a backend database," but "when you get a new phone, should your work still be there, or is starting over fine?" Not "do you need multi-tenancy," but "should your partner be able to log in and see only their own part?" The forks that are cheap to change later — styling, naming, list versus cards, notification defaults — get a sensible default, collected in a visible "here's what I assumed" block rather than asked about.
 

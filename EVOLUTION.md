@@ -24,6 +24,7 @@
 **討論 gate（進 §C / CORE 的唯一路徑）**：
 - AI 白話提案（論點 + 原因 + 影響面），**user 點頭 → 即升為規則**：promote 進 `MTM-CORE.md` + 記 §C changelog + bump 版本。
 - user 想再想 / 沒當場拍 → 進 §B `pending-signoff` 停著，不入 CORE。
+- user **拍了「不升」但提案沒被廢** → `⏸ parked-pending-evidence`，並**必須同時寫下可判定的畢業條件**（什麼事發生就自動夠格升）。這一格是為了讓「已決定不升」跟「還在等你決定」長得不一樣——沒有它，一筆已拍板的提案會被誤讀成待決，下次還要再問你一次（2026-08-02 補，#8 即首例）。
 - **AI 不准自己把未點頭的 proposal 寫進 CORE。** gate 永遠在 user。
 
 **版本規則（2026-07-30 起改制為 2.x）**：
@@ -124,7 +125,7 @@ promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改
 - 改動：template 頂 `status` 塊（stage/blocked_on/unverified/open）。
 - 影響：低、純增量，對 agentic 長任務價值高。
 
-### #8 — phase 0 加第二條軸:複雜度/可拆解性(與 blast-radius 並列)  `pending-signoff`
+### #8 — phase 0 加第二條軸:複雜度/可拆解性(與 blast-radius 並列)  `⏸ parked-pending-evidence (2026-08-02)`
 - 證據:blast-radius 與複雜度正交。E9.5 高 blast **且** 高複雜度(redesign);E3.2 T2 blast 但複雜度低(grep 完單一 unknown 即清)。高 blast/低複雜度(改一行 auth)是純複雜度分析會漏、blast-radius 才抓的格子。
 - 改動:phase 0 從一條軸(T0–T3 blast)變 2 軸——blast 決定**驗證深度**、複雜度決定**拆解 + grounding 深度**;輸出綁死「拆 or 不拆」決定。
 - 訊號**具體可數**(反表演化):跨幾個 domain / intent 字面≠資料模型? / 幾個獨立 unknown / 可逆否——這四個現已散在 `confidence`+candidate-set+`SCOPE_SPLIT`,本提案是**收斂為顯式第二軸**,非新增 ceremony。

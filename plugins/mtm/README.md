@@ -15,6 +15,30 @@ In Claude Code, two commands:
 
 That is the whole installation. Nothing to build, nothing to configure, no dependencies — the bundled validator is Python 3 standard library only.
 
+### Keeping it current
+
+**Installing does not subscribe you to updates.** The marketplace is a git clone that stops fetching once added, and your plugin is pinned to the commit it was installed from — so a newer specification will not reach you on its own, and nothing will tell you that you are behind. Updating is two steps, and the first one is the one people miss:
+
+```
+/plugin marketplace update mtm-contract
+/plugin install mtm@mtm-contract
+```
+
+The same thing from a terminal, if you prefer or want it in a script:
+
+```bash
+claude plugin marketplace update mtm-contract
+claude plugin update mtm@mtm-contract
+```
+
+Restart Claude Code afterwards; the running session keeps the version it loaded. To see what you actually have:
+
+```bash
+python3 -c "import json,os;d=json.load(open(os.path.expanduser('~/.claude/plugins/installed_plugins.json')));print(d['plugins']['mtm@mtm-contract'][0]['version'])"
+```
+
+Compare it against the latest commit on `main`. The specification moves when a case forces it to, sometimes several times in a day — see [`EVOLUTION.md`](../../EVOLUTION.md) for what changed and why.
+
 ### Or copy the folder
 
 If you would rather read the files first, use a different agent, or keep it scoped to one repository:
@@ -33,6 +57,8 @@ python3 ~/.claude/skills/mtm/scripts/validate.py --help
 
 - `~/.claude/skills/` makes it available in every project.
 - `<your-project>/.claude/skills/` scopes it to one repository.
+
+A copied folder never updates itself either — `git pull` and copy again.
 
 ## Using it
 

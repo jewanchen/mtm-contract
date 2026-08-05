@@ -213,5 +213,4 @@ above as PASS / FAIL / MUTATED with a one-line reason.
 *Template version: 2.0 — Vast Intelligence Limited, 2026.*
 *Light version: [`MTM-LITE.md`](./MTM-LITE.md). Rationale per field:
 [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md) §4.
-Full specification: [`MTM-CORE.md`](./MTM-CORE.md) (written in
-Traditional Chinese).*
+Full specification: [`MTM-CORE.md`](./MTM-CORE.md).*

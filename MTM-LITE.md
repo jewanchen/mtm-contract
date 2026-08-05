@@ -8,7 +8,7 @@ MTM is *machine to machine*: a contract is a handoff format — today usually wr
 
 Why it exists: agent-assisted work is not usually limited by how fast the agent writes code. It is limited by how often it writes the *wrong* code, and by what it costs to discover that afterwards. Everything below moves the cheap checks in front of the expensive generation.
 
-Full reasoning: [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md). Full specification: [`MTM-CORE.md`](./MTM-CORE.md) — currently written in Traditional Chinese. Heavy template: [`TEMPLATE.md`](./TEMPLATE.md).
+Full reasoning: [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md). Full specification: [`MTM-CORE.md`](./MTM-CORE.md). Heavy template: [`TEMPLATE.md`](./TEMPLATE.md).
 
 ---
 

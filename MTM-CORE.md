@@ -1,217 +1,260 @@
 # MTM 2.4 — CORE
 
-> **MTM = machine to machine**（機器對機器）。契約是一種**交接格式**——目前多半是人寫給 agent，設計上同樣適用於 agent 之間；編碼會換，欄位不換。
+> **MTM = machine to machine.** A contract is a *handoff format* — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
 
-> **一條 lifecycle 的單一規格。** 取代「Contract / Arch / Verify 三份各自為政」的心智模型——它們其實是同一條 pipeline 的三個 phase。
-> 為 agentic AI coding 設計，對治兩個復發失效：**hallucination**（叫不存在的 API/entity）與 **architectural drift**（step 3 的決定被 step 15 默默推翻）。
-> v0.2 起 MTM **self-hosting**：它用自己的 `revisit_trigger` 機制隨案件經驗 + user 討論而進化（見 `EVOLUTION.md`）。
+> **One lifecycle, one specification.** This replaces the older mental model of three separate documents (Contract / Arch / Verify) — they were always three phases of the same pipeline.
+> Built for agentic AI coding, against two recurring failures: **hallucination** (calling an API or entity that does not exist) and **architectural drift** (a decision made at step 3 silently contradicted at step 15).
+> Since v0.2 MTM is **self-hosting**: it evolves from case experience plus human decision, using its own revisit mechanism (see [`EVOLUTION.md`](./EVOLUTION.md)).
 
-> 觸發詞：「用 MTM 做 ___」。fast-path 全程啟用——條件滿足的 phase 在數十秒內通過，不收 ceremony tax。
+> Trigger phrase: *"do ___ with MTM"*. Fast paths are active throughout — any phase whose condition is met passes in seconds. There is no ceremony tax.
 
-> **本檔是入口（脊椎）。** 舊三份保留為各 phase 的延伸細節：`MTM-Arch.md` = phase 1-2（grounding / 架構對話 / ADR）細節、`MTM-Verify.md` + `MTM-VERIFY-REPORT-TEMPLATE.md` = phase 6（獨立 audit）細節。先讀 CORE，需要展開某 phase 再翻對應細節檔。
-
----
-
-## 1. 核心不變式（invariants）
-
-1. **每一欄必填；`N/A` 合法；「不知道」寫成 `UNKNOWN: <為什麼>`，不准留空。**
-2. **任何 ungrounded 的關鍵斷言 → 必須 escalate。** 同一套 anti-hallucination 機制，套在 task 層（欄位 `verified_by`）與架構層（`project-architecture/` grounding）。
-3. **machinery 留在內部。** 對 user 只顯露：現在做什麼 / 為什麼 / 大概多久 / 需要你做什麼。內部標籤（confidence / DIVERGENT / ARCH_VIOLATED…）一律轉 user 語言。
-4. **artifact 外部化優於 session memory。** contract 落檔、audit 對著檔案跑——不靠對話記憶（證據：nicemeet E7.1「audit 不再依賴 session memory」）。
-5. **escalation 階段改方向，成本趨近於零；implementation 階段改方向，成本是 rollback。** 把判斷往前推。
-6. **驗證是「執行」不是「宣告」（v0.3）。** `verified_by` / `observed_result` 必須指向**本 session 真的跑過的東西**（grep/read 結果、指令輸出、測試或 build log、實際觀察值），**不准在 promise 上標 PASS**。沒真正執行的 → 醒目標 `UNVERIFIED` 並讓它活進 phase 6 audit。理由：對強模型，失效不是「不填欄位」，是「把欄位填得很有說服力、底下的查根本沒做」——填了 plausible 值的欄位跟真閉合的欄位長得一樣，這條讓它們**長不一樣**。
-7. **客戶核心需求優先（v0.5 · #13）。** 使用者**字面講出來的核心體驗需求**——那個「工具之所以存在的理由」（例：貝斯 App 的「真實貝斯音色」、相機 App 的「拍得清楚」）——是**一等交付物**，不可降級成佔位 / TODO。
-   - 現成的真實方案唾手可得時（免費取樣庫 / soundfont / 現成 API），**預設直接交付真的**，不先擺佔位。
-   - 真的必須延後 → 在 confirm 階段當**頭條「還不能做」明示**，不准默默 TODO 掉。
-   - 與 #11 的關係：「便宜的可延後」只適用**次要**功能；**核心體驗需求永不延後**。
-   - 警訊（altitude error）：架構顧得很好、卻把使用者「來就是為了這個」的東西擺成 placeholder——結構對、但沒交付他真正要的。
-   - 證據：bass-app A/B 對照——無 MTM 版用線上 soundfont 當場交付「真實音色」，MTM 版只擺合成佔位，在使用者字面核心需求上輸了。
-8. **已知不得棄守（v2.1 · #18）。** 不准丟棄你**已經確立**的東西。當帶著自信的外部輸入（獨立審查 findings / CI / linter / subagent 回報 / 文件 / 另一個模型的意見）與**先前的決定**衝突時，**必須先取出並說出當初的理由，才能對它動作**；說不出理由就據實說「當初沒有理由，是疏忽」——那也是資訊。
-   - **與 invariant 6 成對**：6 說「不准宣稱你沒查的」，8 說「不准丟棄你已經知道的」。兩者都是**不使用手上的證據**，方向相反；只寫其中一條，失效就從另一邊發生。
-   - **審查者是證人，不是裁判**：它的位置**刻意**被限制（只給 contract / 決策 / diff），所以它**系統性看不見意圖**。findings 是**判斷的輸入**，不是判決。有 context 的一方負責判斷。
-   - **一個問題就夠**：這條 finding 撞到的是**缺陷**還是**決定**？撞缺陷 → 修。**撞決定 → 不歸執行者翻，上呈。**（這不是新原則，是把既有的「不自決」套用到它原本漏掉的地方——phase 6 一直在違反 MTM 自己的升級決策原則。）
-   - **對稱舉證**：要**接受**一條 finding，說得出**它會怎麼壞**；要**拒絕**，指得出**當初的決定**。「審查者說的」不是理由，「我有我的考量」也不是。
-   - **自我檢驗（v2.4 · #20 擴充）**：**說不出理由的，不是決定、是疏忽。** 而**說得出理由的，要再問一次：那個理由當初驗過沒有？** 理由存在但沒有閉合的 grounding，**等同疏忽，finding 成立**。所以拒絕一條 finding 需要的不只是「指得出決定」，是**指得出決定＋它已閉合的依據**。
-     - 為什麼非補不可：只檢查「有沒有理由」時，一個**帶假前提的決定**會通過檢驗——於是 invariant 8 反過來**保護了它本來要防的失效**，而拆穿假前提正是獨立審查存在的理由。
-     - 成本是對的：決定當初有好好接地時，這一步幾乎零成本（指同一份 grounding）；只有**沒接地**時才貴，而那正是它該貴的時候。
-     - 這是 invariant 6 與 8 的交界：6 管**做決定當下**要執行、不要宣告；8 管**引用決定去擋 finding 的那一刻**——原本沒有任何一條管後者。
-   - **上游閉環**：一條 finding 撞到「沒被記錄的決定」，這件事本身就是訊號——那個決定記錄不足。處理完把理由補進 `grounding` / 決策紀錄，下次審查者看得到，同一條不會再被提。
-   - **為什麼會越來越要緊**：模型越強，審查報告越有結構、越有說服力、越難反駁——**審查者越強，順從的代價越高、也越難抗拒**。
-   - 證據：2026-08-02 一次獨立審查指出某數字「無出處」（它在 corpus 裡確實找不到），執行者當場移除；但該數字有出處，只是**不在審查者拿得到的三樣東西裡**。把「看不到」讀成「不存在」＝棄守已知。同批另有一次把**刻意的編輯決定**當成缺陷改掉。
+> **This file is the entry point — the spine.** The other documents are phase-level detail: [`MTM-Arch.md`](./MTM-Arch.md) for phases 1–2 (grounding, architectural dialogue, decision records), [`MTM-Verify.md`](./MTM-Verify.md) and [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md) for phase 6 (independent audit). Read CORE first; open a detail file only when you need that phase expanded.
+> 繁體中文版：[`MTM-CORE.zh-TW.md`](./MTM-CORE.zh-TW.md) · Reasoning and evidence: [the 2.0 article](./mtm-contract-2.0-article.md) · One page to start with: [`MTM-LITE.md`](./MTM-LITE.md)
 
 ---
 
-## 2. Lifecycle（0 → 6）
+## 1. Core invariants
 
-| # | Phase | 觸發 | 產出 | fast-path |
+1. **Every field gets an answer. `N/A` is legitimate. "I don't know" is written `UNKNOWN: <why>`. Blank is not an answer.**
+2. **Any ungrounded load-bearing assertion must be escalated.** The same anti-hallucination mechanism applies at task level (the `verified_by` field) and at architecture level (grounding against the project's architecture record).
+3. **Keep the machinery internal.** Show the person only: what you are doing, why, roughly how long, and what you need from them. Internal labels (confidence, `DIVERGENT`, `ARCH_VIOLATED`, …) are always translated into their language.
+4. **An externalised artifact beats session memory.** The contract lives in a file and the audit runs against that file — never against a recollection of the conversation.
+5. **Changing direction during escalation costs almost nothing; changing direction during implementation costs a rollback.** Push judgement earlier.
+6. **Verification means execution, not declaration (v0.3).** `verified_by` and `observed_result` must point at something actually run *this session* — a search result, command output, a test or build log, an observed value. **Never mark a clause `PASS` while its evidence is a promise.** Anything not actually run is marked `UNVERIFIED` and carried into the phase 6 audit as an open item.
+   - Why: with a capable model the failure is not a blank field. It is a field filled convincingly while the underlying check was never done. A plausible-looking value and a genuinely closed one look identical on the page — this rule makes them look different.
+7. **The customer's stated core need comes first (v0.5 · #13).** The core experience the person named *literally* — the reason the tool exists at all (a bass app's "real bass tone", a camera app's "sharp pictures") — is a **first-class deliverable** and may not be downgraded to a placeholder or a TODO.
+   - When a real solution is readily available (a free sample library, an existing API), **ship the real thing by default**; do not put a placeholder in front of it.
+   - If it genuinely must be deferred, say so at confirmation as **the headline "not yet possible"** item. Never a silent TODO.
+   - Relationship to #11: "cheap things can wait" applies only to *secondary* features. **A named core experience never waits.**
+   - Warning sign (an altitude error): the architecture is handled well, and the thing the user came for is a placeholder. Correct structure, wrong delivery.
+   - Evidence: a controlled A/B comparison — the build without MTM wired up a real instrument sound on the spot, the MTM-guided build shipped a synthesised placeholder, and lost on the user's literal core need.
+8. **Held context is not surrendered (v2.1 · #18).** Do not discard what you have already established. When a confident external input — an independent review's findings, a CI failure, a linter, a subagent's report, documentation, another model's opinion — contradicts a **prior decision**, you must **retrieve and state the original reason before acting on that input**. If there is no reason, say so plainly: that it was an oversight rather than a decision is itself information.
+   - **Paired with invariant 6.** Six says *do not claim what you did not check*; eight says *do not discard what you did establish*. Both are failures to use the evidence in your hands, pointed in opposite directions. Write only one and the failure arrives from the other side.
+   - **The reviewer is a witness, not a judge.** Its view is *deliberately* restricted — contract, decisions, diff — so it **cannot see intent**. Findings are input to judgement, not a verdict. Whoever holds the context owes it a judgement.
+   - **One question is enough**: does this finding hit a **defect** or a **decision**? A defect you fix. **A decision is not yours to reverse — escalate it.** This is not a new principle; it is the existing "do not decide alone" rule applied where it had been missing. Phase 6 had been violating MTM's own escalation rule.
+   - **Symmetric burden**: to *accept* a finding, say what would break. To *reject* one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons".
+   - **Self-test (extended in v2.4 · #20)**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight. And **if you can state it, ask whether that reason was ever checked.** A reason that exists but rests on unclosed grounding **counts as an oversight, and the finding stands.** Rejecting a finding takes the decision *and the grounding that closed it* — not the decision alone.
+     - Why this had to be added: checking only for the *presence* of a reason lets a decision built on a false premise pass — at which point invariant 8 **shields the very failure it was written to prevent**, while exposing false premises is the entire reason the review exists.
+     - The cost is correctly shaped: when the decision was properly grounded this step is nearly free (you point at the same grounding). It is expensive only when it was not — which is exactly when it should be.
+     - This is the boundary between invariants 6 and 8: six governs the moment a decision is *made*; eight governs the moment a decision is *cited against a finding*. Nothing had governed the latter.
+   - **Upstream loop**: a finding that collides with an *unrecorded* decision is itself a signal — that decision was under-recorded. Once handled, write the reason into `grounding` or the decision record so the next reviewer can see it and the same finding is not raised twice.
+   - **Why this gets more important, not less**: the stronger the model, the more structured, persuasive and hard to refute its review becomes — **the stronger the reviewer, the higher the cost of deference and the harder it is to resist.**
+   - Evidence: an independent review reported a figure as "unsourced" — correctly, since it was not in the corpus the reviewer was given. The executor removed it on the spot. The figure *was* sourced, just not in those three inputs. Reading "I cannot see it" as "it does not exist" is surrendering held context. In the same batch, a deliberate editorial decision was treated as a defect and changed.
+
+---
+
+## 2. The lifecycle (0 → 6)
+
+| # | Phase | Trigger | Output | Fast path |
 |---|---|---|---|---|
-| **0** | Classify | 需求進來 | blast-radius 分級 → 決定跑到哪層；**綠地一句話 → 走 Plan 分支** | trivial → 直接做，跳全部 |
-| **0-Plan** | Plan（綠地分支） | `project-architecture/` 空 **且** 一句話要一個產品 | 把難回頭的地基 fork 用生活語言問清 → 寫 `project-architecture/` + UNKNOWN 標記 → 交棒 phase 1（細節見 `MTM-Plan.md`） | 使用者已自己定的 fork 逐條 fast-path 跳過 |
-| **1** | Ground | 非 trivial | 架構斷言 grounded；不足則對話建檔進 `project-architecture/` | 全 grounded → 30 秒過（Plan 已寫好 invariants/domains/glossary 時即走此路） |
-| **2** | Escalate | 有未定 / 有選項 | 共識（選定路徑、scope、ADR 檔名） | 無歧義 → 跳過 |
-| **3** | Contract | phase 2 後 | 單一 artifact（status header + 11 欄，§4） | 完全落在既有 ADR → 引用即可 |
-| **4** | Implement | phase 3 後 | shipped code | — |
-| **5** | Self-check | phase 4 後 | 對 clause 標 PASS/FAIL/MUTATED + 填 `observed_result` | — |
-| **6** | Verify | 高 blast-radius / 動權限/安全/schema/上架 | 獨立 context 的 auditor 報告（§6） | 低風險 task → 可省略 |
+| **0** | Classify | A request arrives | Blast-radius tier → how far down the pipeline this task goes; **a greenfield one-liner routes to the Plan branch** | Trivial → just do it, skip everything |
+| **0-Plan** | Plan *(greenfield)* | No architecture record **and** the request is for a product rather than a change to something existing | The hard-to-reverse foundational choices elicited in plain language → written into the architecture record with `UNKNOWN` markers → handed to phase 1 (detail in [`MTM-Plan.md`](./MTM-Plan.md)) | Any fork the person has already decided passes individually |
+| **0-Debug** | Debug *(symptom)* | A fix already failed once, **or** a value is wrong and the cause is not established | Four-field debug contract; scope stays `UNKNOWN` until preconditions close | Neither trigger fires → classify normally |
+| **1** | Ground | Anything non-trivial | Architectural assertions grounded; gaps become questions, and the answers are filed | Everything already grounded → passes in seconds |
+| **2** | Escalate | Anything undecided or optional | Agreement: chosen path, scope, decision-record name | No ambiguity → skipped |
+| **3** | Contract | After phase 2 | One artifact (status header + the fields in §4) | Fully covered by an existing decision record → cite it |
+| **4** | Implement | After phase 3 | Shipped code | — |
+| **5** | Self-check | After phase 4 | Every clause marked `PASS` / `FAIL` / `MUTATED`, with `observed_result` filled | — |
+| **6** | Verify | High blast radius: permissions, security, schema, release | A report from an auditor in an independent context (§6) | Low-risk work → may be omitted |
 
-### Phase 0 · Classify（blast-radius 分級——「完整」= 正確分級，不是每次全做）
-| 級別 | 判準 | 跑到哪 |
+### Phase 0 · Classify
+
+"Thorough" means *correctly routed*, not *everything every time*.
+
+| Tier | Test | How far it runs |
 |---|---|---|
-| **T0 trivial** | typo / 字串 / bump / 單檔 <20 行 / 純樣式 | 不寫 contract，直接做 |
-| **T1 local** | 單模組、不碰下列任一觸發 | **最小可行 contract**（只 3 條承重欄，見下）→ 1→3→4→5 |
-| **T2 structural** | 碰 domain / boundary / 跨模組契約 / 新 entity | 完整 contract + phase 1 建檔 + phase 2 架構對話 |
-| **T3 critical** | 動權限·安全 / schema migration / 上架 / 多租戶可見性 | 完整 contract + 全 7 phase，**phase 6 強制獨立 Verify** |
+| **T0 trivial** | Typo, copy, version bump, one file under ~20 lines, pure styling | No contract. Just do it. |
+| **T1 local** | One module, none of the triggers below | **Minimum viable contract** — three load-bearing fields → 1 → 3 → 4 → 5 |
+| **T2 structural** | Touches a domain or boundary, a cross-module contract, or a new persisted entity | Full contract + phase 1 filing + the phase 2 architectural conversation |
+| **T3 critical** | Permissions or security, schema migration, release assets, multi-tenant visibility | Full contract + all seven phases, **phase 6 independent Verify is mandatory** |
 
-**分級靠可觀察觸發、不靠 AI 主觀判斷（v0.3 · #10）**——命中任一即升級，AI **不准合理化掉**：
-碰 auth/權限/secret? · 有 DB migration / schema 變動? · 跨 ≥2 個 domain? · 改 ≥N 檔(專案自訂門檻)? · 動到多租戶可見性 / 金流 / 上架資產? · intent 字面 ≠ 資料模型(phase 2 候選集合)?
-> **T3 不可自降。** 「寫 contract 比寫 code 久 → 降級」只適用 T0↔T1，不適用 T2/T3。
+**Tiering runs off observable triggers, not the agent's own sense of risk (v0.3 · #10).** Any hit promotes the task and the agent **may not rationalise it away**:
 
-**最小可行 contract（v0.3 · #11）**：T1 預設只填三條**承重欄**——`intent` + `escalation/candidate-set` + `affected_layers`——讓高價值的 20% 摩擦趨近零、永遠不會因嫌麻煩連它一起跳過。其餘欄位（schema_assumptions / cross_module / test_plan…）強模型本來就會做，T1 可省，T2/T3 才補滿。
+> Does it touch auth, permissions, or secrets? · Is there a database migration or schema change? · Does it span two or more domains? · Does it change more than *N* files (*N* is the project's to set)? · Does it touch multi-tenant visibility, payments, or release assets? · Does the literal request fail to map one-to-one onto the data model (see the phase 2 candidate set)?
 
-### Phase 0-Debug · 症狀分支（v2.2 · #17）
-**為什麼需要**：分級表整個靠**已知 scope**（碰不碰 auth / 有無 migration / 跨幾個 domain / 改幾個檔），但 **bug 的 scope 未知才叫 bug**——症狀進來時，「會動到哪」正是要查出來的東西，不是拿來分級的輸入。表在這裡分不了級。
-**觸發（可觀察，二擇一即可；避免每個 bug 都上儀式）**：①**已經試修過一輪但沒解**；②症狀是「**某個值不對**」而根因未確立。都沒命中 → 照常走 T0/T1。
-**最小 debug 契約（只四欄）**：`symptom`（可觀察）/ `prior_guesses`（**連同各自的結果**，防重複繞圈）/ `preconditions`（每條附**可執行**的驗證步驟）/ `evidence_source`（**在形成假設之前**先寫下證據要從哪來）。`affected_layers` 標 `UNKNOWN: 直到 PC 閉合`。
-**一條硬規則**：**第一輪沒解 → 停止改 code**，先確立一個事實。連續猜測會留下殘渣，讓後面的輪次比前面更糟。
-**閉合後**：根因確立 → 回 phase 0 用**已知的** scope 重新分級（多數 bug 修起來是 T1，少數會跳 T3）。
+> **T3 cannot be self-demoted.** The rule of thumb *"if the contract takes longer than the code, drop it"* is admissible only between T0 and T1 — never for T2 or T3.
 
-### Phase 0-Plan · 綠地分支（v0.4 · 細節見 `MTM-Plan.md`）
-**觸發（可觀察雙訊號）**：`project-architecture/` 空且無 source tree **且** 請求是「要做一個產品」而非「對既有東西的範圍變更」。小白與否不另設 gate——使用者已自定的 fork 逐條 fast-path 跳過。
-**做什麼**：**開場第一步先問一個開放的目的題**（「你做這個最想達成什麼?」）定靈魂與方向（接 invariant 7）；此為**唯一**預設開放問的題（v0.7 · #15，僅綠地、不主動提延伸功能），答案接線進 handoff 當「靈魂註記」並決定哪些 fork 先問、哪個 feature 受 invariant 7 保護，答得空泛就退回 fork 機制不盤問。**目的也回頭檢查請求本身（v2.3 · #19）**：交代的東西與剛講的目的**明顯矛盾**時，把矛盾攤出來問——不照做、也不自決；門檻守在「明顯矛盾」（放寬會退化成對每個請求都反問的 cry-wolf），且**輸出是問題不是拒絕**。再攤**難回頭**的地基 fork（裝置能力·平台 / 資料持久·跨裝置 / 孤島vs整合 / 單人vs多人 / 租戶隔離 / 法規·落地），便宜的自己推 default 收進「我先這樣假設」區塊；難回頭的用「想像 A vs B 你是哪個」逼使用者選、不用「對嗎」逼點頭；4 個永不靜默 default（持久·跨裝置 / 多人登入 / 誰看得到誰 / 碰錢或他人個資）。確認用「第一天能做/還不能做」而非骨架。
-**分界線（Plan fork vs phase-2 candidate-set）**：Plan fork 的答案決定**會有哪些 domain/entity**（先於、生成資料模型）；phase-2 是把 intent 對映到**已決定的模型**上。測試：「有資料模型可列舉候選嗎？」沒有→Plan、有→phase-2。
-**Handoff（硬性）**：Plan 把結論寫成 phase 1 的詞彙——`invariants.md`（不可逆 fork 寫成硬規則）/ `domains/` / `glossary.md` / `decisions/`（每個帶 trade-off 的 fork 一份 seed ADR）/ `INDEX.md`，未解 fork 一律 `UNKNOWN: <why>`。phase 1 於是 fast-path，不重問。**Plan 絕不自決 fork，問不出來就標 UNKNOWN，不准猜。**
+**Minimum viable contract (v0.3 · #11)**: T1 writes three **load-bearing fields** only — `intent`, `escalation`/candidate set, `affected_layers`. This keeps friction near zero for the valuable 20%, so it never gets skipped along with everything else. The middle fields (`schema_assumptions`, `cross_module_contract`, `test_plan`, …) a capable model handles as a matter of course; T1 may omit them, T2 and T3 fill them in.
+
+### Phase 0-Debug · The symptom branch (v2.2 · #17)
+
+**Why it exists**: the tier table keys entirely off **known scope** — auth or not, migration or not, how many domains, how many files. But **a bug's scope is unknown; that is what makes it a bug.** When a symptom arrives, "what will this touch" is the thing to be discovered, not an input to classification. The table cannot route it.
+
+**Triggers (observable, either one is enough — so that not every bug takes on ceremony)**: ① a fix has already been attempted once and did not work; ② the symptom is *a value is wrong* and the cause is not established. Neither fires → classify normally as T0/T1.
+
+**The minimum debug contract — four fields only**: `symptom` (observable) · `prior_guesses` (**each with its result**, which is what stops the circling) · `preconditions` (each with an *executable* check) · `evidence_source` (decided **before** the hypothesis). Mark `affected_layers: UNKNOWN until the preconditions close`.
+
+**One hard rule**: **when round one does not fix it, stop changing code.** Establish one fact first. Consecutive guesses leave residue that makes later rounds worse than earlier ones.
+
+**On closure**: once the cause is established, return to phase 0 and classify normally with the scope you now have. Most bug fixes land at T1; a few jump to T3.
+
+### Phase 0-Plan · The greenfield branch (v0.4 · detail in [`MTM-Plan.md`](./MTM-Plan.md))
+
+**Triggers (two observable signals)**: there is no architecture record and no source tree, **and** the request is for a product to be built rather than a scope change to something that exists. Whether the person is technical is not a separate gate — any fork they have already decided passes individually.
+
+**What it does**: **open with one open-ended question about purpose** — *"what are you most hoping this does for you?"* — to fix the direction and the soul of the work (this feeds invariant 7). This is the **only** open-ended question asked by default (v0.7 · #15, greenfield only; do not volunteer additional features). The answer is wired into the handoff as a purpose note, decides which forks matter enough to ask about, and marks which feature invariant 7 protects. If the answer is circular, fall through to the forks rather than interrogating.
+
+**The purpose also checks the request itself (v2.3 · #19)**: when what is asked for **plainly contradicts** the goal just stated, put the contradiction to the person — do not build it and do not silently redesign it. Keep the bar at *plainly contradicts* (widening it produces an agent that interrogates every request, which is the cry-wolf failure in teleological form), and **the output is a question, never a refusal**.
+
+Then lay out the **hard-to-reverse** foundations: device capability and platform · persistence and cross-device · standalone versus integrated · single user versus multi-user · tenant isolation · regulatory regime and residency. Cheap choices get a sensible default, collected in a visible "here's what I assumed" block. Hard-to-reverse choices are put as *"imagine A versus B — which are you?"*, never as *"is that right?"* Four never get a silent default: **persistence across devices · multiple people logging in · who can see whose data · anything touching money or other people's personal information.** Confirm in capabilities — *"on day one you can X; you cannot yet Y"* — never with a skeleton.
+
+**The boundary (Plan fork vs phase 2 candidate set)**: a Plan fork's answer determines **which domains and entities will exist** — it precedes and generates the data model. Phase 2 maps an intent onto a model that already exists. The test: *is there a data model to enumerate candidates from?* No → Plan. Yes → phase 2.
+
+**Handoff (mandatory)**: Plan writes its conclusions in phase 1's vocabulary — invariants (irreversible forks as hard rules), domain notes, glossary, one seed decision record per fork that carried a trade-off, and an index. Every unresolved fork is written `UNKNOWN: <why>`. Phase 1 then fast-paths instead of re-asking. **Plan never decides a fork on its own; what it could not get an answer to is marked UNKNOWN, never guessed.**
 
 ### Phase 1 · Ground
-讀 `project-architecture/`（INDEX / invariants / glossary / domains/* / 最近 5 份 decisions）。列本需求的「架構斷言」。對每條問：依據在哪份文件哪一段？**ungrounded 的關鍵斷言**（影響 domain 歸屬 / boundary / 資料 ownership / invariant 適用 / domain language 對應）→ escalate，每輪最多 3 題、每題附「為什麼要釐清」，答完即建檔（規則見舊 Arch §Stage 0，已併入此處）。
 
-### Phase 2 · Escalate（一等 phase——投報率最高，別埋）
-1. **Candidate-set 檢查（子協議）**：intent 的字面，跟資料模型對得上嗎？對不上 → **列舉候選集合讓 user 精選，不准直譯**。
-   > 證據：E9.7「批次發名片」→ 攤開 ABCD 四類候選人；D-reinvite v1 過窄 → 攤開 lost/lazy/deleted/account-switch。直譯會做出過窄的東西。
-2. **真實選項**：給 `PROCEED / REFACTOR_FIRST / SCOPE_SPLIT / ESCALATE`，每個講 trade-off。由 user 選。
-3. **內部 red-team pass（強制）**：內心過一遍「我要反對 user 方向，最強的反對是什麼？有實質嗎？」——這步**不可省**，它擋 sycophancy（共識假達成）。
-4. **外露條件式**：有實質才 surface；沒實質**不准**硬擠 contrarian。
-   > 拆解理由：TRIAL_LOG 12 筆裡，零筆高價值事件來自「AI 製造的反對」；全部來自「AI 攤真實選項 + user reframe」。強制外露會製造噪音 → cry-wolf → 真該擋的那次被當噪音跳過。所以**內部強制、外露條件**。
+Read the project's architecture record — index, invariants, glossary, domain notes, the most recent decisions. List the architectural assertions this request rests on. For each, ask: *which document, which section, supports this?* Any **ungrounded load-bearing assertion** — one that affects domain ownership, where a boundary sits, data ownership, whether an invariant applies, or how the project's own words map onto the model — becomes a question. At most three per round, each with one line on why it matters. File the answers as soon as they arrive.
 
-出口：AI 複述共識 + ADR 檔名，user 確認。T2/T3 寫 ADR 到 `project-architecture/decisions/YYYY-MM-DD_<domain>_<desc>.md`。
+### Phase 2 · Escalate — a first-class phase, the highest return in the pipeline
 
-### Phase 4 · Implement（三條紀律）
-1. 不准用 flag / toggle / 隱藏欄位蓋過 ADR boundary。
-2. 實作中發現必須穿越 boundary → halt，回 phase 2。
-3. 超出 `affected_layers` 的修改，先回報後動作（no silent patch）。
+1. **Candidate-set check (sub-protocol)**: does the literal wording of the intent map onto the data model? If not → **enumerate the candidate set and let the person choose. Do not translate literally.**
+   > Evidence: "send the cards in bulk" turned out to address four distinct populations; a re-invite feature scoped from one situation turned out to need four. Literal translation builds something too narrow.
+2. **Real options**: offer `PROCEED / REFACTOR_FIRST / SCOPE_SPLIT / ESCALATE`, each with its trade-off. The person chooses.
+3. **Internal red-team pass (mandatory)**: privately ask *"if I were opposing this direction, what is the strongest case, and does it have substance?"* This step **may not be skipped** — it is what blocks sycophancy and false consensus.
+4. **Disclosure is conditional**: surface it only if there is substance. If there is none, **do not manufacture a contrarian view.**
+   > Why it is split this way: across the recorded trial, *zero* high-value events came from an objection the agent manufactured; all of them came from the agent laying out real options and the person reframing. Mandatory disclosure produces noise → cry-wolf → the one objection that mattered gets skipped as noise. So: **internally mandatory, externally conditional.**
 
-### Phase 5 · Self-check（便宜、inline）
-對 contract 每條 clause 標 `PASS / FAIL / MUTATED`，**並填 `observed_result`**（不是「做完了」，是「實際觀察到 X：log 行 / 截圖 / Sentry breadcrumb / query 數」）。MUTATED 合法，附一行為什麼。
-**執行綁定（v0.3 · #9，硬規則）**：一條 clause **不准在 `observed_result` 還是 promise / `PENDING` 時標 `PASS`**。要嘛貼上本 session 真跑出來的證據才 PASS，要嘛標 `UNVERIFIED` 並把它帶進 phase 6 audit 當未閉合項。`PENDING` 是「尚未驗」的中繼狀態，**不是通過**。
+Exit: the agent restates the agreement and names the decision record; the person confirms. T2 and T3 write that record to the project's decisions directory.
 
-### Phase 6 · Verify（獨立 context——這是 gate，不是自評）
-**必須換一個乾淨的 agent**（subagent / 另開 session），只餵三樣：contract、ADR、git diff。不准是 executor 對話的延續（否則 auditor 帶著 executor 的 rationalization = 表演）。產出 §6 報告。`ARCH_VIOLATED`（能跑但違反 ADR/contract）是唯一最重判定，需 rollback 或立即 ADR 修訂。
+### Phase 4 · Implement — three disciplines
 
-**收到 findings 之後（v2.1 · #18，硬規則）**：auditor 是**證人不是裁判**——它的視野是刻意被限制的，因此**看不見意圖**。executor 握有 context，判斷責任在 executor：逐條問「撞到的是**缺陷**還是**決定**？」撞缺陷就修；**撞到決定不歸 executor 翻，上呈 user**（同 phase 2「不自決」）。接受要說得出它會怎麼壞，拒絕要指得出**當初的決定＋它已閉合的依據**；**說不出理由的不是決定、是疏忽，而理由沒驗過的等同疏忽**（v2.4 · #20）。處理完把理由補回 `grounding` / ADR，讓下一輪審查看得到。詳見 invariant 8。
-> v0.1 的「Stage E Layer 2 自評四題」併入此處：self-check（phase 5）留給 executor，audit（phase 6）交獨立 agent。同一個「audit」不再分裂在兩份文件。
+1. Never use a flag, toggle, or hidden field to work around a boundary the decision record declared.
+2. If implementation reveals that the boundary must be crossed → **halt and return to phase 2.**
+3. Any change outside `affected_layers` is reported *before* it is made. No silent patches.
+
+### Phase 5 · Self-check — cheap, inline
+
+Mark every clause `PASS` / `FAIL` / `MUTATED` **and fill `observed_result`** — not "done", but *what was actually observed*: a log line, a screenshot, a breadcrumb, a query count. `MUTATED` is legitimate; add one line saying why.
+
+**Execution binding (v0.3 · #9, hard rule)**: a clause **may not be marked `PASS` while its `observed_result` is a promise or `PENDING`**. Either paste evidence produced this session, or mark it `UNVERIFIED` and carry it into the phase 6 audit as an open item. `PENDING` is a waypoint, not a pass.
+
+### Phase 6 · Verify — an independent context; this is a gate, not a self-assessment
+
+**A clean agent is required** (a subagent, or a new session), fed exactly three things: the contract, the decision records, the diff. It must not be a continuation of the executor's conversation — otherwise the auditor inherits the executor's rationalisation, and the audit is theatre. Output is the §6 report. `ARCH_VIOLATED` — it works but contradicts an agreed decision — is the single most severe verdict, and requires either a rollback or an immediate amendment to the decision.
+
+**After the findings arrive (v2.1 · #18, hard rule)**: the auditor is a **witness, not a judge** — its view was deliberately restricted, so it **cannot see intent**. The executor holds the context and therefore owes a judgement. Take each finding and ask: **defect, or decision?** A defect is fixed. **A decision is not the executor's to reverse — it is escalated** (the same "do not decide alone" rule as phase 2). Accepting takes saying what would break; rejecting takes pointing at **the decision *and* the grounding that closed it**. A reason that cannot be stated is an oversight, and **a reason that was never checked counts as one too** (v2.4 · #20). Afterwards, write the reason back into `grounding` or the decision record so the next review can see it. See invariant 8.
 
 ---
 
-## 3. 單一 artifact 原則
-一份 contract 從 phase 1 長到 phase 6，**`status` header 全程是單一真相**。agent resume（context summary 後）先讀 status，就知道「現在在哪、卡在哪、哪些 precondition 還沒閉合」。這直接對接 MTM 的原始動機：對抗跨 step 的 drift。
+## 3. The single-artifact principle
+
+One contract grows from phase 1 through phase 6, and **its `status` header is the single source of truth throughout**. When an agent resumes — after a context summary, or in a new session — it reads the status first and knows where things are, what is blocked, and which preconditions are still open. This is aimed directly at MTM's original motivation: drift across steps.
 
 ---
 
-## 4. Template（canonical——實戰 11 欄，含驗證鏈）
+## 4. The canonical template
 
 ```markdown
-# MTM Contract: <task + 一句話>
+# MTM Contract: <task, in one line>
 
 ## status
 stage= | blast_radius=T0/T1/T2/T3 | blocked_on=[] |
 unverified_preconditions=[] | open_escalations=[]
 
 ## intent
-<一句話、動詞開頭、可觀察。不是「實作 X」，是「user 點 X 看到 Y」>
+<One sentence, verb first, observable. Not "implement X" — "the user
+ does X and sees Y".>
 
 ## affected_layers
-<逐層列改 / 不動：entity / service / endpoint / migration / cron·push /
- provider / screen / cache / web-admin·platform-admin / env·secrets>
+<Layer by layer, what changes and what deliberately does not:
+ entity / service / endpoint / migration / scheduled work / client
+ state / screens / cache / admin surfaces / env and secrets>
 
 ## preconditions
-- <條件>   verified_by: <commit / migration / 手測 / staging health / ...>
-  （任一 unverified → 動手前先閉合）
+- <condition>   verified_by: <commit / migration / manual test / health check / ...>
+  (any unverified precondition closes before implementation starts)
 
 ## schema_assumptions
-- <假設>   source: <SPEC §X / entity 註解 / commit / TD-Y>  （無 source → confidence 降一級）
+- <assumption>   source: <spec section / entity comment / commit / prior task>
+  (no source → confidence drops one level)
 
 ## cross_module_contract
-emit / listen / 我假設別人做 / 別人假設我做
+emit / listen / what I assume others do / what others depend on me for
 
 ## expected_outcome
-- <可觀察結果>
-  verifiable_by: <怎麼驗：手測步驟 / 測試 / log / breadcrumb>
-  observed_result: <本 session 真跑出的證據 | 尚未驗 = PENDING(不得標 PASS) | 無法驗 = UNVERIFIED(帶進 audit)>   ← v0.3 執行綁定
+- <observable result>
+  verifiable_by: <how it will be checked: manual step / test / log / breadcrumb>
+  observed_result: <evidence actually produced this session | not yet
+   checked = PENDING (may not be marked PASS) | cannot be checked =
+   UNVERIFIED (carried into the audit)>          ← v0.3 execution binding
 
 ## confidence
-overall: high/medium/low ；低信心子題：<子題 + 為何不確定 + 怎麼處理>
+overall: high / medium / low ; low-confidence sub-items: <item + why + plan>
 
 ## escalation
-等 user 拍板：<列舉，不自決> ；立刻停下回報：<列舉，不硬解>
+Awaiting the human: <enumerate; do not decide these>
+Stop and report: <enumerate; do not force a solution>
 
 ## grounding
-<SPEC / ARCHITECTURE / ADR / commit / 對話原文>  （無 → 標 SPECULATIVE）
+<spec / architecture / decision record / commit / verbatim conversation>
+(nothing to cite → mark SPECULATIVE)
 
 ## rollback_plan
 code / schema / env
 
 ## test_plan
-local / staging / prod
+local / staging / production
 ```
-> `verified_by`（前提）、`verifiable_by`→`observed_result`（結果）、`source`（假設）這三組才是「精密執行 + 詳細驗證」的本體。v0.1 公開 TEMPLATE 把它們藏成細節——v0.2 foreground。
+
+> `verified_by` (premises), `verifiable_by` → `observed_result` (results), and `source` (assumptions) are the actual substance of "precise execution and detailed verification". The v0.1 public template buried them as details; v0.2 brought them to the front.
 
 ---
 
-## 5. 對話 UX 紀律（跨所有 phase）
-1. 起手 invite 對話、不報流程；不對 user 講 phase 代號。
-2. 內部標籤全轉 user 語言（confidence/DIVERGENT/REFACTOR_FIRST/ARCH_VIOLATED…）。
-3. 歸檔一次性歸納、不逐條問；不確定歸哪 → 明示問，不 silent 歸檔。
-4. phase 切換給 summary 後停下等 user（fast-path 跳過的不必等）。
-5. **Forced disagreement → 內部強制 red-team、外露條件式**（見 phase 2 step 3-4）。
-6. phase 6 結果只 surface 對 user actionable 的部分，不 dump 全部 YES/NO。
-> Meta 原則（衝突時 fallback）：machinery 留內部，對 user 只露 what / why / how-long / need-from-you。
+## 5. Conversation discipline (across all phases)
+
+1. Open by inviting a conversation, not by announcing a process. Never say a phase number to the person.
+2. Translate every internal label into their language (confidence, `DIVERGENT`, `REFACTOR_FIRST`, `ARCH_VIOLATED`, …).
+3. File in one consolidated pass rather than asking item by item. If you are unsure where something belongs, ask explicitly — never file silently.
+4. On a phase transition, give a short summary and stop for the person. (Fast-pathed phases need no pause.)
+5. **Forced disagreement → internally mandatory, externally conditional** (phase 2, steps 3–4).
+6. Surface only the part of the phase 6 result that is actionable for them. Do not dump the full pass/fail list.
+
+> Meta-principle, and the fallback when these conflict: **keep the machinery internal; show only what, why, how long, and what you need from them.**
 
 ---
 
-## 6. Contract ↔ Verify 脊椎（10 失效 ↔ 該擋它的欄位）
-Verify 不是另一張獨立 checklist——它是「每個預防欄位實際有沒有守住」。原型是 nicemeet WORKFLOW §1 的 TD 表，這裡泛化到 10 modes：
+## 6. The Contract ↔ Verify spine — ten failure modes and the field that should stop each
 
-| # | Vibe-coding 失效 | 本該擋住的 contract 欄位 |
+Verify is not a separate checklist. It is a check of whether each preventive field actually held.
+
+| # | Vibe-coding failure | The contract field that should have stopped it |
 |---|---|---|
-| 1 | API 假串接 / payload 對不齊 | `cross_module_contract`（emit/listen 對齊） |
-| 2 | 連帶損害（偷改 affected_layers 外） | `affected_layers` 邊界 |
-| 3 | 邊界條件未定義 | `expected_outcome` + `schema_assumptions` |
-| 4 | 重構遺留 bug / 斷層 | `test_plan` + phase 5 `observed_result` |
-| 5 | Happy-path 偏誤（漏 500/timeout/權限/empty） | `expected_outcome`（負路徑） |
-| 6 | 殘留 mock / TODO（phantom code） | phase 5 髒話掃描 |
-| 7 | 環境/依賴脫節 | `affected_layers.env·secrets` |
-| 8 | 權限/安全遺漏 | `preconditions`（requireAuth/isOwner）+ T3 gate |
-| 9 | 效能地雷（N+1） | `schema_assumptions` + `expected_outcome.verifiable_by`（query 數） |
-| 10 | 偷刪測試 | `test_plan` + diff 掃描 |
-> auditor 行為：無情但客觀（列檔名行數即可）、不越俎代庖（只報不修，把 fix 留給 executor/human）、架構一致性最重（`ARCH_VIOLATED`）。報告模板見 `MTM-VERIFY-REPORT-TEMPLATE.md`，每個 section 標註它涵蓋上表哪幾個 mode。
+| 1 | Interface that does not line up; payload mismatch | `cross_module_contract` (emit ↔ listen) |
+| 2 | Collateral damage — edits outside the declared scope | the `affected_layers` boundary |
+| 3 | Undefined edge conditions | `expected_outcome` + `schema_assumptions` |
+| 4 | Logic gap left by a refactor | `test_plan` + phase 5 `observed_result` |
+| 5 | Happy-path bias — no 500, timeout, permission denial, or empty state | `expected_outcome` (negative paths) |
+| 6 | Leftover mock or TODO presented as done | phase 5 scan |
+| 7 | Environment or dependency drift | `affected_layers` (env and secrets) |
+| 8 | Missing authorisation | `preconditions` (authentication, ownership) + the T3 gate |
+| 9 | Performance landmine (N+1) | `schema_assumptions` + `expected_outcome.verifiable_by` (query count) |
+| 10 | Silently deleted tests | `test_plan` + diff scan |
+
+> Auditor conduct: ruthless but objective (cite file and line, no apologies); does not fix (report only, leave the fix to the executor or the human); architectural consistency outranks everything (`ARCH_VIOLATED`). The report template is [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md); each of its sections names which of the modes above it covers.
 
 ---
 
-## 7. 進化（self-hosting）
-MTM 不是凍結的規格，是**會長大的**。引擎在 `EVOLUTION.md`，四段閉環：
-1. **Case ledger（硬 gate · v0.6 #14）**：每個非 T0 task **append 一行才算 done**——未 append 不算完成（與 phase 5「執行綁定」同邏輯：軟紀律會開天窗，故綁硬 gate；nicemeet trial log 結算表從沒填即前例）。記：一次過？幻覺數？哪個欄位抓到/漏掉什麼？escalation 價值？ledger 位置由消費端專案自訂（§A）。
-2. **Proposal queue**：當一個 pattern 復發、或 user/auditor 點出規格缺口 → 提案進 queue（**status: pending-signoff**）。
-3. **討論 gate**：提案**不自動生效**。跟 user 討論後才 promote 進 CORE——進化的 gate 在人，不在 AI。
-4. **Changelog + 版本 bump**：promote 時記 changelog、bump 版本。
+## 7. Evolution (self-hosting)
 
-**規則要硬，必須有機械執行點（v2.2 · #16）**：在規格裡寫「強制」不會讓它變成強制。#14 把 ledger append 從軟紀律升成硬 gate，**一個月後仍有連續 10 個符合條件的 task 沒 append**——規則全程都在規格裡。故：**沒有機械執行點的硬 gate，本質上仍是軟紀律。**
+MTM is not a frozen specification — it grows. The engine is in [`EVOLUTION.md`](./EVOLUTION.md), and it is a four-stage loop:
 
-> 這條有第二半，而且更重要：**執行點必須對著「自己文件所教的排版」測過。** 證據：本專案夾帶的驗證器，招牌檢查只在 `PASS` 與 `observed_result` **同一行**時觸發，而自己的模板刻意把它們分行寫——於是「每條 PASS、每個證據都是承諾」的關鍵級契約乾淨通過。**一個沉默放行的 gate，信任損失大於沒有 gate**，因為它把未驗的工作洗成看起來審過的。
-> 操作上：宣稱強制的規則，要嘛給它一個**會 fire** 的檢查（CI / 腳本 / 工具），要嘛在規格裡誠實降級成「建議」。兩者之間沒有第三種誠實的狀態。
+1. **Case ledger (hard gate · v0.6 #14)**: every non-T0 task **appends one line before it counts as done** — no line, not finished. (Same logic as phase 5's execution binding: soft discipline leaks, so bind it to a gate.) Record: first attempt clean? hallucination events? which field caught or missed what? what the escalation was worth? Where the ledger lives is the consuming project's choice.
+2. **Proposal queue**: when a pattern recurs, or a person or auditor identifies a gap in the specification itself, it becomes a proposal — **status: pending-signoff**.
+3. **Discussion gate**: proposals **do not take effect on their own.** A rule is promoted into CORE only after a human agrees. The gate on evolution is a person, not the AI.
+4. **Changelog and version bump**: on promotion, record the change and move the version.
 
-這就是 MTM 自己的 `revisit_trigger / needs_revisit` 反身套用：方法論被它自己的紀律治理。
+**A rule is only hard if something mechanically enforces it (v2.2 · #16).** Writing "mandatory" into a specification does not make it mandatory. #14 promoted the ledger from soft discipline to a hard gate — and a month later ten consecutive qualifying tasks shipped without a line. The rule was in the specification the whole time. Therefore: **a hard gate with no mechanical enforcement point is still soft discipline.**
+
+> There is a second half, and it matters more: **the enforcement point must be tested against the layout your own documentation teaches.** Evidence: this project's bundled validator only fired when `PASS` and `observed_result` were on the same line — while its own template puts them on separate lines by design. A critical-tier contract with every clause `PASS` and every piece of evidence still a promise passed cleanly. **A gate that silently passes costs more trust than no gate**, because it launders unverified work into something that looks audited.
+> In practice: a rule claiming to be mandatory either gets a check that **demonstrably fires** (CI, a script, a tool), or it is honestly downgraded to a recommendation in the specification. There is no honest third state.
+
+This is MTM's own revisit mechanism turned on itself: the methodology is governed by its own discipline.
 
 ---
 
-*MTM 2.4 — 統一 lifecycle（CORE 當脊椎、舊三份 + `MTM-Plan.md` 保留為 phase 細節）+ self-hosting 進化引擎（`EVOLUTION.md`）。公開說明：`mtm-contract-2.0-article.md`（繁中：`mtm-contract-2.0-article.zh-TW.md`）。*
-***版號沿革**：2.4 = 2.3 + 自我檢驗擴充到「理由驗過沒有」（#20，外部工作階段回報）；2.3 = 2.2 + 目的回頭檢查請求（#19）；2.2 = 2.1 + phase 0-Debug（#17）+ 硬 gate 需機械執行點（#16）；2.1 = 2.0 + invariant 8（已知不得棄守）；2.0 = 前 v0.7 更名（spec 線併入公開文章線，理由見 `EVOLUTION.md` §C）。本檔各規則旁的 `v0.x · #N` 是**該規則當初 promote 的版本**、不是現行版號，保留作 changelog 索引。*
-*促成 2.0 的提案：#1–#7（統一 lifecycle 等）/ #9–#11（執行綁定、可觀察觸發、最小可行 contract）/ #12（綠地 Plan）/ #13（客戶核心需求優先，invariant 7，由 A/B 對照實驗得出）/ #14（case-ledger 硬 gate）/ #15（綠地開場先問目的）/ #18（invariant 8，v2.1）/ #16 · #17（v2.2）/ #19（v2.3）/ #20（v2.4）。**#8 已 closed**。*
+*MTM 2.4 — one unified lifecycle (CORE as the spine; the older documents and [`MTM-Plan.md`](./MTM-Plan.md) retained as phase-level detail) plus a self-hosting evolution engine. Public explanation: [the 2.0 article](./mtm-contract-2.0-article.md) (繁體中文：[`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md)).*
+
+***Version lineage**: 2.4 = 2.3 + the self-test extended to "was that reason ever checked" (#20, reported from outside use) · 2.3 = 2.2 + the purpose checking the request itself (#19) · 2.2 = 2.1 + the debug branch (#17) and enforcement points for hard gates (#16) · 2.1 = 2.0 + invariant 8 · 2.0 = the former v0.7, renamed when the specification line merged into the public article line (reasoning in [`EVOLUTION.md`](./EVOLUTION.md) §C). The `v0.x · #N` markers beside individual rules record **the version each rule was promoted in**, not the current version; they are kept as changelog references.*
+
+*Proposals that produced 2.0: #1–#7 (the unified lifecycle and its parts) · #9–#11 (execution binding, observable triggers, the minimum viable contract) · #12 (the greenfield Plan branch) · #13 (the customer's core need, invariant 7, derived from a controlled A/B comparison) · #14 (the case-ledger hard gate) · #15 (asking purpose first in greenfield) · #18 (invariant 8, v2.1) · #16 and #17 (v2.2) · #19 (v2.3) · #20 (v2.4). **#8 is closed.***

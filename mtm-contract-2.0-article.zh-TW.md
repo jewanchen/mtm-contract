@@ -8,7 +8,7 @@
 **發表日期：** 2026 年 7 月 30 日
 **作者：** 皓品智慧有限公司（Vast Intelligence Limited）
 **名稱由來：** MTM = *machine to machine*（機器對機器）。契約是一種**交接格式** — 目前多半是人寫給 agent，設計上同樣適用於 agent 之間。編碼會換，欄位不換。
-**規格版本：** 發表時為 2.0；現行 **2.4** — 新增的不變式見 §9（以及「拿來擋 finding 的決定，本身必須有依據」這條），另加了「症狀進來但 scope 未知」的 debug 分支、「gate 要硬就必須有東西真的在執行它」，以及「交代的東西是否真的通往他說的目的」這道檢查。一條 lifecycle、一個綠地分支、一具進化引擎。規格本體：[`MTM-CORE.md`](./MTM-CORE.md)（英文讀者請從 [`MTM-LITE.md`](./MTM-LITE.md) 起手）
+**規格版本：** 發表時為 2.0；現行 **2.4** — 新增的不變式見 §9（以及「拿來擋 finding 的決定，本身必須有依據」這條），另加了「症狀進來但 scope 未知」的 debug 分支、「gate 要硬就必須有東西真的在執行它」，以及「交代的東西是否真的通往他說的目的」這道檢查。一條 lifecycle、一個綠地分支、一具進化引擎。規格本體：[`MTM-CORE.zh-TW.md`](./MTM-CORE.zh-TW.md)（英文版：[`MTM-CORE.md`](./MTM-CORE.md)）
 **Repository：** github.com/jewanchen/mtm-contract
 **授權：** Apache 2.0（見 [`LICENSE`](./LICENSE)），衍生作品需署名（見 [`NOTICE`](./NOTICE)）
 **English version:** [`mtm-contract-2.0-article.md`](./mtm-contract-2.0-article.md)
@@ -440,4 +440,4 @@ Email：jeremy.chen@vastitw.com
 
 ---
 
-*規格參考：[`MTM-CORE.md`](./MTM-CORE.md)（lifecycle、觸發、欄位）· [`MTM-Plan.md`](./MTM-Plan.md)（綠地分支）· [`MTM-Verify.md`](./MTM-Verify.md)（審查協定）· [`EVOLUTION.md`](./EVOLUTION.md)（這份規格如何改變）*
+*規格參考：[`MTM-CORE.zh-TW.md`](./MTM-CORE.zh-TW.md)（lifecycle、觸發、欄位；英文版 [`MTM-CORE.md`](./MTM-CORE.md)）· [`MTM-Plan.md`](./MTM-Plan.md)（綠地分支）· [`MTM-Verify.md`](./MTM-Verify.md)（審查協定）· [`EVOLUTION.md`](./EVOLUTION.md)（這份規格如何改變）*

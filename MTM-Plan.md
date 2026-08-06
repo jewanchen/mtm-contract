@@ -1,115 +1,130 @@
-# MTM Plan — 綠地起手:把一句話變成可建的骨架
+# MTM Plan — greenfield: turning one sentence into something buildable
 
-> `MTM-CORE.md` 的 **phase 0 綠地分支**細節。處理「小白只丟一句話」的場景:在動任何 code 前,把**他不知道自己正在做的地基決策**用生活語言攤出來,產出白話 spec + 架構骨架,寫進 `project-architecture/` 後交棒 CORE phase 1。
-> 核心精神:**開場先問一個目的(你最想達成什麼)定方向,再攤岔路——只問難回頭的、其餘自己推 default;問的時候逼使用者『指一個能想像的未來』,不是點頭一個聽不懂的架構詞。**
+> **Phase 0-Plan detail for [`MTM-CORE.md`](./MTM-CORE.md) (current specification: 2.4).** This is the branch for "someone has one sentence and no codebase": before any code, surface **the foundational decisions they do not know they are making**, in the language of consequences, and write the result into the project's architecture record so phase 1 can fast-path.
+> 繁體中文原稿：[`MTM-Plan.zh-TW.md`](./MTM-Plan.zh-TW.md)
 
----
-
-## 1. 何時觸發（可觀察雙訊號，非 AI 主觀判定）
-
-兩個都成立才觸發 Plan：
-1. **綠地**：`project-architecture/` 不存在/空 **且** 沒有(或空的)source tree。
-2. **一句話要一個產品**：請求描述的是「要做出來的東西」(我想要一個能…的 App)，不是「對既有東西的範圍變更」(幫 Y 加 X / 修 Z)。
-
-「使用者是不是小白」**不是**獨立 gate——由 **per-fork fast-path** 處理：使用者在 prompt 裡已經自己定了的岔路(「一個多租戶 Rails API」)視為 grounded、直接跳過,只問沒定的。
-
-**邊界情況**：
-- 綠地 + 技術使用者 → 仍觸發,但塌縮到極小:他自己定的 fork 全 fast-path,只問剩下的。不審問已經決定的人。
-- 既有專案 + 模糊一句話(「加社群功能」「弄好看點」) → **不觸發**。那是 CORE phase 2 candidate-set 的地盤。
+**The whole idea in one line**: open by asking what they are hoping for, then surface only the forks that are expensive to reverse — and when you ask, make them **point at a future they can picture**, not nod at an architecture word they do not understand.
 
 ---
 
-## 2. 分界線：Plan fork vs phase-2 candidate-set（一句話判定）
+## 1. When this branch triggers
 
-> **Plan fork = 它的答案決定『會有哪些 domain/entity 存在』——它先於、且生成資料模型。phase-2 candidate-set = 把一個 intent 對映到『已決定的資料模型』上。**
+Two observable signals, both required:
 
-操作測試：**「有沒有一個資料模型可以拿來列舉候選?」** 沒有 → Plan fork(綠地、模型前)。有 → phase-2。
-回頭成本佐證：Plan fork 猜錯=砍掉重建(平台/單機vs雲端/租戶);phase-2 猜錯=feature rollback。
+1. **Greenfield** — no architecture record, and no source tree (or an empty one).
+2. **One sentence, one product** — the request describes *a thing to be built* ("I want an app that can…"), not a scope change to something that exists ("add X to Y", "fix Z").
 
-**雙向護欄**：Plan **絕不自己決** fork——攤出 fork + 下游後果,由**使用者**選(同 phase 2「由 user 選」);問不出來的 → 寫 `UNKNOWN: <為什麼>`,**不准用猜的填**。Plan 也不做 feature 範圍決策,那留 phase 2。
+Whether the person is technical is **not** a separate gate. It is handled per fork: anything they have already decided in their own prompt ("a multi-tenant Rails API") counts as grounded and is skipped. You do not interrogate someone who has already decided.
 
----
-
-## 3. 紀律（讓它是個小白會信任的精靈，不是會棄填的表單）
-
-0. **（開場第一步）先問目的。** 動任何岔路前,先問一個開放問句:「**你做這個最想達成什麼?期待它幫你解決什麼?**」——用它定靈魂與方向(接 invariant 7)。這是**唯一**預設開放問的題;開場**只主動問「目的」這一題**,呈現形式·平台、誰用·情境仍走 §4a「遇到難回頭才問」機制,**不在開場一次攤開**(否則就變回這份文件要滅的表單);**不主動提延伸功能**(留 §4c / phase 2)。
-   - **答案要接線,不能只問完就丟**(否則退化成儀式開場白):目的答案 (a) 寫進 handoff 的 `glossary`/`invariants` 當「**靈魂註記**」,(b) 用來決定 §4a 哪些 fork 先問、(c) 標定哪個 feature 是 invariant 7 要保護、不准降級成佔位的對象。
-   - **(d) 拿目的回頭檢查請求本身（v2.3 · #19）**：若使用者交代的東西與他剛講的目的**明顯矛盾**，**不要照做，也不要自作主張改**——把矛盾攤出來問：「你說最想達成的是 X，但你要的這個會導向 Y——是我理解錯了，還是這中間有我不知道的考量？」
-     - **門檻守在「明顯矛盾」**：放寬成「可以更貼合目的」會養出一個對每個請求都反問「這真的符合你的目標嗎」的 AI——那是 #5 已經處理過的 cry-wolf 失效的目的論版本（硬擠反對 → 噪音 → 真該擋的那次被當噪音跳過）。**有明顯矛盾才開口，沒有就閉嘴照做。**
-     - **輸出是問題，不是拒絕**：不准因為覺得矛盾就不做。攤出來、問清楚，決定權仍在人（同 phase 2「不自決」）。
-     - 這條把目的從**方向感**變成**檢查點**——(a)(b)(c) 都是拿目的去指導後續，只有這條是拿目的去檢查請求本身。
-   - **空泛答案 fallback**:若使用者答不出或答得同義反覆(「就是記帳啊」),**不追問第二輪開放題**,直接退回下面的 fork 機制——別把目的題變成盤問。
-1. **便宜的自己推、貴的才問。** 可後加/可改皮的 fork → 從 persona 推 default，**不問**，收進一個「我先這樣假設」區塊給使用者一眼看完、能改。只**問**難回頭的。
-2. **難回頭的 fork：用「想像一下」逼指,不用「對嗎?」逼點頭。** 不要「我猜你要雲端,對嗎?」(小白會為了顯得懂而點頭=invariant 6 的使用者層翻版)。要：「**想像一下:你換了新手機——你的專案要還在(A),還是重來也沒差(B)?你是哪個?**」讓他選一個能想像的未來。
-3. **後果講生活、不講系統。** 不是「要不要後端 DB」,是「換手機資料還在不在」。不是「要不要多租戶」,是「你合夥人要能登入看他自己的那份嗎」。
-4. **這 4 個 fork 永不靜默 default**(猜錯=重寫/外洩/吃官司)：資料持久·跨裝置 / 單人vs多人登入 / 誰看得到誰(租戶隔離) / 碰錢或存他人個資。一律 show-tradeoff。
-5. **一輪最多問 3 個**，按下游 blast 由大到小。
-6. **停止條件**：骨架畫得出來 **且** 每個難回頭 fork 都已「使用者確認」或「明示列在假設區塊」。光是「畫得出骨架」不夠——那只代表假設夠了,不代表攤對了該攤的。
-7. **確認用能力、不用結構**：複述成「**第一天你就能做 ___**」+「**還不能做 ___**(排除清單)」,全用使用者動詞。排除清單才是小白真正抓到走錯的地方(「等等,我合夥人不能登入??」)。骨架/entity/screen 這種機械語言不拿給他確認。
-8. **客戶核心需求優先(v0.5 · CORE invariant 7)**：使用者一句話裡**字面講出來的核心體驗**(那個工具的靈魂——「真實貝斯音色」)是**一等交付物**,現成真實方案唾手可得就**直接交付真的、別擺佔位**;非延後不可就放進「還不能做」當頭條明示。規則 1 的「便宜的可延後」**不適用於核心體驗**。
+**Edge cases:**
+- *Greenfield + technical user* → still triggers, but collapses to almost nothing: every fork they settled themselves passes, and you ask only about the rest.
+- *Existing project + a vague sentence* ("add community features", "make it look better") → **does not trigger.** That is phase 2's candidate-set territory.
 
 ---
 
-## 4. 岔路庫
+## 2. The boundary: a Plan fork versus a phase-2 candidate set
 
-### 4a. 一定問（難回頭、show-tradeoff、使用者選）
+> **A Plan fork's answer determines which domains and entities will exist — it precedes and generates the data model. A phase-2 candidate set maps one intent onto a model that already exists.**
 
-| Fork | 想像式問法（生活語言） | 影響 | 寫進 |
+The operational test: **is there a data model to enumerate candidates from?** No → Plan fork (greenfield, before the model). Yes → phase 2.
+
+Cost of being wrong, as corroboration: a Plan fork guessed wrong means tearing it down and rebuilding (platform, local versus cloud, tenancy). A phase-2 miss means rolling back a feature.
+
+**Guardrails in both directions**: Plan **never decides a fork itself** — it lays out the fork and its downstream consequences and **the person chooses** (the same rule as phase 2). Anything you could not get an answer to is written `UNKNOWN: <why>`; **it is never filled in with a guess.** Plan also does not make feature-scope decisions — those belong to phase 2.
+
+---
+
+## 3. Disciplines — what makes this feel like a helpful colleague rather than a form to abandon
+
+**0 · Ask the purpose first.** Before any fork, ask one open question: **"What are you most hoping this does for you? What would it solve?"** Use the answer to set direction and to identify the soul of the thing (this feeds invariant 7). This is the **only** open-ended question asked by default. At the opening you ask **this one question and nothing else** — presentation and platform, who uses it and in what situation still go through the §4a "ask only when it is hard to reverse" mechanism, and are **not** all laid out up front (that turns straight back into the form this document exists to kill). **Do not volunteer additional features** — those belong in §4c or phase 2.
+
+- **The answer has to be wired in, not just collected** (otherwise it degenerates into a ceremonial opening question): (a) write it into the handoff's glossary and invariants as a **purpose note**; (b) use it to decide which §4a forks matter enough to ask about; (c) mark which feature invariant 7 protects — the one that may not be downgraded to a placeholder.
+
+- **(d) Turn the purpose back on the request itself (v2.3 · #19).** If what they are asking for **plainly contradicts** the goal they just stated, do not build it and do not quietly redesign it — put the contradiction to them: *"You said the point was X, but what you're asking for leads to Y — have I misread it, or is there something here I don't know about?"*
+  - **Keep the bar at "plainly contradicts".** Widened to "could align better", this produces an agent that asks "does this really serve your goal?" about every request — which is the teleological form of the cry-wolf failure #5 already dealt with (manufactured objections → noise → the one that mattered gets skipped).  **Speak up on a plain contradiction; otherwise stay quiet and build.**
+  - **The output is a question, never a refusal.** You do not get to decline because it feels contradictory. Surface it, ask, and the decision stays theirs (same as phase 2's "do not decide alone").
+  - This is what turns the purpose from *a sense of direction* into *a checkpoint* — (a), (b) and (c) all use the purpose to steer what comes next; only this one uses it to check the request.
+
+- **Fallback for a vague answer**: if they cannot articulate it, or it comes back circular ("it's for keeping track of things"), **do not ask a second open question.** Fall through to the fork mechanism below. Do not turn the purpose question into an interrogation.
+
+**1 · Infer the cheap ones; ask only the expensive ones.** Any fork that can be added or reskinned later → infer a default from the persona, **do not ask**, and collect them in a visible "here's what I assumed" block they can read at a glance and change. **Ask** only about what is hard to reverse.
+
+**2 · For hard-to-reverse forks, make them point — do not make them nod.** Not *"I assume you want this in the cloud, right?"* (a non-technical person will nod to look competent — the user-level version of invariant 6's failure). Instead: **"Picture this: you get a new phone. Should your work still be there (A), or is starting over fine (B)? Which are you?"** Give them a future they can imagine and let them choose it.
+
+**3 · Consequences, not systems.** Not "do you need a backend database" but "when you change phones, is your data still there". Not "do you need multi-tenancy" but "should your partner be able to log in and see only their own part".
+
+**4 · Four forks never get a silent default** — guessing wrong here means a rewrite, a leak, or a legal problem: **persistence across devices · single versus multiple people logging in · who can see whose data (tenant isolation) · anything touching money or other people's personal information.** All four are always presented with their trade-off.
+
+**5 · At most three questions per round**, ordered by downstream blast radius, largest first.
+
+**6 · Stopping condition**: you can draw the skeleton **and** every hard-to-reverse fork is either confirmed by the person or explicitly listed in the assumptions block. Being able to draw a skeleton is not enough on its own — that only means you have enough assumptions, not that you surfaced the right ones.
+
+**7 · Confirm in capabilities, not in structure.** Restate as **"on day one you will be able to ___"** plus **"you will not yet be able to ___"** (the exclusion list), using their verbs. The exclusion list is what makes a non-technical person catch the mistake — *"wait, my partner can't log in?"* Entity diagrams and screen lists are machine language; do not hand those over for confirmation.
+
+**8 · The customer's core need comes first (v0.5 · CORE invariant 7).** The core experience stated **literally** in their one sentence — the soul of the tool ("it has to sound like a real bass") — is a **first-class deliverable**. If a real solution is readily available, **ship the real thing rather than a placeholder**; if it genuinely must wait, put it at the top of the "not yet" list explicitly. Discipline 1's "cheap things can wait" **does not apply to the core experience.**
+
+---
+
+## 4. The fork library
+
+### 4a. Always ask — hard to reverse, show the trade-off, the person chooses
+
+| Fork | How to ask it (in consequences) | What it decides | Where it is written |
 |---|---|---|---|
-| **裝置能力**（決定平台可不可逆） | 「要用到手機的相機 / 背景定位 / 藍牙·NFC / 臉部·指紋登入嗎?**預設不用**——這樣一個網頁版就能同時上 iOS+Android。要的話得做真原生 App,是另一種工程。」 | 逼不逼做原生·部署 | invariants + ADR |
-| **資料持久·跨裝置** | 「換新手機時,專案**要還在(A)**,還是重來也行(B)?」 | 要不要後端+雲端 DB | invariants + ADR |
-| **系統孤島 vs 對外整合** 🔑 | 「我先假設它裝你自己輸入的資料。但你要追的東西多半已經在別處(email / 行事曆 / portfolio 表 / CRM)——要它**去拉那些進來(A)**,還是**全新獨立記事本(B)**?預設 B;若一定要接 [X],地基就不一樣。」 | 要不要 OAuth·同步·對帳模型 | invariants + ADR |
-| **單人 vs 多人登入** | 「**只有你用(A)**,還是**別人也要各自登入(B)**?」(VC persona 聽起來單人,但『分享給合夥人/LP』正是沒講出口的需求) | 認證·身份 | invariants + domains |
-| **誰看得到誰**（多人時才問） | 「每個人**看得到全部(A)**,還是**各看各的、客戶之間互相看不到(B)**?」 | 多租戶·資料隔離(隱私不可逆) | invariants(hard) + ADR |
-| **法規·落地**（資料敏感才問） | 「這裡面有沒有受管制的東西——醫療 / 財務·cap-table / 歐盟個資?要不要留在特定國家?預設『機密但不受管』。若有 regime,審計·加密·region 現在就 bake-in。」 | 合規·加密·audit log·residency | invariants(hard) + ADR |
+| **Device capability** (decides whether the platform is reversible) | "Do you need the camera, background location, Bluetooth or NFC, face or fingerprint login? **By default, no** — which means one web build covers iOS and Android at once. If you do need them, it has to be a real native app, which is a different piece of engineering." | Whether native is forced; deployment | invariants + decision record |
+| **Persistence across devices** | "When you get a new phone, should the work **still be there (A)**, or is starting over fine (B)?" | Whether there is a backend and a cloud database | invariants + decision record |
+| **Standalone versus integrated** 🔑 | "I'll assume it holds what you type into it. But most of what you want to track already lives somewhere else — email, a calendar, a spreadsheet, a CRM. Should it **pull those in (A)**, or be **a fresh notebook of its own (B)**? Default is B; if it has to connect to [X], the foundations are different." | OAuth, sync, reconciliation model | invariants + decision record |
+| **Single versus multiple users** | "**Only you (A)**, or do **other people log in separately (B)**?" (A solo persona often has an unspoken need to share with a partner or an investor.) | Authentication and identity | invariants + domains |
+| **Who can see whom** (only if multi-user) | "Does everyone see **everything (A)**, or does each person **see only their own, with customers invisible to each other (B)**?" | Multi-tenancy and data isolation — privacy is irreversible | invariants (hard) + decision record |
+| **Regulatory and residency** (only if the data is sensitive) | "Is any of this regulated — medical, financial or cap-table, EU personal data? Does it have to stay in a particular country? Default assumption: confidential but unregulated. If there is a regime, auditing, encryption and region get baked in now." | Compliance, encryption, audit log, residency | invariants (hard) + decision record |
 
-### 4b. 自己推 default（收進「我先這樣假設」區塊，給看不問）
+### 4b. Infer a default — collect in the "here's what I assumed" block, show but do not ask
 
-- **平台**：預設網頁/PWA、一套同時上雙平台——**除非** 4a 的裝置能力逼出原生。
-- **工具 vs 產品**：預設「先當個人工具,但結構留著能長成產品」。
-- **規模**：預設小、標準棧(如 Postgres)本來就能撐到百萬筆;persona 真暗示高量才浮現。
-- 樣式 / 命名 / 列表vs卡片 / 通知開關。
+- **Platform**: default to web/PWA, one build covering both mobile platforms — **unless** 4a's device-capability fork forces native.
+- **Tool versus product**: default to "a personal tool for now, structured so it can grow into a product".
+- **Scale**: default small. A standard stack handles millions of rows; surface this only if the persona genuinely implies high volume.
+- Styling · naming · list versus cards · notification defaults.
 
-### 4c. 延後（事後加很便宜，現在不碰）
+### 4c. Defer — cheap to add later, do not touch now
 
-收費（除非 4a 選了「給客戶的產品」才問）、離線優先（除非場景暗示無網路）、即時協作·衝突解（除非核心就是同時多人編同一筆）、AI 功能、從試算表匯入、i18n/無障礙。
-
----
-
-## 5. Handoff：Plan 寫什麼，phase 1 才會 fast-path 而非重問
-
-phase 1 只認得它讀的那幾個檔裡的 grounding(INDEX / invariants / glossary / domains/* / decisions)。**一份獨立 `spec.md` 不會被當 grounding，phase 1 會用開發者語言把同樣的 fork 再 escalate 一遍(=重工)。** 所以 Plan 必須翻成那套詞彙：
-
-- **`invariants.md`** ← 不可逆 fork 寫成「永遠成立」硬規則。例：`單人·單機:無 auth / 無 server / 無 tenancy`、`健康資料 → 強制 at-rest 加密`、`多租戶:每客戶資料物理隔離`。直接 ground 掉 phase 1 會問的 tenancy/ownership/visibility 斷言。
-- **`domains/<domain>.md`** ← 一句話拆出的 domain + 責任邊界。ground「domain 歸屬/boundary」。
-- **`glossary.md`** ← 使用者的產品詞 ↔ 正規術語。ground「domain language 對應」,防翻譯漂移。
-- **`decisions/YYYY-MM-DD_*.md`** ← 每個帶 trade-off 的已解 fork 各一份 seed ADR(用 Arch Stage B 模板的 decision/consequences/revisit_trigger)。讓 phase 2 **引用**而非重 escalate。
-- **`INDEX.md`** ← 索引 + Domain relationships(phase 1 第一個讀)。
-- **`UNKNOWN` 標記(強制)** ← 每個 Plan **沒**解決的 fork 寫成 `UNKNOWN: <為什麼>`,不准靜默省略。這是 Plan 不會捏造 grounding 的保險——phase 1/2 於是正確地把未定 fork 當「仍開放」而非 grounded。
-
-結果：phase 1 讀到 grounded 的 invariants/domains/glossary → fast-path;Plan 解掉的不再被問,標 UNKNOWN 的流進正常 escalation。乾淨。
+Payments (unless 4a established "a product for customers"), offline-first (unless the setting implies no network), real-time collaboration and conflict resolution (unless simultaneous editing of one record *is* the point), AI features, importing from spreadsheets, internationalisation and accessibility.
 
 ---
 
-## 6. Worked example：「創投經理,在手機上管理我所有專案」
+## 5. Handoff — what Plan must write so phase 1 fast-paths instead of re-asking
 
-**Plan 開場先問目的(定方向)**：
-> 你做這個最想達成什麼?想少花時間、還是不再漏掉某個專案的關鍵時點?——他的答案決定「進度」要記什麼、哪個功能是靈魂。
+Phase 1 only recognises grounding in the files it reads: the index, invariants, glossary, domain notes and decisions. **A standalone `spec.md` will not be treated as grounding, and phase 1 will re-escalate the same forks in developer vocabulary — which is rework.** So Plan translates its conclusions into that vocabulary:
 
-**Plan 從 persona 推、收進假設區塊(不問)**：多專案(資料模型有 `Project`)、想在手機隨時看 → 預設網頁/PWA、雲端(不被綁死在一支手機)、先個人工具但留擴展、規模小標準棧。
+- **`invariants.md`** ← irreversible forks written as "always true" rules. For example: *single-user, local-only: no auth, no server, no tenancy*; *health data → encryption at rest is mandatory*; *multi-tenant: each customer's data is physically isolated*. This directly grounds the tenancy, ownership and visibility assertions phase 1 would otherwise ask about.
+- **`domains/<domain>.md`** ← the domains the one sentence decomposes into, with their responsibility boundaries. Grounds "which domain owns this" and "where the boundary sits".
+- **`glossary.md`** ← the person's product words mapped to formal terms. Grounds the domain-language mapping and prevents translation drift.
+- **`decisions/YYYY-MM-DD_*.md`** ← one seed decision record per resolved fork that carried a trade-off (decision, consequences, what would make you revisit). This lets phase 2 **cite** rather than re-escalate.
+- **`INDEX.md`** ← the index plus domain relationships. The first thing phase 1 reads.
+- **`UNKNOWN` markers (mandatory)** ← every fork Plan did **not** resolve is written `UNKNOWN: <why>`, never silently omitted. This is the insurance against Plan fabricating grounding: phases 1 and 2 then correctly treat an unresolved fork as still open.
 
-**Plan 只問這 3 個(難回頭、想像式)**：
-> 1. 換新手機時,你的專案要還在,還是重來也行? *(我猜要還在 → 雲端)*
-> 2. 這些專案進度,多半已經在你 email / 某張表 / 某個工具裡了——要這個 App **去拉進來**,還是**你重新輸入的獨立本子**就好?
-> 3. 只有你看,還是**合夥人/LP 也要各自登入**看?(若要 → 追問:大家看全部,還是各看各的?)
-
-**確認(能力語言,不給骨架)**：
-> 「第一天你就能:在手機上新增/編輯你的專案、看每個專案的進度、隨時換裝置都讀得到。
-> 還**不能**:別人登入(目前只有你)、自動從 email 抓進度(目前手動輸)、收費。
-> 這樣對嗎?哪一條不對我們現在調最便宜。」
-
-確認後 → 寫 invariants(雲端/單人/standalone-v1)+ domains(`Project`/`Progress`)+ glossary(專案=startup portfolio item)+ 2 份 ADR(雲端-vs-單機、standalone-vs-integration)+ UNKNOWN(收費、多人) → 交棒 CORE phase 1。
+The result: phase 1 reads grounded invariants, domains and glossary and fast-paths. What Plan resolved is not asked again; what it marked `UNKNOWN` flows into normal escalation. Clean.
 
 ---
 
-*MTM Plan（隨 CORE 2.4）：加開場「先問目的」錨點 + discovery 覆蓋(目的→呈現/平台→誰用/情境)、不主動提延伸功能、僅綠地觸發（EVOLUTION #15，user 2026-07-05 拍板）。v0.1 三方獨立評審 GO-with-additions 定稿。*
+## 6. Worked example — "I'm a VC associate; I want to manage all my portfolio companies from my phone"
+
+**Plan opens by asking the purpose (to set direction):**
+> What are you most hoping this does for you? Spend less time on it, or stop missing a key moment on one of the companies? — the answer decides what "progress" needs to record, and which feature is the soul of the thing.
+
+**Inferred from the persona, collected in the assumptions block (not asked):** multiple projects (so the model has a `Project`), wants it on a phone at any time → default web/PWA, cloud (so it is not tied to one handset), a personal tool for now but structured to extend, small scale on a standard stack.
+
+**Plan asks only these three (hard to reverse, imagination-first):**
+> 1. When you get a new phone, should your portfolio still be there, or is starting over fine? *(I expect "still there" → cloud.)*
+> 2. Most of this progress already lives in your email, or a spreadsheet, or some tool — should the app **pull it in**, or is a **notebook you type into yourself** enough?
+> 3. Only you, or do **partners / LPs log in separately** too? (If yes → follow up: does everyone see everything, or does each person see only their own?)
+
+**Confirmation (capabilities, no skeleton):**
+> "On day one you'll be able to: add and edit your companies on your phone, see progress on each one, and pick up any device and still have it all.
+> You will **not** yet be able to: let anyone else log in (right now it's just you), pull progress automatically out of email (you'll type it), or take payment.
+> Does that sound right? Whichever line is wrong, now is the cheapest time to change it."
+
+After confirmation → write invariants (cloud / single-user / standalone-v1) + domains (`Project`, `Progress`) + glossary (their "project" = a portfolio company) + two decision records (cloud-vs-local, standalone-vs-integrated) + `UNKNOWN` markers (payments, multi-user) → hand off to CORE phase 1.
+
+---
+
+*MTM Plan, tracking CORE 2.4. Opening purpose question and discovery coverage added in #15; the purpose turned back on the request itself in #19. Greenfield trigger only. Extended features are not volunteered — they belong to §4c or phase 2. Full history: [`EVOLUTION.md`](./EVOLUTION.md).*

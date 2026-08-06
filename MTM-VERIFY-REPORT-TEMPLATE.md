@@ -1,64 +1,81 @@
 # MTM Verify Report
 
-> **Task / Contract Reference**: [填入本次查核的任務或合約檔案連結]
-> **Executor Agent**: [執行本次任務的 Agent 識別]
-> **Auditor Agent**: [負責本次審計的 Agent 識別]
+> **Task / contract**: [link to the contract file this audit covers]
+> **Executor**: [which agent did the work]
+> **Auditor**: [which agent is auditing]
 > **Date**: YYYY-MM-DD
+>
+> 繁體中文原稿：[`MTM-VERIFY-REPORT-TEMPLATE.zh-TW.md`](./MTM-VERIFY-REPORT-TEMPLATE.zh-TW.md) · Protocol: [`MTM-Verify.md`](./MTM-Verify.md)
 
 ---
 
-## 總結結論 (Executive Summary)
+## Executive summary
 
-* **整體判定**: `[PASS / REWORK_REQUIRED / ESCALATE]`
-* **發現的嚴重漏洞 (Blockers)**: `[數字]`
-* **建議修正項 (Warnings)**: `[數字]`
+* **Verdict**: `[PASS / REWORK_REQUIRED / ESCALATE]`
+* **Blockers found**: `[n]`
+* **Warnings**: `[n]`
 
----
-
-## 1. 架構一致性 (Architecture Alignment)
-> 是否遵守了 MTM Arch 與 ADR 的邊界？
-
-* [ ] `PASS` / `FAIL`: **邊界檢查 (Boundary Check)**
-  * *原因 / 證據：* (例如：未發現超越 `affected_layers` 的檔案修改)
-* [ ] `PASS` / `FAIL`: **架構承諾 (Architectural Commitment)**
-  * *原因 / 證據：*
-
-## 2. 連帶影響 (Collateral Damage Check)
-> 任務範圍外的是否被意外更動？環境設定是否脫節？
-
-* [ ] `PASS` / `WARN` / `FAIL`: **非預期檔案修改**
-  * *原因 / 證據：*
-* [ ] `PASS` / `WARN` / `FAIL`: **環境與依賴 (Env & Dependencies)**
-  * *原因 / 證據：* (例如：新增了 `axios` 但未更新 README 說明)
-
-## 3. 完整性與例外處理 (Completeness & Edge Cases)
-> 任務是否「真的」完成，還是只有 Happy Path？
-
-* [ ] `PASS` / `FAIL`: **API 串接對齊 (Interface Alignment)**
-  * *原因 / 證據：*
-* [ ] `PASS` / `FAIL`: **錯誤處理 (Error Handling / Happy Path Bias)**
-  * *原因 / 證據：* (例如：`userController.js` 第 45 行抓取 Exception 但未回傳正確 HTTP Status)
-* [ ] `PASS` / `FAIL`: **髒話掃描 (Phantom Code / TODOs)**
-  * *原因 / 證據：* (例如：發現一處 `return mockData`)
-
-## 4. 安全性與效能 (Security & Performance)
-
-* [ ] `PASS` / `WARN` / `FAIL`: **權限檢查 (Auth & Security Bypass)**
-  * *原因 / 證據：*
-* [ ] `PASS` / `WARN` / `FAIL`: **效能風險 (Performance Traps)**
-  * *原因 / 證據：* (例如：未發現明顯的 N+1 query 迴圈)
+> Findings are **input to the executor's judgement, not a verdict on the work**. The auditor cannot see intent — it was given the contract, the decisions and the diff, and nothing else. For each finding the executor asks: *defect, or decision?* Defects get fixed; decisions go to the human. See CORE invariant 8.
 
 ---
 
-## 🎯 待辦修復清單 (Action Required)
+## 1. Architecture alignment
+> Were the boundaries in the contract and the decision records respected?
+> *(Covers failure mode 2.)*
 
-*(如果上方有任何 FAIL 或 WARN，請列在這裡交由 Executor Agent 重工)*
+* [ ] `PASS` / `FAIL` — **Boundary check**
+  * *Evidence:* e.g. "no file changed outside the declared `affected_layers`"
+* [ ] `PASS` / `FAIL` — **Architectural commitment**
+  * *Evidence:*
 
-1. [ ] **修復點 1**: [具體檔案與行數] - [問題描述與修復建議]
-2. [ ] **修復點 2**: [具體檔案與行數] - [問題描述與修復建議]
+## 2. Collateral damage
+> Was anything outside the task's scope changed? Has the environment drifted?
+> *(Covers failure modes 2 and 7.)*
 
-## ❓ 釐清點 (Questions for Human)
+* [ ] `PASS` / `WARN` / `FAIL` — **Unintended file changes**
+  * *Evidence:*
+* [ ] `PASS` / `WARN` / `FAIL` — **Environment and dependencies**
+  * *Evidence:* e.g. "a new package was added without updating the manifest"
 
-*(如果有任何邊界條件模糊或不確定的邏輯，列在這裡等待人類決策)*
+## 3. Completeness and edge cases
+> Is the task *actually* finished, or only the happy path?
+> *(Covers failure modes 1, 3, 5, 6.)*
 
-1. 關於 [某個功能] 的極端情況 (如使用者無頭貼時)，是否應顯示預設圖片？目前程式碼未處理。
+* [ ] `PASS` / `FAIL` — **Interface alignment**
+  * *Evidence:* does the request the client builds match the shape the endpoint accepts?
+* [ ] `PASS` / `FAIL` — **Error handling / happy-path bias**
+  * *Evidence:* e.g. "`userController.js:45` catches the exception but does not return the right status"
+* [ ] `PASS` / `FAIL` — **Phantom code / TODOs**
+  * *Evidence:* e.g. "one `return mockData` remains in the core path"
+
+## 4. Security and performance
+> *(Covers failure modes 8 and 9.)*
+
+* [ ] `PASS` / `WARN` / `FAIL` — **Authentication and ownership**
+  * *Evidence:* authentication and ownership are two separate checks — say which was verified
+* [ ] `PASS` / `WARN` / `FAIL` — **Performance traps**
+  * *Evidence:* e.g. "no N+1 pattern found in the new query paths"
+
+## 5. Verification integrity
+> Did the contract's own claims close?
+> *(Covers failure modes 4 and 10, and CORE invariant 6.)*
+
+* [ ] `PASS` / `FAIL` — **Execution binding**
+  * *Evidence:* is any clause marked `PASS` while its `observed_result` is still a promise or `PENDING`?
+* [ ] `PASS` / `FAIL` — **Tests**
+  * *Evidence:* were any assertions removed, skipped, or weakened in this diff?
+
+---
+
+## Action required
+
+*(Anything marked FAIL or WARN above, for the executor to rework.)*
+
+1. [ ] **Finding 1** — [file and line] — [what is wrong, and what would close it]
+2. [ ] **Finding 2** — [file and line] — [what is wrong, and what would close it]
+
+## Questions for the human
+
+*(Ambiguous boundaries or logic the auditor cannot resolve. Also: anything that appears to contradict a recorded decision — that goes here, not into the action list.)*
+
+1. e.g. "For a user with no avatar, should a default image be shown? The code does not handle it, and I could not find a decision either way."

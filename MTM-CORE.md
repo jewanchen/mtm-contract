@@ -1,4 +1,4 @@
-# MTM 2.4 — CORE
+# MTM 2.5 — CORE
 
 > **MTM = machine to machine.** A contract is a *handoff format* — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
 
@@ -8,7 +8,7 @@
 
 > Trigger phrase: *"do ___ with MTM"*. Fast paths are active throughout — any phase whose condition is met passes in seconds. There is no ceremony tax.
 
-> **This file is the entry point — the spine.** The other documents are phase-level detail: [`MTM-Arch.md`](./MTM-Arch.md) for phases 1–2 (grounding, architectural dialogue, decision records), [`MTM-Verify.md`](./MTM-Verify.md) and [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md) for phase 6 (independent audit). Read CORE first; open a detail file only when you need that phase expanded.
+> **This file is the entry point — the spine.** The other documents are phase-level detail: [`MTM-Verify.md`](./MTM-Verify.md) and [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md) for phase 6 (independent audit). Read CORE first; open a detail file only when you need that phase expanded.
 > 繁體中文版：[`MTM-CORE.zh-TW.md`](./MTM-CORE.zh-TW.md) · Reasoning and evidence: [the 2.0 article](./mtm-contract-2.0-article.md) · One page to start with: [`MTM-LITE.md`](./MTM-LITE.md)
 
 ---
@@ -106,13 +106,36 @@ Then lay out the **hard-to-reverse** foundations: device capability and platform
 
 Read the project's architecture record — index, invariants, glossary, domain notes, the most recent decisions. List the architectural assertions this request rests on. For each, ask: *which document, which section, supports this?* Any **ungrounded load-bearing assertion** — one that affects domain ownership, where a boundary sits, data ownership, whether an invariant applies, or how the project's own words map onto the model — becomes a question. At most three per round, each with one line on why it matters. File the answers as soon as they arrive.
 
+**Where an answer goes.** File by what kind of statement it is, not by which feature prompted it:
+
+| What they told you | Where it belongs |
+|---|---|
+| A hard rule that holds regardless of feature ("always true") | `invariants.md` |
+| A domain's responsibilities, boundary, or composition | `domains/<domain>.md` |
+| A distinction between two terms, or a definition | `glossary.md` |
+| A relationship between domains | the index's domain-relationships section |
+| A decision specific to this feature, carrying a trade-off | a decision record (phase 2) — **not** filed here |
+
+If you are not sure where something belongs, **ask explicitly** — never file silently (§5, rule 3).
+
+**A decision record can stop counting as grounding.** Every decision record carries a `revisit_trigger`: the condition under which it must be re-examined. When phase 6 finds that trigger has fired, the record is marked `needs_revisit`, and from that moment **the assertions resting on it are treated as ungrounded — even though the file still exists.** The next task in that domain re-opens the conversation instead of citing it.
+
+> This is the missing half of invariant 8's self-test. #20 requires that a decision cited against a finding have *closed* grounding; `needs_revisit` is how grounding is declared closed no longer. **A stale decision record is worse than none, because it still reads like an answer.**
+
 ### Phase 2 · Escalate — a first-class phase, the highest return in the pipeline
 
 1. **Candidate-set check (sub-protocol)**: does the literal wording of the intent map onto the data model? If not → **enumerate the candidate set and let the person choose. Do not translate literally.**
    > Evidence: "send the cards in bulk" turned out to address four distinct populations; a re-invite feature scoped from one situation turned out to need four. Literal translation builds something too narrow.
-2. **Real options**: offer `PROCEED / REFACTOR_FIRST / SCOPE_SPLIT / ESCALATE`, each with its trade-off. The person chooses.
-3. **Internal red-team pass (mandatory)**: privately ask *"if I were opposing this direction, what is the strongest case, and does it have substance?"* This step **may not be skipped** — it is what blocks sycophancy and false consensus.
-4. **Disclosure is conditional**: surface it only if there is substance. If there is none, **do not manufacture a contrarian view.**
+2. **The architectural dialogue** — required at T2/T3 when the task touches a domain boundary and is not fully covered by an existing decision record. **The order is fixed and may not be rearranged**; reverse it and you anchor to the structure that already exists, which is how the architectural thinking gets lost.
+
+   - **Step 1 · Ideal.** In two or three plain paragraphs: *if this system had no history, how should this feature be designed?* **Do not cite any existing code, entity, or table name.** Use only the language of the domain — the person's words, the business roles. It must answer: which domain does this belong to? should the data stand alone or be shared? what is the access path? where is the boundary with other domains?
+   - **Step 2 · Current.** Look at what exists, describe it in the same plain terms, and compare. Label it `ALIGNED` / `DIVERGENT` / `ABSENT`.
+   - **Step 3 · Gap** (only when `DIVERGENT`). Which boundaries have already been crossed? Which domains have been conflated? What is currently papering over it — a flag, a toggle, a label, a runtime filter, something hidden in the UI? **Cite specific entities, endpoints, commits.**
+   - **Step 4 · Options.** Now, and only now, the four below.
+
+3. **Real options**: offer `PROCEED / REFACTOR_FIRST / SCOPE_SPLIT / ESCALATE`, each with its trade-off. The person chooses.
+4. **Internal red-team pass (mandatory)**: privately ask *"if I were opposing this direction, what is the strongest case, and does it have substance?"* This step **may not be skipped** — it is what blocks sycophancy and false consensus.
+5. **Disclosure is conditional**: surface it only if there is substance. If there is none, **do not manufacture a contrarian view.**
    > Why it is split this way: across the recorded trial, *zero* high-value events came from an objection the agent manufactured; all of them came from the agent laying out real options and the person reframing. Mandatory disclosure produces noise → cry-wolf → the one objection that mattered gets skipped as noise. So: **internally mandatory, externally conditional.**
 
 Exit: the agent restates the agreement and names the decision record; the person confirms. T2 and T3 write that record to the project's decisions directory.
@@ -132,6 +155,15 @@ Mark every clause `PASS` / `FAIL` / `MUTATED` **and fill `observed_result`** —
 ### Phase 6 · Verify — an independent context; this is a gate, not a self-assessment
 
 **A clean agent is required** (a subagent, or a new session), fed exactly three things: the contract, the decision records, the diff. It must not be a continuation of the executor's conversation — otherwise the auditor inherits the executor's rationalisation, and the audit is theatre. Output is the §6 report. `ARCH_VIOLATED` — it works but contradicts an agreed decision — is the single most severe verdict, and requires either a rollback or an immediate amendment to the decision.
+
+**The architectural pass — four questions.** Beyond the ten failure modes, compare what shipped against the decision records. Each gets yes/no and one line:
+
+1. Does the implementation violate the record's `decision`?
+2. Has it triggered the record's `revisit_trigger`?
+3. Has it produced an architectural consequence the record did not anticipate?
+4. Has it produced a new architectural learning that needs a new record, or an amendment to an existing one?
+
+Question 1 yes → `ARCH_VIOLATED`. Question 2 yes → **mark that record `needs_revisit`; from then on its assertions stop counting as grounding** (phase 1). Question 4 yes → open a follow-up to write or amend the record. These are not optional extras — they are how a decision record stays true instead of becoming decoration.
 
 **After the findings arrive (v2.1 · #18, hard rule)**: the auditor is a **witness, not a judge** — its view was deliberately restricted, so it **cannot see intent**. The executor holds the context and therefore owes a judgement. Take each finding and ask: **defect, or decision?** A defect is fixed. **A decision is not the executor's to reverse — it is escalated** (the same "do not decide alone" rule as phase 2). Accepting takes saying what would break; rejecting takes pointing at **the decision *and* the grounding that closed it**. A reason that cannot be stated is an oversight, and **a reason that was never checked counts as one too** (v2.4 · #20). Afterwards, write the reason back into `grounding` or the decision record so the next review can see it. See invariant 8.
 
@@ -182,9 +214,19 @@ emit / listen / what I assume others do / what others depend on me for
 ## confidence
 overall: high / medium / low ; low-confidence sub-items: <item + why + plan>
 
+## architectural_basis          ← T2/T3 only
+decision_record: <YYYY-MM-DD_<domain>_<desc>.md>
+summary: <one line: where this task sits relative to that decision,
+ and which boundary it must not cross>
+<Purpose: reload the architectural decision into the task's context, so
+ that the agreement reached in phase 2 is not forgotten at step 15.>
+
 ## escalation
 Awaiting the human: <enumerate; do not decide these>
 Stop and report: <enumerate; do not force a solution>
+Standing rules — **these may not be removed**:
+ - if implementation reveals a declared boundary must be crossed → halt, return to phase 2
+ - if implementation trips a decision record's `revisit_trigger` → halt and report
 
 ## grounding
 <spec / architecture / decision record / commit / verbatim conversation>
@@ -199,6 +241,46 @@ local / staging / production
 
 > `verified_by` (premises), `verifiable_by` → `observed_result` (results), and `source` (assumptions) are the actual substance of "precise execution and detailed verification". The v0.1 public template buried them as details; v0.2 brought them to the front.
 
+### 4b. The decision-record template
+
+Written at T2/T3, one per decision that carried a trade-off, to `decisions/YYYY-MM-DD_<domain>_<short-desc>.md`. Phase 6 reads these; if they do not exist, the audit has nothing to check the code against.
+
+```markdown
+# Decision: <short description>
+
+> Date: YYYY-MM-DD · Domain: <domain>
+> Triggered by: <the request, in one line>
+> Confidence at the time: high / medium / low
+
+## context
+<what need this decision answers>
+
+## ideal_state
+<phase 2, step 1 — how it should look with no history>
+
+## current_state
+<phase 2, step 2 — ALIGNED / DIVERGENT / ABSENT, and the description>
+
+## gap
+<phase 2, step 3; N/A if aligned>
+
+## decision
+<the path chosen, and why>
+
+## consequences
+<how this constrains other features and other domains from now on>
+
+## revisit_trigger
+<what would make this decision wrong — be concrete>
+- e.g. "when there are more than three admin roles"
+- e.g. "when a feature needs to query across domains"
+
+## referenced_by
+<task contracts append themselves here when they cite this>
+```
+
+> `revisit_trigger` is the load-bearing field. Without it a decision record cannot expire, and phase 1 has no way to know its grounding has gone stale (see phase 1, and invariant 8's self-test).
+
 ---
 
 ## 5. Conversation discipline (across all phases)
@@ -209,6 +291,18 @@ local / staging / production
 4. On a phase transition, give a short summary and stop for the person. (Fast-pathed phases need no pause.)
 5. **Forced disagreement → internally mandatory, externally conditional** (phase 2, steps 3–4).
 6. Surface only the part of the phase 6 result that is actionable for them. Do not dump the full pass/fail list.
+
+**Translating the internal labels.** These are judgements, not vocabulary to hand over:
+
+| Internal | What you actually say |
+|---|---|
+| `confidence: high` | "I'm confident about this one — I can go ahead." |
+| `confidence: medium` | "I'd like to check a couple of things with you first, about five minutes." |
+| `confidence: low` | "There's a structural problem to deal with before this; it'll take a bit longer." |
+| `DIVERGENT` | "The way it works now and the clean way have drifted apart — the difference is ___." |
+| `REFACTOR_FIRST` | "I'd suggest tidying ___ before we add this." |
+| ungrounded assertion | "There are a few things I'm not sure about — can I check them with you?" |
+| `ARCH_VIOLATED` | "It's built, but it doesn't hold to what we decided last time — ___. Roll back, or amend the decision?" |
 
 > Meta-principle, and the fallback when these conflict: **keep the machinery internal; show only what, why, how long, and what you need from them.**
 
@@ -235,7 +329,23 @@ Verify is not a separate checklist. It is a check of whether each preventive fie
 
 ---
 
-## 7. Evolution (self-hosting)
+## 7. Known risks in this method, and what holds them down
+
+Every one of these has happened. They are listed because a discipline that cannot name its own failure modes is asking to be trusted on faith.
+
+| Risk | What holds it down |
+|---|---|
+| **Grounding questions exhaust the person** during the first few tasks | Three per round, each with why it matters. This is a one-time cost: after three to five tasks the record is populated and phase 1 fast-paths. |
+| **The architectural dialogue becomes theatre** — the agent performs "I understand architecture" while pattern-matching | The fixed 1 → 2 → 3 → 4 order, and step 1 may not cite existing code. |
+| **Decision records nobody reads** — written once, then decoration | Phase 6 compares against them, every time. Semi-annually: any record not cited in six months is either a stable domain (fine) or written too abstractly (rewrite it). |
+| **False consensus** — the agent agrees to end the conversation | The internal red-team pass is mandatory, and disclosure is conditional so it does not become noise (phase 2). |
+| **Optimistic tiering** — the agent reports low risk to reach a fast path | Tiers run off observable triggers, not judgement; T3 cannot be self-demoted. |
+| **Silent misfiling** — filing an answer in the wrong place when the rule is ambiguous | When unsure, ask explicitly. Never file silently (phase 1, §5 rule 3). |
+| **A gate that never fires** — a rule called mandatory that nothing enforces | §7's second half: either it has a check that demonstrably fires, or it is honestly a recommendation. |
+
+---
+
+## 8. Evolution (self-hosting)
 
 MTM is not a frozen specification — it grows. The engine is in [`EVOLUTION.md`](./EVOLUTION.md), and it is a four-stage loop:
 
@@ -253,8 +363,8 @@ This is MTM's own revisit mechanism turned on itself: the methodology is governe
 
 ---
 
-*MTM 2.4 — one unified lifecycle (CORE as the spine; the older documents and [`MTM-Plan.md`](./MTM-Plan.md) retained as phase-level detail) plus a self-hosting evolution engine. Public explanation: [the 2.0 article](./mtm-contract-2.0-article.md) (繁體中文：[`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md)).*
+*MTM 2.5 — one unified lifecycle (CORE as the spine; the older documents and [`MTM-Plan.md`](./MTM-Plan.md) retained as phase-level detail) plus a self-hosting evolution engine. Public explanation: [the 2.0 article](./mtm-contract-2.0-article.md) (繁體中文：[`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md)).*
 
-***Version lineage**: 2.4 = 2.3 + the self-test extended to "was that reason ever checked" (#20, reported from outside use) · 2.3 = 2.2 + the purpose checking the request itself (#19) · 2.2 = 2.1 + the debug branch (#17) and enforcement points for hard gates (#16) · 2.1 = 2.0 + invariant 8 · 2.0 = the former v0.7, renamed when the specification line merged into the public article line (reasoning in [`EVOLUTION.md`](./EVOLUTION.md) §C). The `v0.x · #N` markers beside individual rules record **the version each rule was promoted in**, not the current version; they are kept as changelog references.*
+***Version lineage**: 2.5 = 2.4 + the mechanisms absorbed from MTM-Arch (the architectural dialogue, the decision-record template, `architectural_basis`, `needs_revisit`, the four architectural audit questions, the label translations, the known-risks table) · 2.4 = 2.3 + the self-test extended to "was that reason ever checked" (#20, reported from outside use) · 2.3 = 2.2 + the purpose checking the request itself (#19) · 2.2 = 2.1 + the debug branch (#17) and enforcement points for hard gates (#16) · 2.1 = 2.0 + invariant 8 · 2.0 = the former v0.7, renamed when the specification line merged into the public article line (reasoning in [`EVOLUTION.md`](./EVOLUTION.md) §C). The `v0.x · #N` markers beside individual rules record **the version each rule was promoted in**, not the current version; they are kept as changelog references.*
 
 *Proposals that produced 2.0: #1–#7 (the unified lifecycle and its parts) · #9–#11 (execution binding, observable triggers, the minimum viable contract) · #12 (the greenfield Plan branch) · #13 (the customer's core need, invariant 7, derived from a controlled A/B comparison) · #14 (the case-ledger hard gate) · #15 (asking purpose first in greenfield) · #18 (invariant 8, v2.1) · #16 and #17 (v2.2) · #19 (v2.3) · #20 (v2.4). **#8 is closed.***

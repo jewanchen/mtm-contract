@@ -1,3 +1,26 @@
+> # ⚠️ Superseded — retained as history
+>
+> **Everything in this document that is still current has been absorbed into [`MTM-CORE.md`](./MTM-CORE.md) (2.5).** Do not implement from this file; its Stage 0 / A / B / C / D / E vocabulary was replaced by CORE's 0→6 lifecycle in v0.2, and the surrounding text still uses it.
+>
+> What was carried across, and where it now lives:
+>
+> | From here | Now in CORE |
+> |---|---|
+> | Stage 0 grounding check, three-questions-per-round, the filing rules | phase 1 |
+> | The four-step architectural dialogue, and step 1's ban on citing existing code | phase 2, item 2 |
+> | Silent contrarian evaluation | phase 2, items 4–5 |
+> | The ADR template | §4b |
+> | `architectural_basis`, and the standing escalation rules | §4 template |
+> | Stage D's three disciplines | phase 4 |
+> | Stage E Layer 2's four questions, `ARCH_VIOLATED`, `needs_revisit` | phase 6 and phase 1 |
+> | The conversation UX rules, and the label → plain-language table | §5 |
+> | Known risks and their mitigations | §7 |
+> | The `project-architecture/` layout | [`MTM-Plan.md`](./MTM-Plan.md) §5 |
+>
+> Not carried across: the Stage vocabulary itself, the quick-start, and the "relationship to existing MTM" section — all superseded by CORE being a single pipeline.
+>
+> 本檔為中文歷史紀錄，保留沿革用途，不再更新。
+
 > **本檔為 `MTM-CORE.md`（現行規格 **2.4**）的 phase 1-2（Ground / Escalate / ADR）延伸細節，自 v0.2 起如此。** 入口與 lifecycle 全貌看 CORE；本檔保留作架構對話的展開規格。Stage E Layer 2（架構自審）已併入 CORE phase 6 的獨立 Verify。
 
 # MTM Arch — 架構先行版的 MTM Contract

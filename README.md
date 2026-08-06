@@ -23,7 +23,7 @@ What that buys you, concretely. A join starts returning nothing for records that
 
 The contract does not make you smarter. It makes you write down what must be true and how you checked it, *before* the agent generates anything — so the query happens in minute one instead of minute forty. That is the whole idea, and [§10 of the 2.0 article](./mtm-contract-2.0-article.md#10-seven-situations-where-it-pays) has six more shapes of it.
 
-Since then the specification has moved to **2.4**: one unified lifecycle, a greenfield branch, and an evolution engine — built around a single idea, *put the cheap checks before the expensive generation*.
+Since then the specification has moved to **2.5**: one unified lifecycle, a greenfield branch, and an evolution engine — built around a single idea, *put the cheap checks before the expensive generation*.
 
 ### Papers
 
@@ -70,12 +70,12 @@ Heavier work — schema changes, permissions, anything touching money or tenant 
 | [`plugins/mtm/`](./plugins/mtm/) | **Install it instead of remembering it.** A Claude Code plugin — two commands, or copy one folder — and the discipline becomes your agent's default behaviour, with a bundled zero-dependency validator that enforces the parts a document cannot. |
 | [`MTM-LITE.md`](./MTM-LITE.md) | **One page, in English.** Tier triggers, the three fields, the one rule, the clean-context review, and a complete light-tier example. This is what to paste into your agent's rules file. |
 | [`MTM-CORE.zh-TW.md`](./MTM-CORE.zh-TW.md) | The specification in Traditional Chinese — equivalent content, kept as the original. |
-| [`MTM-CORE.md`](./MTM-CORE.md) | **2.4 specification (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify, the invariants, the tier triggers, and the canonical template. The files below are phase-level detail. 繁體中文：[`.zh-TW`](./MTM-CORE.zh-TW.md) |
+| [`MTM-CORE.md`](./MTM-CORE.md) | **2.5 specification (the spine).** One unified 0→6 lifecycle: Classify → Ground → Escalate → Contract → Implement → Self-check → Verify, the invariants, the tier triggers, and the canonical template. The files below are phase-level detail. 繁體中文：[`.zh-TW`](./MTM-CORE.zh-TW.md) |
 | [`EVOLUTION.md`](./EVOLUTION.md) | **How this specification changes itself.** Case ledger → proposal queue → human gate → changelog; no rule takes effect without a person approving it. ⚠️ Traditional Chinese — the English summary is §12 of the 2.0 article. |
 | [`mtm-contract-technical-article.md`](./mtm-contract-technical-article.md) | The full methodology paper (~450 lines): failure modes, field-by-field rationale, six production task case study, AI-to-AI extension, distribution strategy, comparison to related work. |
 | [`TEMPLATE.md`](./TEMPLATE.md) | The ready-to-copy contract template, **2.0** — includes the `status` header and `observed_result`. Use this for structural and critical work; ordinary tasks need only the three fields in `MTM-LITE.md`. |
 | [`MTM-Plan.md`](./MTM-Plan.md) | Greenfield branch: turn a one-sentence product idea into a buildable skeleton by eliciting the hard-to-reverse choices in plain language. The fork library and the handoff format live here. 繁體中文：[`.zh-TW`](./MTM-Plan.zh-TW.md) |
-| [`MTM-Arch.md`](./MTM-Arch.md) | Grounding and architectural-dialogue detail from v0.1.2. ⚠️ Traditional Chinese, and **largely superseded** — CORE now carries phases 1–2 in full. Retained for its four-step architectural dialogue and decision-record template. |
+| [`MTM-Arch.md`](./MTM-Arch.md) | ⚠️ **Superseded, retained as history.** Everything still current was absorbed into CORE 2.5; the file opens with a table saying where each part went. Traditional Chinese. |
 | [`MTM-Verify.md`](./MTM-Verify.md) | The independent audit: what the auditor reads, the four stages, and its conduct — including that it is a witness, not a judge. 繁體中文：[`.zh-TW`](./MTM-Verify.zh-TW.md) |
 | [`MTM-VERIFY-REPORT-TEMPLATE.md`](./MTM-VERIFY-REPORT-TEMPLATE.md) | The audit report template, each section naming the failure modes it covers. 繁體中文：[`.zh-TW`](./MTM-VERIFY-REPORT-TEMPLATE.zh-TW.md) |
 | [`contracts/`](./contracts/) | MTM contracts for changes to MTM itself (dog-fooding). ⚠️ Traditional Chinese. |

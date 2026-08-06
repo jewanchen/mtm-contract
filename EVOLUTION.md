@@ -1,275 +1,291 @@
-# MTM EVOLUTION — 進化引擎
+# MTM EVOLUTION — the engine that changes the specification
 
-> MTM self-hosting 的所在。`MTM-CORE.md` 是**當前**規格；這份檔案是讓它**隨案件經驗 + user 討論**長大的機器。
-> 四段閉環：**Case ledger → Proposal queue → 討論 gate → Changelog + bump**。
-> 鐵則：**proposal 不自動進 CORE。進化的 gate 在 user，不在 AI。**
-
----
-
-## §D 進化協議（先讀這段——它定義另外三段怎麼動）
-
-**何時 append case ledger（硬 gate · v0.6 #14）**：每個非 T0 的 task 跑完 phase 5/6 後，append §A 一行**才算 done——未 append 不算完成**（與 phase 5 執行綁定同邏輯；軟紀律會開天窗，nicemeet trial log 結算表從沒填即前例）。誠實計，幻覺數不算錯、是核心觀察值。
-
-**何時開 proposal（進 §B）**——主模式 + 三條 backstop：
-- **主模式（inline 機會主義 · Q2 拍板 2026-06-29）**：AI 在**執行任何 task 的過程中**，一看到方法論本身有實質改善機會，就**當場用白話**提出「論點 + 原因」給 user。不必等復發、不必等盤點。
-  - **升規則必過兩道測試（缺一不可）**：
-    1. **實質**（繼承 phase 2 Rule 5）：真改善，還是教科書式微調？沒料不提。
-    2. **通用 / 跨任務**（2026-06-29 補）：這條對**未來各類 task 都成立**，還是只在補**這一次單一事件**的洞？規則必須是 cross-task general，**不准針對單一事件就加規則**。
-  - **單一事件 → 進 §A case ledger 當資料點，不升成規則。** 要等它顯出跨任務 pattern（用論證說明它本來就通用、或 backstop① 復發證明）才提案。
-  - 理由：inline 機會主義若無「通用性」閘門，會退化成**逐事件打補丁**——規格越長越碎，正是 MTM 自己要防的「每段都對、組合方式錯」之方法論版。
-- backstop ①：同型 gap 在 ledger **復發 ≥ 2 次**仍沒被 inline 抓到 → 補提。
-- backstop ②：phase 6 auditor 指出 CORE 規格本身（非 task）的缺口。
-- backstop ③：半年盤點 >6 個月沒被任何 case 引用的規則 → 提案「刪或重寫」。
-
-**討論 gate（進 §C / CORE 的唯一路徑）**：
-- AI 白話提案（論點 + 原因 + 影響面），**user 點頭 → 即升為規則**：promote 進 `MTM-CORE.md` + 記 §C changelog + bump 版本。
-- user 想再想 / 沒當場拍 → 進 §B `pending-signoff` 停著，不入 CORE。
-- user **拍了「不升」但提案沒被廢** → `⏸ parked-pending-evidence`，並**必須同時寫下可判定的畢業條件**（什麼事發生就自動夠格升）。這一格是為了讓「已決定不升」跟「還在等你決定」長得不一樣——沒有它，一筆已拍板的提案會被誤讀成待決，下次還要再問你一次（2026-08-02 補；#8 曾短暫使用此狀態，同日改為 closed，故目前零使用中案例——**保留，不預設立場**）。
-- **AI 不准自己把未點頭的 proposal 寫進 CORE。** gate 永遠在 user。
-
-**版本規則（2026-07-30 起改制為 2.x）**：
-- patch（2.0.x）：措辭 / 範例 / 補 case，不改機制。
-- minor（2.x）：加/改 phase、欄位、紀律。
-- major（3.0）：lifecycle 結構性重構。
-> 舊 spec 線 v0.1–v0.7 已於 2.0 併入公開文章線（見 §C 的 2.0 條目）。各檔規則旁的 `v0.x · #N` 是**當初 promote 的版本**、非現行版號。
-promote 時：改 `MTM-CORE.md` + 記 §C changelog + bump 版本號 + 在被改的 case ledger 行標 `→ 觸發 proposal #N`。
+> This is where MTM is self-hosting. [`MTM-CORE.md`](./MTM-CORE.md) is the **current** specification; this file is the machinery that lets it grow from case experience plus human decision.
+> Four stages, in a loop: **case ledger → proposal queue → discussion gate → changelog and version bump.**
+> The iron rule: **a proposal never takes effect on its own. The gate on evolution is a person, not the AI.**
+> 繁體中文快照（至 2.4）：[`EVOLUTION.zh-TW.md`](./EVOLUTION.zh-TW.md)
 
 ---
 
-## §A Case Ledger（append-only）
+## §D The protocol — read this first; it defines how the other three sections move
 
-> 欄位：Date | Task | Tier | 一次過? | 幻覺數 | 哪個欄位抓到/漏掉什麼 | escalation 價值 | → proposal?
+**When to append to the case ledger (hard gate · v0.6 #14).** Every non-T0 task appends one line to §A after phase 5/6 — **and is not done until it does.** Same logic as phase 5's execution binding: soft discipline leaks, so bind it to a gate. Count honestly: a hallucination event is not a black mark, it is the core observation.
 
-> **位置規則（v0.6 #14）**：本 §A 只記**對 MTM 本身的改動**（dogfooding）；**消費端專案的 task ledger 放各自專案本地**（不進本 repo，user 2026-06-30 拍板）。
+**When to open a proposal (into §B)** — one main mode and three backstops:
 
-**Seed（消費端專案試行，2026-05-14 起，完整逐筆紀錄留在該專案本地、不對外；總計 56 份 contract）**
+- **Main mode — inline opportunism** (decided 2026-06-29). While running *any* task, the moment you see a substantive way to improve the methodology itself, **say so on the spot in plain language**: the claim, and the reason. Do not wait for recurrence; do not wait for a review.
+  - **Promotion requires passing two tests, both of them:**
+    1. **Substantive** — a real improvement, or a textbook tweak? If there is nothing there, do not raise it.
+    2. **General across tasks** (added 2026-06-29) — does this hold for many kinds of future work, or does it patch the hole from *this one incident*? A rule must be cross-task general. **Never add a rule for a single event.**
+  - **A single event goes into the §A ledger as a data point, not into the rulebook.** It waits until it shows a cross-task pattern — either argued to be general on its merits, or proven by recurrence via backstop ①.
+  - Why: inline opportunism without a generality gate degenerates into **per-incident patching** — the specification grows longer and more fragmented, which is the methodology's own version of "every part is right and the combination is wrong".
+- **Backstop ①** — the same class of gap recurs **twice or more** in the ledger without inline catching it → raise it.
+- **Backstop ②** — a phase 6 auditor identifies a gap in the specification itself, rather than in the task.
+- **Backstop ③** — semi-annual sweep: any rule not cited by a single case in six months → propose deleting or rewriting it.
 
-| Date | Task | Tier | 一次過 | 幻覺 | 關鍵觀察 | escalation 價值 | proposal |
+**The discussion gate — the only path into §C and CORE:**
+
+- The AI proposes in plain language (claim, reason, blast radius). **The person agrees → it is promoted**: written into `MTM-CORE.md`, recorded in §C, version bumped.
+- The person wants to think about it, or does not decide → it sits in §B as `pending-signoff` and does **not** enter CORE.
+- The person decides **not** to promote, but the proposal is not dead → `⏸ parked-pending-evidence`, and it **must carry a decidable graduation condition** — what would have to happen for it to qualify automatically. This state exists so that "decided against" and "still waiting on you" do not look identical; without it, a settled proposal reads as outstanding and gets asked about again. *(Added 2026-08-02; #8 briefly used it and was closed the same day, so it currently has no live cases — kept, with no position taken.)*
+- **The AI never writes an unapproved proposal into CORE.** The gate is always the person.
+
+**Version rules** (renumbered to 2.x on 2026-07-30):
+
+- patch (2.x.y) — wording, examples, added cases. No mechanism change.
+- minor (2.x) — a phase, a field, or a discipline added or changed.
+- major (3.0) — structural rework of the lifecycle.
+
+> The old specification line v0.1–v0.7 merged into the public article line at 2.0 (see §C). The `v0.x · #N` markers beside rules record **the version each was promoted in**, not the current version.
+
+On promotion: edit `MTM-CORE.md`, record in §C, bump the version, and mark the originating ledger row `→ triggered proposal #N`.
+
+---
+
+## §A Case ledger (append-only)
+
+> Columns: date · task · tier · first attempt clean? · hallucination events · which field caught or missed what · what the escalation was worth · proposal triggered
+>
+> **Location rule (v0.6 #14)**: §A records only changes to **MTM itself** (dogfooding). A consuming project's task ledger lives in that project, not in this repository (decided 2026-06-30).
+
+**Seed — trial on a consuming project, from 2026-05-14. The full per-task record stays in that project and is not published. 56 contracts in total.**
+
+| Date | Task | Tier | Clean | Halluc. | Key observation | Escalation value | Proposal |
 |---|---|---|---|---|---|---|---|
-| 05-14 | E3.2 推播鏈路 | T2 | ✅ | 0 | `cross_module` 抓到 `notifyContactsOfUpdate` 已存在、免重複 | 浮現 D-1/2/3 | — |
-| 05-14 | E5 公司資料管理 | T2 | ✅ | 0 | `affected_layers` 抓到 entity+types 有但 DTO 漏接的 silent drift | actor≠owner 才寄信 | — |
-| 05-14 | E8 Dashboard 重設計 | T2 | ✅ | 0(1 compile-time) | tsc 抓到 `submittedAt` vs `createdAt` 誤用 | 4 題前置 escalation | — |
-| 05-14 | E9.7 批次操作 | T2 | ✅ | 0 | **intent 字面 vs 資料模型對不上** → 攤開 ABCD 候選人 | 最高：scope 精準化 | → #6 candidate-set |
-| 05-14 | E9.5 離職名單回收 | T3 | ✅ | 0 | 新 entity+migration | **最大 redesign**（單向→資料庫）在 escalation 零成本 | → #6 |
-| 05-16 | E7.2 預告變更 | T2 | ✅ | 0 | — | **拍板者推翻了 escalation 結構本身**、改採 unified 設計 | → #5 forced-disagree |
-| 05-16 | D-reinvite | T3 | ✅ | 0 | acceptInvitation idempotent | escalation 觸發架構決定 D-6 + AI-1 | → #6 |
+| 05-14 | Push dispatch chain | T2 | ✅ | 0 | `cross_module` caught that an existing helper already did half the work — no duplicate | surfaced three decisions | — |
+| 05-14 | Company profile management | T2 | ✅ | 0 | `affected_layers` caught silent drift: fields declared on the entity and used by the client, absent from the update DTO | notify only when actor ≠ owner | — |
+| 05-14 | Dashboard redesign | T2 | ✅ | 0 (1 at compile time) | the type checker caught a misused timestamp field | four questions asked up front | — |
+| 05-14 | Batch operations | T2 | ✅ | 0 | **the literal intent did not map onto the data model** → four candidate populations enumerated | highest: scope made precise | → #6 candidate set |
+| 05-14 | Recovered-customer database | T3 | ✅ | 0 | new entity + migration | **the largest redesign** (one-way recipient → a shared store) cost nothing because it happened during escalation | → #6 |
+| 05-16 | Scheduled status change | T2 | ✅ | 0 | — | **the person overturned the escalation structure itself**, replacing it with a unified design | → #5 forced-disagreement |
+| 05-16 | Universal re-invite | T3 | ✅ | 0 | acceptance path made idempotent | escalation triggered two architectural decisions outside the task's own scope | → #6 |
 
-**觀察彙整（→ 種出 v0.2 的 proposal）**：12 build-mode 樣本，**幻覺事件 0**（少數 compile-time 即抓）、**一次過 commit 12/12**。最高價值一律落在 escalation phase，且皆為「AI 攤真實選項 + user reframe」，**無一來自 AI 製造的反對**。
-
-| Date | Task | Tier | 一次過 | 幻覺 | 關鍵觀察 | proposal |
-|---|---|---|---|---|---|---|
-| 2026-06-29 | MTM 自我優化 v0.2 | T3 | 進行中 | 0 | 用 MTM 跑 MTM；status header + observed_result 首次實戰 | = #1 |
-
-| 2026-06-29 | 三方獨立評價 MTM(adoption/方法論/對抗) | T2 | — | — | 評價收斂:承重樑=escalation/candidate-set + 獨立 audit + artifact>memory;最大缺口=驗證「宣告≠執行」、自分級 self-defeating | → #9/#10/#11 |
-
-| 2026-06-29 | MTM Plan 設計 + 三方評審 | T2 | — | — | gap 確認真;補強=孤島vs整合 fork + 想像式問法 + 4 永不default + handoff 寫 phase-1 詞彙 | → #12 promoted v0.4 |
-
-| 2026-06-29 | **bass-app A/B 對照**(MTM vs 無 MTM,同一句話) | T2 | — | — | **MTM 首個真正 control**。中立 agent 裁:意圖吻合 ≈5/5 vs 2穩1半2失;MTM 翻對「原生vs網頁」(最高風險決定)、「音階格vs指板";但「真實音色」MTM 擺佔位、無 MTM 接 soundfont 當場交付→輸。誠實:點數獲勝非 KO | → #13 promoted v0.5 |
-
-| 2026-06-30 | MTM 自我優化 v0.6(ledger 硬 gate + 版本標籤修) | T2 | ✅ | 0 | nicemeet 6 週效益分析發現 trial log 結算從沒填→「軟紀律會開天窗」是跨任務 pattern；CORE/README 殘留 v0.2(MTM 自己也 drift) | ledger append 從軟紀律升硬 gate | → #14 promoted v0.6 |
-
-| 2026-07-05 | MTM-Plan 加開場「先問目的」discovery(#15) | T2 | ✅ | 0 | 現有 Plan 直接跳 fork、缺目的(靈魂)錨點;user 裁:延伸功能不提、僅綠地 | 目的先問=接 #13 靈魂的開場錨點 → #15 promoted v0.7 |
-
-| 2026-07-30~31 | **2.0 規格發表：公開文章（英/繁中）+ `MTM-LITE.md` + 版號改制** | T3 | ⚠️ 獨立審查三輪皆有 findings → 全修 | 0 | **文件型任務同樣吃 escalation**：第一版骨架的定位錯誤，在動筆前被推翻重排，成本是一次對話而非重寫。precondition 查核撞出兩件自家壞消息並如實寫進文章：①#14 的 ledger 硬 gate 已破（停更後仍有 10 個符合條件的 task 未 append）②文章的領頭 debug 案例**沒有 contract**——那正是紀律被跳過的那一次。**最大收穫不在交付物、在交付物周邊**：採用者視角的審查判定「不會採用」，理由全是周邊資產（英文入口走到底是中文規格、快速上手指向舊模板、整合指南教的正是規格否定的自審、無輕量級範例）→ 補 `MTM-LITE.md`、TEMPLATE 升 2.0、整合指南改寫、入口改指向；重跑同一視角後翻為「會採用」。證據稽核另抓 6 處不實或無源敘述，含一處**在誠實章節內**把幻覺說成被驗證步驟攔下（實為動工實查、且一筆是審查自己產生的） | 極高：定位一句話重排整個骨架；並定「不給效益估算數字，讀者自行判斷」 | → #16、#17 |
-> **本行的兩條可攜教訓**：①**去敏只掃交付物不夠，要掃「交付物連出去的一跳」**——文章本身零洩漏，但它連過去的檔案有私有路徑與一個環境變數名。②**採用者視角的審查要在補件後重跑**——第一輪的否定理由全部落在交付物之外，不重跑就不知道補件有沒有真的接上。
-
-| 2026-08-01 | **把 MTM 打包成可安裝的 Claude Skill**（行為 + references + 夾帶驗證器） | T3 | ⚠️ 兩輪獨立審查（規格對照 / 對抗式實裝試用）皆有 blocking findings → 全修 | 0 | **夾帶的強制腳本，招牌檢查在自己模板教的排版下不會觸發**：`PASS` 與 `observed_result` 分行時完全不 fire，於是「每條 PASS、每個證據都是承諾」的關鍵級契約乾淨 exit 0。**兩位審查者獨立撞到同一點**，其中一位的評語是決定性的——這比不給腳本更糟，因為它把未驗的工作**洗成看起來審過的**，使用者從此不再讀契約。改為逐 clause 跨行判定。同輪另修：未動的模板改兩個字即通過（placeholder 偵測只認整行）、真實觀察值被誤判成承諾、非 UTF-8 直接 traceback 並中斷 CI 整批、中文標題完全不匹配、關鍵級工作自標 `tier=local` 無人擋（改為以內容關鍵字告警）。規格對照另抓 11 處落差（invariant 7、接地步驟、強制內部 red-team、決策紀錄、跨 domain 觸發等）全數補上 | 極高：**對抗式「照著裝、照著用、然後試著弄壞它」比規格逐條對照更早撞到致命問題**——後者也抓到了同一點，但前者連「安裝指令本身是死的」都一併撞出來 | — |
-> **本行的可攜教訓**：夾帶強制腳本時，**第一個要測的不是規則對不對，是腳本在自己文件所教的排版下會不會 fire**。一個沉默通過的 gate 造成的信任損失，大於沒有 gate。
-
-| 2026-08-02 | **invariant 8 促成與 promote（#18）** | T2 | ✅ | 0 | 由 user 觀察撞出：獨立審查回來後，主模型多半照 auditor 的角度同意、不從原始目的與討論歷史思考，直接建議翻盤。**執行者的自我證據**：把一個「auditor 找不到出處」的數字當成無出處而移除（實際有出處，只是不在 auditor 的三樣輸入裡），並把一個刻意的編輯決定當缺陷改掉。第一版提案被 user 否掉一次——我給的是「加一個裁決流程步驟」，user 指出真正的點是「**主模型擁有 context，應該要思考**」，流程化反而是迴避 | 極高：把只修 phase 6 的補丁，抬到 invariant 層（同樣失效存在於 CI/subagent/文件/另一模型等每一個自信輸入邊界）| → #18 promoted 2.1 |
-
-| 2026-08-02 | **#16 / #17 promote，#8 改掛畢業條件（2.2）** | T2 | ✅ | 0 | **本輪的價值在一次自我修正**：先前建議 #8 廢案，理由是「掛五週沒人引用」——那個推理犯的正是剛寫進 CORE 的 invariant 8 同一個錯（把「我沒看到它被用到」讀成「它不需要」）。改問「它針對的失效有沒有發生」後：現象為真（範圍低估／五輪探針／必須拆五批），**但機制未經證實會介入**（低估發生在接地階段、探針是對未知物理過程的實證）。於是不廢也不升，改掛**可判定的畢業條件**。#16 升案時補上決定性的第二半：執行點必須對著自己文件教的排版測過 | 高：user 以「三個都值得做吧」的方向提問，執行者未順從、並當場修正自己先前的錯誤理由——invariant 8 的雙向實測 | → #16 · #17 promoted 2.2 |
-
-| 2026-08-02 | **#19 promote（2.3）：目的從方向感變成檢查點** | T1 | ✅ | 0 | **執行者先查證再回答**：user 提的需求有一半（綠地開場問目的）**規格裡早就有**（#15 / 紀律 0），grep 確認後直說「這條已存在、我沒當新需求做一次」——invariant 8 的正向實踐（不丟棄已知）。真正新的是另一半（目的與請求矛盾時要討論），而它剛好補上 #15 被獨立評審點名的洞：三條接線全是拿目的指導後續、沒有一條拿目的檢查請求 | 高：需求裡混著「已有的」與「新的」，逐條查證比整包實作省下一次重複勞動，也避免規格長出第二份紀律 0 | → #19 promoted 2.3 |
-
-| 2026-08-02 | **plugin 端到端安裝閉合** | T1 | ✅ | 0 | 全批唯一掛著的未驗項閉合：`/plugin marketplace add` + `/plugin install` 由 user 實跑成功，skill 進註冊表，plugin 版驗證器實跑殺手 fixture exit=1。**執行者跑不了斜線指令，全程據實標 UNVERIFIED、未以「結構正確」代替實測**——invariant 6 的正向實踐。副作用：先前手動複製的測試副本與 plugin 版並存造成 skill 重複註冊，已移除測試副本 | 低 | — |
-
-| 2026-08-02 | **#20 promote（2.4）：規格首次由外部回報驅動** | T1 | ✅ | 0 | invariant 8 升上去不到一天，**另一個 AI 在真實任務裡踩到它的邊界並回報**：拒絕 finding 只需「指得出決定」，於是一個**理由經查證為假**的決定通過了檢驗——規則反向保護了它要防的失效。回報者的自我對號比執行者自己的更精確（他明確指出「先說出當初為什麼選 OA」那一步被跳過）。**執行者未照單全收**：內部紅隊兩輪（會不會讓拒絕變太貴／是不是其實算缺陷）皆未推翻，才建議升 | 極高：**第一份外部使用回報**，且直接產出規格修訂——比任何內部推演都有份量，也正是文章 §13 一直在要的那種證據 | → #20 promoted 2.4 |
-
-| 2026-08-03 | **plugin 更新機制查證（發布管道的可更新性）** | T1 | ✅ | 0 | **執行者先給了錯的建議**：叫 user「重跑安裝」以取得新版——實測 `install` 只負責首次安裝，回「already installed」。查證後真相是**兩步、而且第一步不明顯**：marketplace 是一份 git clone，安裝後**不再 fetch**，`installed_plugins.json` 另把 plugin 釘死在當時的 sha；所以只更新 plugin 無效，必須先 `marketplace update` 再 `plugin update`。另發現 **CLI 有非互動子指令**（`claude plugin ...`），執行者可自行完成，不必請 user 跑斜線指令。更新後**實測**新 cache 目錄的規則字串與驗證器（殺手 fixture exit=1、誤判 exit=0），非以回報成功代替 | 中：**分發管道的「可更新性」是規格之外的失效面**——一天升四版時，早上安裝的人拿著舊規則而不自知，而文件只教安裝、沒教更新。與 #16 同型（不會 fire 的 gate ↔ 不會更新的管道，都製造假的最新感） | — |
-
-<!-- 新 case append 在這行之上 -->
+**Rollup that seeded the v0.2 proposals**: 12 build-mode samples, **zero hallucination events** (the few that occurred were caught at compile time), **12 of 12 landed on the first attempt**. The highest value landed in the escalation phase every time, and always as "the agent laid out real options and the person reframed" — **never from an objection the agent manufactured.**
 
 ---
 
-## §B Proposal Queue（pending-signoff）
+**2026-06-29 · MTM self-optimisation to v0.2** — T3 · in progress · 0 hallucinations
+Running MTM on MTM. First live use of the status header and `observed_result`. → **#1**
 
-> 每筆：證據 → 提案改動 → 影響面 → 狀態。**v0.2 自身就是第一批提案**，等你拍板後才從 draft 轉正、寫進 §C。
+**2026-06-29 · Three independent evaluations of MTM** (adoption / methodology / adversarial) — T2
+The evaluations converged: the load-bearing parts are escalation and the candidate set, the independent audit, and artifact-over-memory. The largest gap: verification where "declared" is treated as "executed", and self-tiering being self-defeating. → **#9 / #10 / #11**
 
-### #1 — 統一 lifecycle（CORE 當脊椎、舊三份保留為 phase 細節）  `✅ promoted v0.2 (2026-06-29)`
-- 證據：實戰只有一份 WORKFLOW 在跑，Stage E/F 是長出來的；舊三份的「audit」分裂在 Arch §Stage E 與 Verify。
-- 改動：`MTM-CORE.md` 0→6 lifecycle 為單一入口；Stage E Layer2 併入 phase 6 獨立 Verify。
-- **Q1 拍板**：CORE 當脊椎，`MTM-Arch.md`（phase 1-2 細節）/ `MTM-Verify.md`（phase 6 細節）/ `TEMPLATE.md` **保留**，加 header 指回 CORE，舊引用不斷。
+**2026-06-29 · Designing MTM Plan + three-way review** — T2
+Gap confirmed real. Reinforcements folded in: the standalone-versus-integrated fork, the imagination-first phrasing, the four never-silent defaults, and a handoff written in phase 1's vocabulary. → **#12**, promoted v0.4
 
-### #2 — `observed_result` 欄（閉合驗證鏈）  `✅ promoted v0.2 (2026-06-29)`
-- 證據：`verifiable_by` 是承諾不是紀錄；E3.2 寫了「看 outbound call 數」卻無欄位收那個數字。
-- 改動：template 每個 outcome 加 `observed_result`（實際看到什麼 + 證據）。
-- 影響：低、純增量。
+**2026-06-29 · A controlled A/B comparison** (with MTM versus without, from the same one-sentence request) — T2
+**MTM's first genuine control.** A neutral agent judged intent-fit at roughly 5/5 versus 2 solid, 1 partial, 2 missed. MTM got the highest-risk decision right (native versus web) and the primary interaction model right — **but shipped a placeholder for the "real instrument sound" while the unguided build wired up a real one on the spot, and lost there.** Honest reading: a win on points, not a knockout. → **#13**, promoted v0.5
 
-### #3 — Contract↔Verify 脊椎（10 modes ↔ 欄位）  `✅ promoted v0.2 (2026-06-29)`
-- 證據：WORKFLOW §1 的 TD↔欄位表已證明可行（TD-18/19/20/21）。
-- 改動：CORE §6 泛化到 10 modes；report 每 section 標涵蓋哪幾個 mode。
-- 影響：中，Verify 從獨立 checklist 變「欄位有沒有守住」。
+**2026-06-30 · MTM self-optimisation to v0.6** (ledger hard gate + version-label fix) — T2 · ✅ · 0
+A six-week benefit analysis on the consuming project found the trial log's settlement table had never been filled in — "soft discipline leaks" is a cross-task pattern. CORE and the README were also still carrying a stale v0.2 label: **MTM drifts too.** → **#14**, promoted v0.6
 
-### #4 — blast-radius classifier（phase 0）  `✅ promoted v0.2 (2026-06-29)`
-- 證據：實戰憑直覺分級（pure-doc D-5 輕、three-domain-isolation 全 Stage E）。
-- 改動：CORE phase 0 的 T0–T3 表，route 深度。
-- 影響：中，「完整」重定義為「正確分級」。
-
-### #5 — forced-disagreement 拆成「內部強制 / 外露條件」  `✅ promoted v0.2 (2026-06-29)`
-- 證據：TRIAL_LOG 零筆高價值來自 AI 製造的反對；硬擠 contrarian → cry-wolf。
-- 改動：phase 2 step 3-4；舊「已知風險」表那行的 mitigation 改指「內部 red-team pass」。
-- 影響：低，但修掉 v0.1.1↔Rule 5 的殘留矛盾。
-
-### #6 — escalation 升一等 phase + candidate-set 子協議  `✅ promoted v0.2 (2026-06-29)`
-- 證據：E9.7 ABCD、D-reinvite 四類——「intent 字面 vs 資料模型」是反覆出現的 bug 來源。
-- 改動：CORE phase 2 為一等 phase，candidate-set enumerate 寫成子協議。
-- 影響：中，把最高價值步驟從 sub-rule 提為 phase。
-
-### #7 — machine-readable status header（resumability）  `✅ promoted v0.2 (2026-06-29)`
-- 證據：原始動機 step3≠step15；agent context summary 後需單一真相入口。
-- 改動：template 頂 `status` 塊（stage/blocked_on/unverified/open）。
-- 影響：低、純增量，對 agentic 長任務價值高。
-
-### #8 — phase 0 加第二條軸:複雜度/可拆解性(與 blast-radius 並列)  `✕ closed (2026-08-02, user 拍板)`
-- 證據:blast-radius 與複雜度正交。E9.5 高 blast **且** 高複雜度(redesign);E3.2 T2 blast 但複雜度低(grep 完單一 unknown 即清)。高 blast/低複雜度(改一行 auth)是純複雜度分析會漏、blast-radius 才抓的格子。
-- 改動:phase 0 從一條軸(T0–T3 blast)變 2 軸——blast 決定**驗證深度**、複雜度決定**拆解 + grounding 深度**;輸出綁死「拆 or 不拆」決定。
-- 訊號**具體可數**(反表演化):跨幾個 domain / intent 字面≠資料模型? / 幾個獨立 unknown / 可逆否——這四個現已散在 `confidence`+candidate-set+`SCOPE_SPLIT`,本提案是**收斂為顯式第二軸**,非新增 ceremony。
-- 風險:做成「複雜度=X 分」會變表演(Arch 自警的 Stage A 表演)→ 故只數訊號、不給分數。
-- 影響:中。CORE phase 0 表改 2 軸;與 #4(blast classifier)同源,一起 promote。
-- 來源:user 2026-06-29 提問「用 core 是否該做任務複雜度分析」。
-- **2026-08-02 重審（修正先前「無人引用即廢案」的錯誤推理）**：正確的問題不是「有沒有人引用這條提案」，而是「**它針對的失效有沒有發生**」。查證後——失效是真的且反覆發生：i18n 範圍被低估、OCR 局部重偵測五輪探針才收斂、活動改版必須拆五批（而那次拆批是**人的判斷**，規格沒幫上忙）。**但**第二個問題沒過：i18n 的低估發生在接地階段（不是「沒數複雜度訊號」，是那片還沒被看見）、OCR 那五輪是對未知物理過程的實證探測，**任何分級都縮短不了**。結論：**現象為真、機制未經證實會介入**。
-- **結案（2026-08-02，user 拍板 close）**：不再掛著。分析全文保留在此，**不是因為它錯，是因為它的機制沒有被證實會介入它指認的失效**——現象為真（範圍低估／五輪探針／必須拆五批），但那些失效的成因不是「沒數複雜度訊號」。
-- **重開條件（保留，供未來判定）**：若日後出現**一次「顯式數複雜度訊號，因而當場改變了拆不拆的決定」**的案例（事後回顧覺得該拆不算），本案可直接以該筆證據重開。在那之前不佔 §B 的待辦位。
-
-### #9 — 驗證欄「執行綁定」（verified_by / observed_result 要有牙齒）  `✅ promoted v0.3 (2026-06-29)`
-- 證據：對抗 agent + 自家 12/12 案例 `observed_result` 全停 PENDING；強模型失效是「把欄位填得有說服力、底下沒查」，plausible 值與真閉合長一樣。
-- 改動：CORE invariant 6 + phase 5 硬規則——不准在 promise/PENDING 標 PASS;沒驗的標 UNVERIFIED 帶進 phase 6。
-- 兩道測試:實質✅(補最大成熟度缺口) / 通用✅(對每份 contract 都成立)。來源:user 2026-06-29「夠強的 AI 用 MTM 是否成熟」討論。
-
-### #10 — blast-radius 改「可觀察觸發」（非 AI 自分級）  `✅ promoted v0.3 (2026-06-29)`
-- 證據:自分級 self-defeating——決定要不要嚴謹的，正是嚴謹要 backstop 的不可靠判斷;趕進度會自降。
-- 改動:CORE phase 0 改觸發清單(auth/migration/跨domain/檔數/多租戶/字面≠資料模型)，命中即升、T3 不可自降。取代 #4/#8 的自判定部分。
-- 兩道測試:實質✅ / 通用✅。
-
-### #11 — 最小可行 contract（T1 只填 3 承重欄）  `✅ promoted v0.3 (2026-06-29)`
-- 證據:強模型本來就會做中段欄位(schema/cross_module/test_plan)，全 11 欄儀式在 T1 邊際遞減;摩擦大→連高價值 20% 一起被跳過。
-- 改動:CORE phase 0 — T1 預設 intent + escalation/candidate-set + affected_layers 三欄;T2/T3 才補滿。
-- 兩道測試:實質✅ / 通用✅。
-
-### #12 — MTM Plan：綠地 phase 0 分支（小白一句話 → 地基 fork）  `✅ promoted v0.4 (2026-06-29)`
-- 證據：CORE phase 1 bootstrap / phase 2 candidate-set / Arch Stage 0 全是「AI ungrounded 才問」+ 開發者語言;綠地 fork(平台/雲端/多人/收費)無 source 可 ground、小白也答不出 domain 問題。gap 經邊界 agent 引 CORE 原文確認為真。
-- 改動：新增 `MTM-Plan.md`(觸發/分界線/紀律/岔路庫/handoff/worked example)+ CORE phase 0-Plan 分支(spine 載觸發·分界·handoff)。
-- 三方獨立評審(完整性/小白UX/邊界)GO-with-additions,已併入：①「孤島vs整合」fork ②裝置能力併平台 ③法規升級成 regime+residency ④難回頭 fork 改「想像 A/B」非「對嗎」⑤4 個永不靜默 default ⑥確認用「第一天能做/不能做」⑦handoff 必寫 phase-1 詞彙+UNKNOWN ⑧#8 規模降成推測 default。
-- 兩道測試:實質✅(填真 gap) / 通用✅(所有綠地+一句話起手)。來源:user 2026-06-29「MTM Plan 值不值得做」。
-
-### #13 — 客戶核心需求優先（核心體驗不可降級成佔位）  `✅ promoted v0.5 (2026-06-29)`
-- 證據:bass-app **A/B 對照實驗**(MTM vs 無 MTM,同一句話)。MTM 把架構顧好但「真實貝斯音色」擺合成佔位;無 MTM 版用線上 soundfont **當場交付真音色**——在使用者**字面核心需求**上,無 MTM 反而贏。
-- 改動:CORE invariant 7 + MTM-Plan 紀律 #8。使用者字面講出的核心體驗=一等交付物;現成真實方案可得就直接交付、別佔位;非延後不可就在 confirm 當頭條「還不能做」明示。
-- 與 #11 共存:「便宜的可延後」只適用次要功能,核心體驗永不延後。
-- 兩道測試:實質✅(對照組證明是真短板) / 通用✅(任何「使用者點名核心體驗」的專案)。來源:user 2026-06-29「確實要以客戶核心需求作為主要」。
-
-### #14 — case-ledger append 綁成 phase 完成硬 gate  `✅ promoted v0.6 (2026-06-30)`
-- 證據:§D「每個非 T0 task append」只是軟紀律、無觸發綁定。nicemeet 6 週效益分析發現:trial log 結算表從沒填、前 12 筆後停更——同個「meta 紀錄開天窗」洞。治本檔(MTM 自身)也會犯。
-- 改動:CORE §7 step1 + §D「何時 append」改硬 gate——未 append 不算 task done(與 phase 5 執行綁定 invariant 6 同邏輯)。
-- 兩道測試:實質✅(補已咬過兩次的 meta-record 洞) / 通用✅(每個非 T0 task 都成立)。來源:user 2026-06-30「C: 同意修」。
-
-### #15 — MTM-Plan 開場「先問目的」+ discovery 覆蓋清單（延伸功能不提、僅綠地）  `✅ promoted v0.7 (2026-07-05)`
-- 證據：user 實測 AI 未完整 follow MTM;綠地開場少了「資深團隊主動補問使用者沒講但該想」的深度。現有 Plan 直接跳難回頭 fork,**沒有先問「你最想達成什麼」的錨點**——目的(靈魂)沒被顯式問。
-- 改動：MTM-Plan §3 加紀律 0「開場先問目的」(唯一預設開放問的題,定方向接 invariant 7)+ 開場一次涵蓋「目的→呈現/平台→誰用/情境」(後二用既有 §4a fork);§6 worked example 補目的問句。**不動 CORE 0→6**,只擴 Plan 開場協議。
-- user 裁決(2026-07-05):**延伸功能整格拿掉**(不主動提,留 §4c/phase 2)、**trigger 僅限綠地**(不變)、其餘照提案。
-- 風險控制:除「目的」外一律「便宜→假設、貴→逼選」,禁止一次丟多個開放問句 → 不回 MTM-Plan 當初要根除的面試地獄/ceremony tax。
-- 兩道測試:實質✅(新增「目的必問」錨點,補「開場不夠 consultative + 直接跳建」的真 gap,非措辭微調)/ 通用✅(所有綠地「幫我做一個 ___」成立;scope 限 Plan phase)。來源:user 2026-07-05「想讓 AI 更深入跟使用者聊、像團隊先問使用者沒提但該考慮的」。
-- **獨立 AI 方法論專家評審(2026-07-05,promote 後)**:有條件同意、6/10。承認原子位置對(=#13 的 elicitation 互補、便宜、正確限縮綠地);抓三洞已於 promote 後補上——①目的答案缺 downstream wiring(posture 非 mechanism)→ 紀律 0 加「答案接線:寫進 glossary/invariants 當靈魂註記 + 決定哪些 fork 先問 + 標 invariant 7 保護對象」;②「開場一次涵蓋」措辭偷渡 ceremony 且與 §4a 重述 → 改成「開場只主動問目的一題,其餘走 §4a 遇到才問」;③缺空泛答案 fallback → 加「答得同義反覆就退回 fork、不追第二輪開放題」。
-- **證據等級自評(專家點出、誠實記錄)**:#15 是本系列**證據最弱**的一次 promote——無 A/B control(對比 #13)、無復發計數(對比 #14),靠「論證通用 + user aspiration」過 gate。**Backstop**:接下來 2 個綠地實跑各記一行「目的答案是否真的改變了任何 downstream 決定」;連 2 次沒有 → 觸發 §D backstop 重審 #15。
-
-### #16 — 「硬 gate」必須有機械執行點，否則仍是軟紀律  `✅ promoted v2.2 (2026-08-02)`
-- 證據：#14（2026-06-30 promote）把 case-ledger append 從軟紀律升為**硬 gate**（未 append 不算 done），論證是「軟紀律會開天窗」。**一個月後這道 gate 自己被忽略**：2026-07-30 查核 — 消費端 ledger 末行 07-20，其後 **10 份**符合條件的 contract（07-21～07-30）零 append。規則全程都在規格裡。
-- 診斷：#14 只把「軟」字改成「硬」字，**沒有增加任何機械觸發點**。文件裡宣稱強制 ≠ 強制。這是同型 gap 的**第三次**發生（試行結算表從沒填 → ledger 前 12 筆後停更 → 07-21 起再度停更）。
-- 提案改動（三選一或並用，待討論）：①ledger append 綁進既有可觀察觸發（contract 檔建立即產生待辦、未閉合則 status header 顯示 `ledger_pending`）②把 append 降級為**契約內一欄**（`ledger_line:`），隨 contract 一起寫、不另開檔＝消除「換檔案」這個摩擦點 ③承認純文件無法自我強制，把 gate 移交 §14 的 CI/腳本層。
-- 兩道測試：實質✅（修一條已證實無效的規則，非措辭）/ 通用✅（凡「規格宣稱強制但無執行點」的規則皆適用，不限 ledger — 同一診斷可套 phase 5 執行綁定、去敏掃描等）。
-- 來源：2026-07-30 一次 T3 任務的 precondition 查核撞出。**已寫入文章 §12 當公開誠實案**（結論：a "hard" gate with no mechanical enforcement point is still soft discipline）。
-- **升案時補上的第二半（2026-08-02，本次最重要的修正）**：光有執行點不夠——**執行點必須對著「自己文件所教的排版」測過**。實證：本專案夾帶的驗證器，招牌檢查只在 `PASS` 與 `observed_result` 同一行時觸發，而自己的模板刻意分行寫，於是「每條 PASS、每個證據都是承諾」的關鍵級契約乾淨通過。**沉默放行的 gate，信任損失大於沒有 gate。** 故 CORE §7 寫成兩段：要嘛給它一個會 fire 的檢查，要嘛誠實降級成「建議」，中間沒有第三種誠實狀態。
-
-### #17 — phase 0 加 **debug 分支**（症狀進來、scope 未知時走這條）  `✅ promoted v2.2 (2026-08-02)`
-- **證據（缺口為真，四路匯聚）**：
-  1. 現行分級表**整個靠已知 scope**（碰不碰 auth／有無 migration／跨幾個 domain／改幾個檔）。但 **bug 的 scope 未知才叫 bug** —— 症狀進來時，「會動到哪」正是要查出來的東西，不是拿來分級的輸入。表在這裡分不了級。
-  2. `MTM-LITE.md` §6 寫「已確立根因的一行修正可跳過」——**那正是不難的那種**。真正吃掉一個下午的是「還沒確立根因」，而規格對它沒有任何 phase。
-  3. 文章 §10.1 的旗艦 debug 案例**自己承認沒有 contract**（紀律被一輪接一輪跳過，直到有人堅持才做那次搜尋）。方法論最貴的失效案例，恰好是方法論沒有形狀可以套的那一類。
-  4. **採用者視角的獨立審查（2026-07-31）**把這條列為「最想要卻沒拿到」的東西：真正吃掉時間與成本的是 debug 迴圈，而規格對它只給得出一條習慣、給不出 artifact。同一份審查最終判定為會採用——但只採用輕量三欄。
-- **消費端專案早已有本地實踐**（尚未升進規格）：bug 第一輪沒解 → 停手寫 contract，欄位含 `prior_guesses`（連同各自的結果）；值顯示錯 → evidence 第一步固定＝grep 該值全部產生點；證據來源在形成假設之前先選。
-- **提案改動**：phase 0 新增 **debug 分支**（與綠地 Plan 分支並列，同為「表分不了級時走的側路」）：
-  - **觸發（可觀察，避免每個 bug 都上儀式）**：①已經試修過一輪但沒解 **或** ②症狀是「某個值不對」而根因未確立。未命中＝照常走 T0/T1。
-  - **最小 debug 契約**：`symptom`（可觀察）／`prior_guesses`（連結果，防重複繞圈）／`preconditions` 每條附**可執行**的驗證步驟／`evidence_source`（在形成假設之前先寫下證據要從哪來）／`affected_layers: UNKNOWN 直到 PC 閉合`。
-  - **一條硬規則**：第一輪沒解 → **停止改 code**，先確立一個事實。連續猜測會留下殘渣，讓後面的輪次比前面更糟。
-- **兩道測試**：實質 ✅（補的是「表分不了級」的結構性洞，不是措辭）／ 通用跨任務 ✅（每個 codebase 都有 bug；提出的是**任務類型**的形狀，不是某次事件的補丁；且證據來自四個彼此獨立的來源，非單一事件）。
-- **風險控制**：觸發若寫成「任何 bug」會變成 ceremony tax，正是 #11 要防的；故綁死在「已試修一輪」或「值錯而根因未明」兩個可觀察訊號上。
-- **來源**：2026-07-31，由採用者視角審查的「拿一個真實任務實走一遍」測試撞出。
-- **升案範圍刻意壓小（2026-08-02）**：只加觸發條件 + 四欄最小 debug 契約 + 一條硬規則，**不長成第二個 phase 家族**。理由：三輪獨立審查都指出規格的體積是採用的主要阻力；一條補洞的規則若讓規格胖一圈，淨值可能是負的。
-
-### #18 — invariant 8「已知不得棄守」：審查者是證人不是裁判  `✅ promoted v2.1 (2026-08-02)`
-- **證據**：獨立審查的價值來自「刻意限制視野」（只給 contract / 決策 / diff、不給對話），但同一個限制讓它**系統性看不見意圖**。實測：一次審查指出某數字「無出處」——它在 auditor 拿得到的 corpus 裡確實找不到，但**在別處有出處**；執行者當場移除，把「看不到」讀成「不存在」。同批另有一次把**刻意的編輯決定**當成缺陷改掉。
-- **診斷**：不是隨機失誤，是三層結構性偏誤——①舉證責任不對稱（finding 是具體斷言，辯護要重建脈絡，同意便宜太多）②報告的形式帶權威感，而先前的理由散落在對話裡沒有形式 ③對最近一個有信心的輸入讓步。**#5 抓到了這個偏誤的鏡像**（AI 硬擠的反對沒價值），沒抓到這個方向。
-- **關鍵洞察**：問題**不在 phase 6**。同樣的失效發生在每一個「帶自信的外部輸入撞上握有 context 的模型」的邊界——CI、linter、subagent 回報、文件、另一個模型的意見、甚至 user 自己後來一句與三天前決定衝突的話。只修 phase 6，同一個洞會在其他入口再開。**故修在 invariant 層。**
-- **改動**：CORE invariant 8（與 6 成對：6=不准宣稱你沒查的，8=不准丟棄你已經知道的）+ phase 6 收 findings 的硬規則 + `MTM-Verify.md` auditor 行為紀律 0（你是證人不是裁判、你可能錯而且錯法很特定）+ skill §6 同步。
-- **不做成流程表**：user 明確反對「加一個裁決步驟」——**主模型握有 context，本來就該思考**；需要規則來提醒「想一想當初為什麼這樣決定」，那本身就是思考的失敗。規則能做的不是叫它思考，是**把已經在它手上、卻沒被叫出來的東西強制帶回當下**：動手前先說出當初的理由，或據實說沒有理由。故收斂成**一個問題**（缺陷還是決定）+ **對稱舉證** + **自我檢驗**（說不出理由的就不是決定）。
-- **對 vibe coding 的意義**：使用者放掉了逐行閱讀與驗證，但沒放掉「要什麼」。任何把**意圖類決定**悄悄移轉給自動化的機制，都在侵蝕他唯一還握著的東西——而順從審查者是其中最難察覺的一種，因為它**看起來像嚴謹**。通則：**自動化可以生成、可以挑戰，但不可以決定人已經決定的事。**
-- **兩道測試**：實質✅（新增一條不變式，且與既有 6 構成對稱缺口，非措辭）/ 通用✅（每一次外部自信輸入撞上握有 context 的模型都成立，不限審查、不限本專案）。
-- **反向風險**：做過頭會變成「我有我的理由」的萬用盾，比盲從更糟。故綁**對稱舉證**（接受要說得出怎麼壞、拒絕要指得出決定）與**自我檢驗**（編造的理由聽起來虛，那個虛感就是訊號）。
-- 來源：user 2026-08-02 指出「主模型擁有 context，應該要思考」。
-
-### #19 — 目的不只定方向，還要回頭檢查請求本身  `✅ promoted v2.3 (2026-08-02)`
-- **證據（規格自己的洞）**：#15 把「開場先問目的」寫進 MTM-Plan 紀律 0，並接了三條線——(a) 寫進 glossary/invariants 當靈魂註記、(b) 決定哪些 fork 先問、(c) 標定 invariant 7 保護對象。**三條全是「拿目的去指導後續」，沒有一條是「拿目的去檢查請求本身」。** #15 promote 後的獨立方法論專家評審（6/10）點的第一個洞正是這個：**目的答案是 posture，不是 mechanism**。
-- **改動**：MTM-Plan 紀律 0 加第四條接線 (d) + CORE phase 0-Plan 分支同步。使用者交代的東西與他剛講的目的**明顯矛盾**時：不照做、也不自作主張改，**把矛盾攤出來問**。
-- **兩條配套（缺一就會出事）**：
-  1. **門檻守在「明顯矛盾」**。放寬成「可以更貼合目的」會養出對每個請求都反問「這真的符合你的目標嗎」的 AI——那是 **#5 已處理過的 cry-wolf 失效的目的論版本**（硬擠反對 → 噪音 → 真該擋的那次被當噪音跳過）。有明顯矛盾才開口，沒有就閉嘴照做。
-  2. **輸出是問題，不是拒絕**。不准因為覺得矛盾就不做；攤出來、問清楚，決定權仍在人（同 phase 2「不自決」）。
-- **順手處理 #15 的 backstop**：#15 掛著「接下來 2 個綠地各記一行『目的答案是否真的改變了任何 downstream 決定』，連 2 次沒有就重審」。一個會**擋下矛盾請求**的檢查，天然就會產生那筆紀錄——目的從此有可觀察的作用點，不再只能靠回顧判斷它有沒有用。
-- **範圍**：先只掛綠地（同 #15）。既有專案理論上也適用（若 glossary 有靈魂註記），但**沒有實例就不擴大範圍**——那正是 #8 現在被掛著的理由。
-- **兩道測試**：實質✅（把 posture 變成 mechanism，補的是獨立評審點名的洞）/ 通用✅（每個綠地案子都可能發生「他要的東西不通往他要的結果」）。
-- 來源：user 2026-08-02「若目的與使用者交代的任務明顯矛盾，就可以進一步討論」。
-
-### #20 — 自我檢驗擴充：拒絕 finding 要指得出「決定 **＋ 它已閉合的依據**」  `✅ promoted v2.4 (2026-08-02)`
-- **來源（重要，據實記）**：**外部工作階段的回報** —— 另一個 AI 在真實任務（LINE 名片收件匣）上用 2.3 跑完後回報的邊界案例。**不是本專案內部推演出來的。** 這是 invariant 8 promote 後不到一天的第一份外部回報。
-- **證據（回報者提供的實例）**：他在 §1 用「對方在裝 App 前看不到任何東西」槍斃了 email 方案——**有記錄、有理由的決定**。但審查查出 `emailBasket()` 實際會寄出姓名／公司／職稱／電話（他自己複驗過）。**理由是編的。**
-- **洞在哪**：2.3 的自我檢驗只有「說不出理由的不是決定、是疏忽」，它處理**沒有理由**，**不處理「理由存在但是假的」**。而對稱舉證的拒絕條件是「指得出當初的決定」——他指得出（§1 白紙黑字），檢驗會過，但決定是爛的。
-- **最難看的地方**：invariant 8 是為了防「決定被審查者安靜翻掉」而寫，結果它**反過來保護了一個帶假前提的決定**——而拆穿假前提正是獨立審查存在的理由。**一條規則保護了它本來要防的失效。**
-- **定位**：這是 invariant **6 與 8 的交界**。6 管「做決定當下」要執行不要宣告；8 管「引用決定去擋 finding 的那一刻」——原本沒有任何一條管後者。
-- **改動**：不新增 invariant（回報者自己也傾向這是 8 的延伸）。擴充 invariant 8 的自我檢驗：說得出理由的，**再問一次那個理由當初驗過沒有**；理由存在但沒有閉合的 grounding，等同疏忽、finding 成立。拒絕一條 finding 需要「決定 ＋ 依據」，不是只要「決定」。
-- **內部紅隊（兩輪，皆未推翻）**：①加了會不會讓拒絕變太貴、退回照單全收？不會——決定有好好接地時幾乎零成本（指同一份 grounding），只有沒接地時才貴，**那個不對稱是對的**。②理由假的，本質上不就是「缺陷」？是，但**分類發生在辨識之前**：執行者看到「有記錄的決定」就停手歸類，永遠走不到那一格，所以修補點必須在**貼標籤的那一步**。
-- **兩道測試**：實質✅（改判準內容而非措辭；補的洞會讓規則反向保護失效）/ 通用✅（每一次引用決定去擋 finding 都成立）。
-- **附帶觀察（回報者指出、值得記）**：2.1/2.2/2.3 全發生在同一天，而 §12 早已寫過「引擎是爆發式的、被外部批判打出來的」。今天的外部壓力是一場對話，前一次是三份委託評審——**規律再次應驗**，支持「與其被動累積 ledger，不如定期找人來拆」。
-
-<!-- 新 proposal append 在這行之上 -->
+**2026-07-05 · Purpose-first discovery added to MTM Plan** — T2 · ✅ · 0
+The existing Plan jumped straight to the forks with no anchor on *why*. The person's ruling: do not volunteer extended features; greenfield only. → **#15**, promoted v0.7
 
 ---
 
-## §C Changelog（版本史——只有 promote 過 gate 的才進這）
+**2026-07-30~31 · Publishing specification 2.0** (article in English and Chinese, `MTM-LITE.md`, the version renumber) — T3 · ⚠️ three rounds of independent review, all with findings, all fixed · 0 hallucinations
 
-- **2.4**（2026-08-02）：promote **#20 自我檢驗擴充**——拒絕一條 finding 需要指得出「**當初的決定 ＋ 它已閉合的依據**」，不是只要「決定」。2.3 的自我檢驗只擋「說不出理由」，擋不住「理由存在但是編的」；於是 invariant 8 會**反過來保護帶假前提的決定**，而拆穿假前提正是獨立審查存在的理由。定位為 invariant 6 與 8 的交界（6 管做決定當下、8 管引用決定擋 finding 的那一刻，原本沒人管後者）。**來源是外部工作階段的回報**——invariant 8 promote 後不到一天，另一個 AI 在真實任務上踩到邊界並回報，附具體實例（一個有記錄有理由、但理由經查證為假的排除決定）。這是本規格第一次由外部使用回報驅動的修訂。
+A documentation task takes escalation the same way code does: the first outline was positioned wrongly, and it was overturned and rebuilt *before* drafting — the cost was one conversation instead of a rewrite. Precondition checks turned up two pieces of bad news about this project and both were written into the article rather than hidden: ① #14's ledger hard gate had already broken (ten qualifying tasks shipped with no entry after it stopped); ② the article's flagship debugging case **has no contract** — it is the time the discipline was skipped.
 
-- **2.3**（2026-08-02）：promote **#19 目的回頭檢查請求本身**。#15 讓綠地開場先問目的，但三條接線全是「拿目的指導後續」——**沒有一條拿目的檢查請求**，這正是 #15 promote 後獨立評審點名的洞（目的是 posture 不是 mechanism）。新增：交代的東西與剛講的目的**明顯矛盾**時，把矛盾攤出來問，不照做也不自決。兩條配套缺一不可——**門檻守在「明顯矛盾」**（放寬即成 #5 已處理過的 cry-wolf 的目的論版本）、**輸出是問題不是拒絕**（決定權仍在人）。順手給 #15 的 backstop 一個可觀察的作用點。範圍先只掛綠地。
+**The biggest finding was not in the deliverable but around it.** An adopter-perspective review returned "would not adopt", and every reason sat outside the article: the English path dead-ended at a Chinese specification, the quick start pointed at a superseded template, the integration guide taught the self-audit that §9 refutes, and there was no light-tier example. After adding `MTM-LITE.md`, raising the template to 2.0, rewriting the integration guide and repointing the entry, the same perspective re-run returned "would adopt".
 
-- **2.2**（2026-08-02）：promote **#17 phase 0-Debug 分支** 與 **#16 硬 gate 需機械執行點**。
-  **#17** 補的是分級表的**結構性**洞：表靠已知 scope 分級，而 bug 的 scope 未知才叫 bug。觸發綁死在兩個可觀察訊號（已試修一輪沒解／值錯而根因未明），最小契約只四欄（`symptom` / `prior_guesses` 連結果 / `preconditions` 附可執行步驟 / `evidence_source` 在假設之前先定），配一條硬規則「第一輪沒解就停止改 code」。**刻意壓小**，不長成第二個 phase 家族。
-  **#16** 寫成兩段：①規格裡寫「強制」不會讓它變成強制（#14 升硬 gate 後仍連續 10 個 task 沒 append）②**執行點必須對著自己文件所教的排版測過**——本專案的驗證器就在自己模板的排版下不會 fire，讓全是承諾的關鍵級契約乾淨通過。沉默放行的 gate 比沒有 gate 更傷。操作上二擇一：給它會 fire 的檢查，或誠實降級成建議。
-  同批：**#8 不升**，改掛可判定的畢業條件（見 §B），取代無限期 pending。
+The evidence audit separately caught six untrue or unsourced statements — including one **inside the honesty section** that described two hallucinations as caught at the verification step when they were caught during implementation, one of them produced by the audit itself.
 
-- **2.1**（2026-08-02）：promote **#18 invariant 8「已知不得棄守」**——與 invariant 6 成對（6 說不准宣稱你沒查的，8 說不准丟棄你已經知道的；兩者都是不使用手上的證據，方向相反）。修的是一個**跨邊界**的失效：帶自信的外部輸入（審查 findings / CI / subagent / 另一個模型）撞上握有 context 的主模型時，主模型傾向讓步，把跟人談好的決定安靜翻掉。定調 **auditor 是證人不是裁判**（視野刻意受限 → 系統性看不見意圖），findings 是判斷的輸入不是判決；收 findings 時逐條問「**缺陷還是決定**」，撞決定的**上呈不自決**（＝把既有的「不自決」套用到 phase 6 原本漏掉的地方）。配**對稱舉證**與**自我檢驗**防止它退化成「我有我的理由」的盾。刻意**不做成流程表**：主模型握有 context 本就該思考，規則只負責把已知強制帶回當下。同批改 `MTM-Verify.md` auditor 紀律 0 與 skill §6。
+*Escalation value: very high — one sentence about positioning rebuilt the whole outline, and it settled "no efficiency estimates; the reader judges".* → **#16, #17**
 
-- **2.0**（2026-07-30）：**版號改制 + 對外發表**。①**改制**：spec 線的 v0.1–v0.7 併入公開文章線，現行版號一律 **2.0**（理由：第一篇公開文章以 `Methodology v1.0` 發表，spec 另走 v0.x → 外部讀者看到「v1.0 五月 → v0.7 七月」會誤判為倒退。user 2026-07-30 拍板「全面改 2.0」）。各檔規則旁的 `v0.x · #N` 保留為**當初 promote 的版本**索引，不回頭改寫（改了等於偽造 changelog）。②**發表** `mtm-contract-2.0-article.md` + 繁中版：以「**把便宜的查證擺到昂貴的生成之前**」單一主張收斂全篇，受眾＝用 AI agent 做產品的人，四個結果（效率／少試錯／正確性／整體花費）寫成該主張的下游。誠實面：明載 token 無實測（僅代理指標）、「12/12 幻覺 0」不可外推、對照實驗輸掉的那一道、領頭案例沒有 contract（紀律被跳過那次）、以及 **#14 硬 gate 一個月內破功**（→ §B #16）。**規則機制本身零變動** —— 2.0 不新增 phase / 欄位 / 紀律。
-- **v0.7**（2026-07-05）：promote **#15 MTM-Plan 開場「先問目的」+ discovery 覆蓋**——綠地起手第一步改成問一個開放的目的題(你最想達成什麼,定靈魂/方向,接 invariant 7),再攤既有 fork;開場只主動問目的一題,其餘走 §4a 遇到才問。user 裁決:延伸功能不主動提(留 §4c/phase 2)、trigger 僅限綠地。機制仍「便宜→假設、貴→逼選」,只有目的開放問,不回面試地獄。**證據等級最弱的一次 promote(無 control/無復發計數)→ 已掛 backstop:接下來 2 個綠地各記一行「目的答案是否真的改變 downstream 決定」,連 2 次沒有就重審。**
-- **v0.6**（2026-06-30）：promote **#14 case-ledger append 硬 gate**——未 append ledger 不算 task done(與 phase-5 執行綁定 invariant 6 同邏輯)，修「軟紀律→開天窗」的跨任務洞(nicemeet 6 週分析發現結算表從沒填)。同批:修正 CORE 標題/§7/README 殘留 v0.2 版本標籤漂移、確立「消費端 task ledger 放各自專案本地」(nicemeet→該專案本地 ledger)。
-- **v0.5**（2026-06-29）：promote **#13 客戶核心需求優先**(invariant 7)——由 **bass-app A/B 對照實驗**得出(MTM 第一個真正 control:同一句話、有問 vs 沒問)。結論誠實:MTM 在「原生vs網頁」「音階格vs指板」翻對方向(點數獲勝),但在「真實音色」字面核心需求上輸給無 MTM 版(它接 soundfont 當場交付、MTM 只擺佔位)→ 直接催生 #13。
-- **v0.4**（2026-06-29）：新增 **MTM Plan**（綠地 phase 0 分支，`MTM-Plan.md`）——把小白一句話的不夠清晰計畫，用生活語言問清難回頭的地基 fork(平台/雲端/多人/租戶/整合/法規)，產出骨架 seed `project-architecture/` 交棒 phase 1。三方獨立評審 GO-with-additions 後定稿。promote #12。
-- **v0.3**（2026-06-29）：焦點=**讓夠強的 AI 用 MTM 跑更有效率**（user 重新對焦：非賣產品/論文，而是實際開發助力）。三方獨立評價收斂出核心訊號 → promote **#9 驗證執行綁定**(補最大成熟度缺口：宣告→執行)、**#10 分級靠可觀察觸發**(修自分級漏洞)、**#11 最小可行 contract**(高價值 20% 零摩擦)。診斷:MTM 矯正的是「能力修不掉的系統性偏誤」(挑字面/scope漂移/忘前文/討好)——這幾條最值錢;中段欄位強模型本來就會做、調輕。
-- **v0.2**（2026-06-29，draft 轉正）：
-  - ✅ **Q1 已拍板**：CORE 當脊椎、舊三份保留為 phase 細節（加 header 指回 CORE）。
-  - ✅ **Q2 已拍板**：進化 gate = inline 機會主義（執行中白話提論點+原因）+ 升規則必過兩道測試【實質 + 通用跨任務】+ 單一事件只進 ledger 不升規則 + 點頭即升。已寫入 §D。
-  - **promoted into CORE**：#1 統一 lifecycle、#2 observed_result、#3 Contract↔Verify 脊椎、#4 blast classifier、#5 forced-disagreement 拆解、#6 escalation 一等 phase、#7 status header。
-  - ⏳ **still pending**：#8（複雜度第二軸）——已討論未明確點頭，留 §B 等 signoff。
-- **v0.1.2**（Arch）：加「對話 UX 紀律」六條 + meta 原則。
-- **v0.1.1**（Arch）：forced-disagreement 強制 surface（**已被 #5 取代**）。
-- **v0.1**（2026-05-14）：nicemeet 試行啟用，11 欄 build/review 雙模式。
+> **Two portable lessons from this row.** ① **Scanning the deliverable for leaks is not enough — scan one hop out.** The article leaked nothing; the files it linked to contained private paths and an environment variable name. ② **An adopter-perspective review has to be re-run after the fixes.** Every reason for the first rejection lay outside the deliverable; without re-running you never learn whether the additions actually connected.
 
-<!-- 新版本 append 在 §C 最上方（本清單新→舊） -->
+**2026-08-01 · Packaging MTM as an installable Claude Skill** (behaviour + references + a bundled validator) — T3 · ⚠️ two independent reviews (specification fidelity / adversarial install-and-use), both with blocking findings, all fixed · 0
+
+**The bundled enforcement script did not fire in the layout its own template teaches.** With `PASS` and `observed_result` on separate lines it never triggered — so a critical-tier contract with every clause passing and every piece of evidence still a promise exited cleanly. **Both reviewers hit this independently**, and one framed it decisively: this is worse than shipping no script, because it **launders unverified work into something that looks audited**, and the user stops reading the contract. Now evaluated per clause, across lines.
+
+Also fixed in the same round: the untouched template passed after two word edits (placeholder detection was whole-line only); genuine observations were flagged as promises; non-UTF-8 input crashed with a traceback mid-CI-batch; Chinese headings matched nothing; and critical work self-labelled `tier=local` passed silently (now warned on content keywords). The fidelity review separately found 11 divergences from CORE — invariant 7, the grounding step, the mandatory internal red-team, decision records, the cross-domain trigger — all closed.
+
+*Escalation value: very high — **adversarial "install it, use it, then try to break it" hit the fatal problem sooner than clause-by-clause fidelity checking.** The latter found the same defect, but the former also found that the install command itself was dead.*
+
+> **Portable lesson**: when you bundle an enforcement script, the first thing to test is not whether the rules are right — it is **whether the script fires in the layout your own documentation teaches**. A gate that passes silently costs more trust than no gate.
+
+**2026-08-02 · invariant 8, prompted and promoted (#18)** — T2 · ✅ · 0
+
+Surfaced by the person's observation: after an independent review comes back, the main model mostly agrees from the auditor's angle, does not think from the original purpose or the discussion history, and goes straight to recommending a reversal. **The executor's own evidence**: it removed a figure as "unsourced" because the auditor could not find it (it was sourced, just not in the auditor's three inputs), and changed a deliberate editorial decision as though it were a defect. The first version of the proposal was rejected — it offered "add an adjudication step to the process", and the person pointed out the actual issue: **the main model holds the context and should be thinking**; proceduralising it is avoidance.
+
+*Escalation value: very high — it lifted a patch aimed at phase 6 up to the invariant layer, because the same failure exists at every boundary where a confident input meets a model holding context: CI, subagents, documentation, another model.* → **#18**, promoted 2.1
+
+**2026-08-02 · #16 and #17 promoted; #8 given a graduation condition (2.2)** — T2 · ✅ · 0
+
+**The value of this round was a self-correction.** The earlier recommendation to drop #8 rested on "five weeks parked and nobody reached for it" — which commits the exact error invariant 8 had just been written against (reading *I have not seen it used* as *it is not needed*). Re-asked as "have the failures it targets actually occurred": yes, repeatedly — scope underestimated, five probe rounds to converge, work that had to be split into five batches. **But the second question failed**: the underestimate happened at grounding, and the probe rounds were empirical investigation of an unknown process. So: neither dropped nor promoted — given a decidable graduation condition instead. #16 gained its decisive second half on promotion: the enforcement point must be tested against the layout the documentation teaches.
+
+*Escalation value: high — the person asked in the direction of "all three are worth doing", the executor did not comply, and corrected its own earlier reasoning on the spot. Invariant 8 tested in both directions.* → **#16 · #17**, promoted 2.2
+
+**2026-08-02 · #19 promoted (2.3): purpose becomes a checkpoint, not just a direction** — T1 · ✅ · 0
+
+**The executor checked before answering.** Half of what was asked for **already existed** in the specification (asking purpose first in greenfield, #15 / discipline 0); after confirming by search, it said so rather than building it a second time — invariant 8 used positively. The genuinely new half was the other one (discuss it when the purpose and the request contradict), and it closed the hole an independent reviewer had named in #15: all three wirings used the purpose to steer what came next, none used it to check the request.
+
+*Escalation value: high — a request mixing "already exists" with "new"; checking item by item saved a duplicate build and stopped the specification growing a second discipline 0.* → **#19**, promoted 2.3
+
+**2026-08-02 · Plugin install verified end to end** — T1 · ✅ · 0
+
+The one item carried as unverified through the batch is closed: `/plugin marketplace add` and `/plugin install` were run for real, the skill entered the registry, and the plugin-installed validator exited 1 on the adversarial fixture. **The executor cannot run slash commands, marked it `UNVERIFIED` throughout, and never let "the structure is correct" stand in for the test** — invariant 6 used positively. Side effect: an earlier manual copy coexisting with the plugin caused a duplicate registration; the test copy was removed.
+
+**2026-08-02 · #20 promoted (2.4): the specification's first revision driven from outside** — T1 · ✅ · 0
+
+Less than a day after invariant 8 was promoted, **another agent running it on a real task hit its edge and reported back**: rejecting a finding only required pointing at the decision, so a decision whose reason proved false passed the check — the rule shielded the failure it was written to prevent. The reporter's self-assessment was sharper than the executor's own (they identified precisely which step they had skipped). **The executor did not accept it wholesale**: two rounds of internal red-teaming (does this make rejection too expensive? is a false reason simply a defect?) failed to overturn it, and only then was promotion recommended.
+
+*Escalation value: very high — **the first field report from outside use**, and it produced a specification change directly. That carries more weight than any internal derivation, and it is exactly the kind of evidence §13 of the article keeps asking for.* → **#20**, promoted 2.4
+
+**2026-08-03 · Verifying how the plugin updates (updatability of the distribution channel)** — T1 · ✅ · 0
+
+**The executor gave the wrong answer first**: it told the person to re-run install to get the new version. In practice `install` only handles the first install and returns "already installed". The truth is two steps, and the first is not obvious: the marketplace is a git clone that **stops fetching** after it is added, and `installed_plugins.json` separately pins the plugin to the commit it came from — so updating the plugin alone does nothing; the marketplace must be updated first. Also found: the CLI has non-interactive subcommands, so the executor could have done this without handing it back at all. After updating, the new cache directory's rules and validator were **actually run** (adversarial fixture exits 1, false-positive fixture exits 0) rather than trusting the success message.
+
+*Escalation value: medium — **updatability of the distribution channel is a failure surface outside the specification.** On a day with four version bumps, anyone who installed in the morning is holding stale rules and does not know it, and the documentation only covered installing. Same shape as #16: a gate that cannot fire and a channel that cannot update both manufacture a false sense of being current.*
+
+**2026-08-06 · The English specification, and absorbing MTM-Arch (2.5)** — T2 · ✅ · 0
+
+The claim that "CORE already covers MTM-Arch" was asserted from memory and **was wrong**. The person asked whether it was true, a full read followed, and seven mechanisms turned out to be missing — two of them load-bearing: `needs_revisit` (a decision record whose trigger has fired stops counting as grounding) and the four-step architectural dialogue with step one forbidden from citing existing code. **Had the recommendation been accepted as given, `needs_revisit` would have been discarded along with 457 lines** — and it is the piece that closes #20's gap.
+
+*Escalation value: very high — a question, asked at the right moment, prevented a mechanism from being deleted on the strength of an unverified claim. This is invariant 8 exercised by the person against the executor, and #20's rule applied to the executor's own recommendation: the reason offered for a decision must itself have been checked.*
+
+<!-- append new cases above this line -->
+
+---
+
+## §B Proposal queue
+
+> Each entry: evidence → proposed change → blast radius → status.
+
+### #1 — One unified lifecycle (CORE as the spine; the older documents retained as phase detail) `✅ promoted v0.2 (2026-06-29)`
+- Evidence: in practice only one workflow was ever running; the audit was split across two documents.
+- Change: `MTM-CORE.md` becomes the single 0→6 entry point; the architectural audit merges into phase 6.
+- Decided: CORE is the spine; the other documents are kept with headers pointing back, so existing references do not break.
+
+### #2 — The `observed_result` field (closing the verification chain) `✅ promoted v0.2 (2026-06-29)`
+- Evidence: `verifiable_by` is a promise, not a record. One contract said "check the outbound call count" and had nowhere to put the number.
+- Change: every outcome gains `observed_result` — what was actually seen, with its evidence.
+
+### #3 — The Contract ↔ Verify spine (ten modes ↔ fields) `✅ promoted v0.2 (2026-06-29)`
+- Evidence: a table mapping failure types to the fields that should stop them had already proven itself in practice.
+- Change: generalised to ten modes in CORE §6; each report section names which modes it covers.
+- Effect: Verify stops being a separate checklist and becomes "did each preventive field hold?"
+
+### #4 — The blast-radius classifier (phase 0) `✅ promoted v0.2 (2026-06-29)`
+- Evidence: tiering was being done on instinct.
+- Change: the T0–T3 table routes depth. **"Thorough" is redefined as "correctly routed".**
+
+### #5 — Forced disagreement split into "internally mandatory, externally conditional" `✅ promoted v0.2 (2026-06-29)`
+- Evidence: zero high-value events came from an objection the agent manufactured. Forcing one every time produces cry-wolf.
+- Change: phase 2 steps 4–5.
+
+### #6 — Escalation raised to a first-class phase, with the candidate-set sub-protocol `✅ promoted v0.2 (2026-06-29)`
+- Evidence: "the literal intent versus the data model" is a recurring source of bugs — the four-population batch case, and a re-invite scoped too narrowly.
+- Change: phase 2 becomes first-class and candidate-set enumeration is written as a sub-protocol.
+
+### #7 — A machine-readable status header (resumability) `✅ promoted v0.2 (2026-06-29)`
+- Evidence: the original motivation — step 3 contradicted at step 15 — needs a single point of truth after a context summary.
+- Change: a `status` block at the top of the template.
+
+### #8 — A second axis in phase 0: complexity / decomposability `✕ closed (2026-08-02, decided by the person)`
+- Evidence: blast radius and complexity are orthogonal. One task was high blast *and* high complexity (a redesign); another was T2 blast with low complexity (one search closed the single unknown). High blast with low complexity — changing one line of auth — is the cell pure complexity analysis misses.
+- Proposed change: phase 0 goes from one axis to two — blast decides **verification depth**, complexity decides **decomposition and grounding depth** — with the output bound to a split-or-don't decision.
+- Signals were to be **countable** (anti-theatre): how many domains, does the literal request match the model, how many independent unknowns, is it reversible.
+- Risk noted at the time: scoring complexity out of ten would become theatre — hence counting signals, not scoring.
+- **2026-08-02 re-examination** (correcting the earlier reasoning of "unused, therefore drop"): the right question is not whether anyone cited the proposal, but **whether the failures it names actually occurred**. They did, repeatedly: scope underestimated, five probe rounds before convergence, work that had to be split into five batches — and that split was **a human's judgement; the specification did not help.** **But** the second question fails: the underestimate happened at grounding (not for want of counting signals), and the probe rounds were empirical investigation of an unknown process that no tiering would shorten. Conclusion: **the phenomenon is real; the mechanism is unproven against it.**
+- **Closed (2026-08-02)**: the full analysis is kept here. It is closed **not because it is wrong, but because its mechanism was never shown to intervene on the failures it names.**
+- **Reopening condition (kept)**: one case where **explicitly counting complexity signals changed a split-or-don't decision at the time** — hindsight does not count. With that evidence it can be reopened directly.
+
+### #9 — Execution binding: give `verified_by` and `observed_result` teeth `✅ promoted v0.3 (2026-06-29)`
+- Evidence: an adversarial review plus the project's own 12-of-12 cases, where `observed_result` was uniformly left at `PENDING`. With a strong model the failure is a convincingly filled field with no check underneath, and a plausible value looks identical to a closed one.
+- Change: CORE invariant 6 plus the phase 5 hard rule.
+- Both tests: substantive ✅ (closes the largest maturity gap) / general ✅ (holds for every contract).
+
+### #10 — Blast radius by observable trigger, not by the agent's own judgement `✅ promoted v0.3 (2026-06-29)`
+- Evidence: self-tiering is self-defeating — the judgement being asked for is exactly the unreliable one that rigour exists to backstop, and it degrades under deadline pressure.
+- Change: the trigger list; any hit promotes, and T3 cannot be self-demoted.
+
+### #11 — The minimum viable contract (three load-bearing fields at T1) `✅ promoted v0.3 (2026-06-29)`
+- Evidence: a strong model handles the middle fields anyway; the full ceremony has diminishing returns at T1, and heaviness means the valuable 20% gets skipped along with everything else.
+- Change: T1 defaults to `intent` + `escalation`/candidate set + `affected_layers`.
+
+### #12 — MTM Plan: the greenfield phase 0 branch `✅ promoted v0.4 (2026-06-29)`
+- Evidence: phase 1 bootstrap, phase 2's candidate set and the old Stage 0 all assume the agent asks when *it* is ungrounded, in developer language. Greenfield forks (platform, cloud, multi-user, payments) have no source to ground against, and a non-technical person cannot answer a domain question.
+- Change: a new `MTM-Plan.md`, plus the phase 0-Plan branch in the spine.
+- A three-way independent review returned GO-with-additions; all eight additions were folded in.
+
+### #13 — The customer's core need comes first `✅ promoted v0.5 (2026-06-29)`
+- Evidence: the **A/B comparison**. MTM handled the architecture and left the named core experience as a placeholder; the unguided build delivered the real thing on the spot — **on the user's literal core need, the unguided build won.**
+- Change: CORE invariant 7 and Plan discipline 8.
+- Coexists with #11: "cheap things can wait" applies to secondary features only.
+
+### #14 — The case-ledger append becomes a hard completion gate `✅ promoted v0.6 (2026-06-30)`
+- Evidence: §D's "append per non-trivial task" was soft discipline with nothing binding it. A six-week analysis found the settlement table had never been filled and the log stopped after the first twelve entries — the same "meta-record leaks" hole. **The document meant to cure it had the disease.**
+- Change: not appended, not done.
+
+### #15 — Ask purpose first in greenfield, plus discovery coverage `✅ promoted v0.7 (2026-07-05)`
+- Evidence: the greenfield opening jumped straight to hard-to-reverse forks with **no anchor on what the person is actually hoping for.**
+- Change: Plan discipline 0. **CORE's 0→6 is untouched**; only the Plan opening protocol widens.
+- The person's ruling: extended features are not volunteered; the trigger stays greenfield-only.
+- Risk control: apart from purpose, everything stays "cheap → assume, expensive → make them choose". No stacking open questions — that would return to the interview hell this document exists to kill.
+- **Independent methodology review (2026-07-05, after promotion)**: conditional yes, 6/10. It agreed the placement was right and correctly scoped, and found three holes, all since closed — ① the purpose answer had no downstream wiring (posture, not mechanism) → discipline 0 now wires it into the glossary, the fork order, and invariant 7's protected item; ② "cover it all in the opening" smuggled ceremony back in → changed to asking only the purpose up front; ③ no fallback for a vague answer → added.
+- **Self-assessed evidence level (raised by the reviewer, recorded honestly)**: #15 is the **weakest-evidence promotion** in the series — no control (unlike #13), no recurrence count (unlike #14). It passed the gate on argued generality plus aspiration. **Backstop**: the next two greenfield runs each record whether the purpose answer actually changed a downstream decision; two consecutive misses trigger a re-examination.
+
+### #16 — A hard gate needs a mechanical enforcement point, or it is still soft discipline `✅ promoted v2.2 (2026-08-02)`
+- Evidence: #14 promoted the ledger append from soft discipline to a **hard gate**. **A month later the gate itself was ignored** — ten consecutive qualifying contracts with no entry. The rule was in the specification the whole time.
+- Diagnosis: #14 changed the word "soft" to "hard" and **added no mechanical trigger.** Declaring something mandatory in a document is not enforcement. This was the **third** occurrence of the same class of gap.
+- Source: turned up by a precondition check during a T3 task. Published in §12 of the article as an honest case.
+- **The second half, added on promotion (the most important correction)**: an enforcement point is not enough — **it must be tested against the layout your own documentation teaches.** Demonstrated by this project's own validator, whose headline check only fired when `PASS` and `observed_result` shared a line while the template puts them on separate lines by design. **A gate that passes silently costs more trust than no gate.** So CORE §7 is written in two halves: either a check that demonstrably fires, or an honest downgrade to a recommendation. There is no honest third state.
+
+### #17 — A debug branch in phase 0, for symptoms whose scope is not yet known `✅ promoted v2.2 (2026-08-02)`
+- **Evidence, from four independent directions:**
+  1. The tier table keys **entirely off known scope**. But **a bug's scope is unknown — that is what makes it a bug.** The table cannot route it.
+  2. `MTM-LITE.md` said a one-line fix whose cause you have established can be skipped — **that is the easy case.** What eats an afternoon is *not yet established*, and the specification had no phase for it.
+  3. The article's flagship debugging case **admits it has no contract**. The methodology's most expensive failure is precisely the class it had no shape for.
+  4. An **adopter-perspective review** named it the thing most wanted and not delivered: debug loops are what cost time and money, and the specification offered one habit and no artifact.
+- The consuming project already had this as local practice, never promoted: stop after round one, write a contract with `prior_guesses` including each result, and for a wrong value make the first move a search for every producer.
+- Change: a debug branch in phase 0, triggers bound to two observable signals, a four-field contract, one hard rule.
+- **Scope deliberately kept small on promotion**: three reviews all named the specification's bulk as the main adoption blocker; a patch that fattens it can be net negative.
+
+### #18 — invariant 8: held context is not surrendered `✅ promoted v2.1 (2026-08-02)`
+- **Evidence**: an independent review's value comes from a deliberately restricted view — and the same restriction means it **systematically cannot see intent**. Observed: a figure was reported as unsourced (correctly, for the corpus the reviewer had) and removed on the spot; it was sourced elsewhere. In the same batch a deliberate editorial decision was treated as a defect.
+- **Diagnosis** — not a random slip, three structural biases: ① the burden is asymmetric (a finding is a concrete assertion; defending requires reconstructing context, so agreeing is far cheaper) ② the report carries the authority of its form, while the prior reasoning is scattered through a conversation ③ deference to the most recent confident input. **#5 caught the mirror image of this bias** (manufactured objections are worthless); nobody had caught this direction.
+- **Key insight**: the problem is **not in phase 6**. The same failure occurs at every boundary where a confident external input meets a model holding context — CI, a linter, a subagent's report, documentation, another model, even the person's own later sentence contradicting a decision from three days ago. Patch phase 6 and the hole reopens elsewhere. **Fixed at the invariant layer.**
+- **Not made into a procedure**: the person explicitly rejected "add an adjudication step" — **the main model holds the context and should be thinking**; needing a rule to prompt "consider why we decided this" is itself the failure. What a rule *can* do is force retrieval of what is already in hand. Hence one question, symmetric burden, and a self-test.
+- **What this means for vibe coding**: the person has given up reading every line and verifying, but not *what they want*. Any mechanism that quietly transfers **intent-level decisions** to automation erodes the one thing they were still contributing — and deference to a reviewer is the hardest kind to notice, because it **looks like rigour**. The general rule: **automation may generate and may challenge, but it may not decide what a person decided.**
+- **Counter-risk**: taken too far this becomes "I had my reasons" as a universal shield, which is worse than compliance. Hence symmetric burden and the self-test.
+
+### #19 — The purpose also checks the request itself `✅ promoted v2.3 (2026-08-02)`
+- **Evidence (a gap in the specification's own design)**: #15 wired the purpose answer into three places — a note in the glossary, which forks get asked first, which feature invariant 7 protects. **All three use the purpose to steer what comes next; none uses it to check the request.** That is exactly the hole the independent methodology review named after #15: the purpose was **posture, not mechanism**.
+- Change: a fourth wiring in Plan discipline 0, mirrored in CORE's phase 0-Plan branch.
+- **Two guards, neither optional**: ① the bar stays at **plainly contradicts** — widened, it becomes the teleological form of the cry-wolf failure #5 already dealt with; ② **the output is a question, never a refusal** — the decision stays theirs.
+- **Side effect**: #15 carries a backstop asking whether the purpose answer ever changes a downstream decision. A check that can block a contradictory request gives that backstop something observable to measure.
+- Scope: greenfield only, as #15 is. It plausibly generalises, but there is no instance yet — and widening a rule without one is why #8 was parked.
+
+### #20 — The self-test extended: rejecting a finding takes the decision **and its closed grounding** `✅ promoted v2.4 (2026-08-02)`
+- **Source (recorded plainly)**: **a field report from outside this project** — another agent, running 2.3 on a real task, hit the edge and reported back. Not derived internally. Less than a day after invariant 8 was promoted.
+- **Evidence (their instance)**: they ruled out an option in writing on the grounds that "the other party sees nothing before installing the app" — a recorded decision with a stated reason. The review found the code path in question does send name, company, title and phone. **The reason was invented.**
+- **The hole**: 2.3's self-test caught only *"cannot state a reason"*. It did not catch *"a reason exists and is false"*. And since rejecting a finding only required pointing at the decision, the check passed.
+- **The ugly part**: invariant 8 was written to stop decisions being quietly reversed by a reviewer, and it ended up **shielding a decision built on a false premise** — while exposing false premises is the entire reason the review exists. **A rule protecting the failure it was built to prevent.**
+- **Placement**: the boundary between invariants **6 and 8**. Six governs the moment a decision is *made*; eight governs the moment it is *cited against a finding*. Nothing governed the latter.
+- **Internal red-team (two rounds, neither overturned it)**: ① does this make rejection so expensive that everything gets accepted again? No — nearly free when the decision was properly grounded, expensive only when it was not, and **that asymmetry is correct**. ② Is a false reason simply a defect? Yes, but **the mislabel happens before that can be noticed** — the executor sees "a recorded decision" and stops — so the fix belongs at the labelling step.
+- **Observation from the reporter, worth keeping**: 2.1, 2.2 and 2.3 all landed on the same day, and §12 had already recorded that the engine fires in bursts under external critique. That day's pressure was a conversation; the previous one was three commissioned reviews. **The pattern held again** — supporting "schedule adversarial review rather than waiting for cases to accumulate".
+
+<!-- append new proposals above this line -->
+
+---
+
+## §C Changelog — only what passed the gate
+
+- **2.5** (2026-08-06): the specification becomes English-first, and **the mechanisms still live in `MTM-Arch.md` are absorbed into CORE**. The prior claim that CORE already covered Arch was asserted from memory and was wrong; a full read found seven, two of them load-bearing — **`needs_revisit`** (a decision record whose trigger has fired stops counting as grounding, which is the missing half of #20: that rule requires *closed* grounding and nothing said how grounding is declared closed no longer) and **the four-step architectural dialogue** with step one forbidden from citing existing code, which is what stops pattern-matching from passing as architectural thinking. Also absorbed: the decision-record template, `architectural_basis` and two standing escalation rules in the contract template, the four architectural audit questions with their automatic follow-ups, phase 1's filing rules, the internal-label translations, and a known-risks section naming seven ways this method fails and what holds each down. `MTM-Arch.md` is marked superseded with a table saying where each part went. `MTM-CORE.zh-TW.md` is labelled a 2.4 snapshot rather than an equal mirror — maintaining two specifications is how the drift in this repository began.
+- **2.4** (2026-08-02): promotes **#20**. Rejecting a finding requires **the decision *and* its closed grounding**, not the decision alone. 2.3's self-test blocked only a missing reason, not a false one — so invariant 8 could shield a decision built on a false premise, which is what the review exists to expose. Placed at the boundary of invariants 6 and 8. **The specification's first revision driven by outside use.**
+- **2.3** (2026-08-02): promotes **#19**. The purpose now checks the request itself: when what is asked for plainly contradicts the stated goal, put the contradiction to the person rather than building it or silently redesigning it. Two guards — the bar stays at *plainly contradicts*, and the output is a question, never a refusal. Greenfield only.
+- **2.2** (2026-08-02): promotes **#17** (the phase 0 debug branch — the tier table keys off known scope, and a bug's scope is what is unknown; triggers bound to two observable signals, a four-field contract, and "when round one fails, stop changing code"; deliberately kept small) and **#16** (a rule is only hard if something mechanically enforces it, **and the enforcement point must be tested against the layout the documentation teaches** — this project's own validator did not fire in its own template's layout). **#8 not promoted**; given a decidable graduation condition instead.
+- **2.1** (2026-08-02): promotes **#18, invariant 8 — held context is not surrendered**, paired with invariant 6 (six: do not claim what you did not check; eight: do not discard what you did establish). Establishes that **the auditor is a witness, not a judge** — its view is deliberately restricted, so it cannot see intent — and that findings are input to judgement rather than a verdict. On receiving findings: *defect, or decision?* Decisions escalate rather than being reversed by the executor. Deliberately **not** a procedure: the main model holds the context and should think; the rule only forces retrieval of what is already in hand.
+- **2.0** (2026-07-30): **renumbering and publication.** ① The v0.1–v0.7 specification line merges into the public article line; the current version is **2.0** everywhere. (The first article published as `Methodology v1.0` while the specification ran v0.x, so an outside reader saw "v1.0 in May → v0.7 in July" and read it as a regression.) Per-rule `v0.x · #N` markers are kept as promotion history and **not** rewritten — rewriting them would falsify the changelog. ② Published the 2.0 article and its Chinese version, converging on one claim: **put the cheap checks before the expensive generation.** Honesty carried in full: tokens were never measured (proxies only), "12 of 12, zero hallucinations" does not extrapolate, the controlled comparison was partly lost, the flagship debugging case has no contract, and #14's hard gate broke within a month. **No mechanism changed in 2.0** — no phase, field or discipline was added.
+- **v0.7** (2026-07-05): promotes **#15** — the greenfield opening asks one open question about purpose before any fork.
+- **v0.6** (2026-06-30): promotes **#14** — the ledger append becomes a hard completion gate, fixing the "soft discipline leaks" hole. Same batch: corrected stale version labels, and established that a consuming project's task ledger lives in that project.
+- **v0.5** (2026-06-29): promotes **#13**, derived from the **A/B comparison** — MTM's first genuine control. Honest conclusion: a win on points, and a loss on the user's literal core need, which is what produced the rule.
+- **v0.4** (2026-06-29): adds **MTM Plan**, the greenfield branch. Promotes #12.
+- **v0.3** (2026-06-29): focus — **make MTM more efficient for a capable model** (refocused away from selling a product or writing a paper). Promotes **#9** (execution binding), **#10** (observable triggers), **#11** (the minimum viable contract). Diagnosis: what MTM corrects is the systematic bias capability does not remove — literal-mindedness, scope drift, forgetting earlier context, agreeableness. Those are what is worth having; the middle fields a strong model does anyway.
+- **v0.2** (2026-06-29): promotes #1 unified lifecycle, #2 `observed_result`, #3 the Contract ↔ Verify spine, #4 the blast classifier, #5 the forced-disagreement split, #6 escalation as a first-class phase, #7 the status header. Also settled the evolution gate itself: inline opportunism, two tests (substantive and cross-task general), single events into the ledger rather than the rulebook, and promotion on the person's nod.
+- **v0.1.2** / **v0.1.1** / **v0.1**: the conversation-discipline rules; forced disagreement as originally written (later replaced by #5); and the initial eleven-field build/review trial.
+
+<!-- append new versions at the top of §C -->

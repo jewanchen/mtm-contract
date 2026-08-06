@@ -8,22 +8,77 @@
 
 ---
 
-## The 30-second pitch
+## Is this your Tuesday?
 
-Agentic AI coding agents fail in two recurring ways that current tooling does not address:
+A join starts returning nothing for records that visibly exist. The obvious move is to reason about it: stale cache, wrong identity, the data layer inferring a column type wrong. Three hypotheses, three changes, three rebuilds, no information — every layer above the database was internally consistent, so no amount of reading application code was going to surface it. One query against the database's own catalogue of columns ended it: the two sides of the join were different types.
 
-- They **hallucinate** APIs, entities, and endpoints that do not exist — confidently, because the agent does not know it does not know.
-- They suffer **architectural drift** across multi-step tasks — where decisions made in step 3 are silently contradicted by code generated in step 15.
+The contract does not make you smarter. It makes you write down what must be true and how you checked it, **before** the agent generates anything — so that query happens in minute one instead of minute forty.
 
-Function-calling schemas and type checkers do not catch either failure mode: both occur in the gap between intent and code generation.
+That is the whole idea: **put the cheap checks before the expensive generation.**
 
-**MTM Contract** is a markdown specification the agent fills out *before* writing implementation code, and audits *after* the code ships — eleven fields for high-risk work, three for ordinary work, none at all for a typo (see [routing](./mtm-contract-2.0-article.md#5-routing-what-gets-the-full-treatment)). The contract externalizes intent into an artifact that survives the agent's context window — binding the agent's future decisions to its declared scope, and giving uncertainty a legal place to live.
+## Start here — paste this into your agent
 
-What that buys you, concretely. A join starts returning nothing for records that visibly exist. The obvious move is to reason about it: stale cache, wrong identity, the data layer inferring a column type wrong. Three hypotheses, three changes, three rebuilds, no information — every layer above the database was internally consistent, so no amount of reading application code was going to surface it. One query against the database's own catalogue of columns ended it: the two sides of the join were different types.
+This is the method at working scale. Put it in `CLAUDE.md`, `.cursorrules`, or your system prompt. Nothing to install, no lock-in.
 
-The contract does not make you smarter. It makes you write down what must be true and how you checked it, *before* the agent generates anything — so the query happens in minute one instead of minute forty. That is the whole idea, and [§10 of the 2.0 article](./mtm-contract-2.0-article.md#10-seven-situations-where-it-pays) has six more shapes of it.
+```markdown
+## Contract-first workflow
 
-Since then the specification has moved to **2.5**: one unified lifecycle, a greenfield branch, and an evolution engine — built around a single idea, *put the cheap checks before the expensive generation*.
+Before writing implementation code, classify the task by trigger — not by
+how risky it feels. Any hit promotes it; never argue a task back down.
+
+- Typo, copy, styling, version bump, one small file → just do it.
+- One module, no trigger below → write three fields first (see below).
+- Crosses a module boundary / changes a shared contract / adds a
+  persisted entity → also write preconditions, assumptions, outcomes.
+- Auth, permissions, secrets · schema migration · tenant visibility ·
+  payments · release assets · more than N files · the literal request
+  does not map one-to-one onto the data model
+  → full contract AND an independent review in a clean context before merge.
+
+The three fields, written before any code:
+1. intent — one sentence, what will be observably true when this is done.
+2. escalation / candidate set — what is not mine to decide alone. If the
+   request's wording could point at more than one thing in the data, list
+   the candidates and ask; do not pick the likeliest one.
+3. affected_layers — what I am changing, and what I am deliberately not.
+
+Verification: nothing is marked verified on the strength of a promise.
+Record what I actually ran — command output, query result, log line,
+observed value — or write UNVERIFIED. "Pending" is never a pass.
+A green build is a prediction, not an observation.
+
+When a fix does not work on the first attempt: stop changing code and
+establish one fact first.
+
+<!-- MTM Contract · Apache 2.0 · Vast Intelligence Limited
+     github.com/jewanchen/mtm-contract -->
+```
+
+The full one-page version, with the trigger table and a complete worked example, is [`MTM-LITE.md`](./MTM-LITE.md).
+
+## Or install it
+
+In Claude Code, two commands — the discipline becomes your agent's default behaviour, with a zero-dependency validator bundled alongside:
+
+```
+/plugin marketplace add jewanchen/mtm-contract
+/plugin install mtm@mtm-contract
+```
+
+Details, the copy-a-folder alternative, and **how to update** (installing does not subscribe you to updates): [`plugins/mtm/`](./plugins/mtm/).
+
+## What it is
+
+Agentic coding agents fail in two recurring ways that current tooling does not address:
+
+- They **hallucinate** APIs, entities, and endpoints that do not exist — confidently, because the agent does not know that it does not know.
+- They suffer **architectural drift** across multi-step tasks, where a decision made at step 3 is silently contradicted by code generated at step 15.
+
+Function-calling schemas and type checkers catch neither: both happen in the gap between intent and code generation.
+
+**MTM Contract** is a markdown specification the agent fills in *before* writing implementation code and audits *after* the code ships — around a dozen fields for high-risk work, three for ordinary work, none at all for a typo. It externalises intent into an artifact that survives the agent's context window, binds its later decisions to the scope it declared, and gives uncertainty a legal place to live.
+
+The specification is at **2.5**: one unified lifecycle, a greenfield branch, a debug branch, and an evolution engine.
 
 ### Papers
 
@@ -34,31 +89,11 @@ Since then the specification has moved to **2.5**: one unified lifecycle, a gree
 
 ---
 
-## Try it in 10 minutes
+## When the task is heavier
 
-```bash
-# 1. Read one page. It is the whole method at ordinary scale.
-curl -L https://raw.githubusercontent.com/jewanchen/mtm-contract/main/MTM-LITE.md \
-  -o MTM-LITE.md
+Schema changes, permissions, anything touching money or who-can-see-what get the full [`TEMPLATE.md`](./TEMPLATE.md) and a review in a clean context before merge — a subagent or a second session, given only the contract, the decisions, and the diff. Never the session that wrote the code: the reasoning that produced a gap is the reasoning that would review it.
 
-# 2. Paste the fenced "rules block" at the top of MTM-LITE.md into your
-#    agent's rules file (CLAUDE.md, .cursorrules, or system prompt).
-#    It is ~30 lines. You do not need the rest of the page in context.
-#
-# 3. On your next non-trivial task, before the agent writes anything,
-#    write three fields: what will be observably true when this is done;
-#    what is NOT yours to decide alone; what you are touching and what
-#    you are deliberately not touching. (~4 minutes.)
-#
-# 4. Add one rule to how you work: nothing is marked verified on the
-#    strength of a promise. If the check hasn't run, it says so.
-```
-
-That's it. No SDK, no plugin, no language lock-in. The methodology is the file.
-
-Heavier work — schema changes, permissions, anything touching money or tenant visibility — gets the full [`TEMPLATE.md`](./TEMPLATE.md) and a clean-context review before merge. `MTM-LITE.md` §1 has the triggers that decide which.
-
-**Or skip the reading.** In Claude Code, `/plugin marketplace add jewanchen/mtm-contract` then `/plugin install mtm@mtm-contract` makes all of this your agent's default behaviour, validator included — see [`plugins/mtm/`](./plugins/mtm/).
+[`MTM-LITE.md`](./MTM-LITE.md) §1 has the triggers that decide which. The rule of thumb — *if the contract takes longer than the code, skip it* — is real, and applies only to the two lightest tiers.
 
 ---
 

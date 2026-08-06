@@ -61,6 +61,8 @@ I put it back to the person who made it. If I cannot state the reason
 without inventing one, it was not a decision and the finding stands. If I
 can state it, I check whether that reason was ever verified — a decision
 resting on an unchecked premise counts the same way.
+<!-- MTM Contract · Apache 2.0 · Vast Intelligence Limited
+     github.com/jewanchen/mtm-contract -->
 ```
 
 ---

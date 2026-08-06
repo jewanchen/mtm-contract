@@ -27,6 +27,12 @@ Zero dependencies. Python 3.8+, standard library only.
     python3 validate.py contracts/2026-08-01_my-task.md
     python3 validate.py contracts/*.md
     python3 validate.py --quiet contracts/*.md    # errors only, for CI
+    python3 validate.py --report contracts/       # de-identified summary
+
+--report reads structure only — counts, tiers, how many clauses are closed.
+It emits no file names and nothing from your code, so the output is safe to
+paste into a field report. There is no telemetry in this tool; nothing is
+sent anywhere.
 
 Exit status: 0 if every file passes, 1 if any file has an error, 2 on a
 usage problem (no files matched, unreadable path). Warnings never fail.
@@ -35,6 +41,7 @@ Part of MTM Contract. Apache 2.0, Vast Intelligence Limited.
 https://github.com/jewanchen/mtm-contract
 """
 
+import os
 import re
 import sys
 
@@ -329,6 +336,80 @@ def validate(path):
     return findings
 
 
+def build_report(paths):
+    """Structure-only summary. No file names, no content — safe to share."""
+    tiers, n, errs, warns = {}, 0, 0, 0
+    pass_marks = unver = pending = pc_total = pc_no_verified = 0
+    sections_seen = {}
+    for path in paths:
+        lines, err = read_lines(path)
+        if err:
+            continue
+        n += 1
+        sections = split_sections(lines)
+        tier, _, _, _ = read_status(sections)
+        tiers[tier or "unstated"] = tiers.get(tier or "unstated", 0) + 1
+        for heading, _, _ in sections:
+            for key in ALIASES:
+                if matches(heading, key):
+                    sections_seen[key] = sections_seen.get(key, 0) + 1
+                    break
+        body = "\n".join(lines)
+        pass_marks += len(re.findall(r"\bPASS\b", body))
+        unver += len(re.findall(r"\bUNVERIFIED\b", body))
+        pending += len(re.findall(r"\bPENDING\b", body))
+        for heading, line_no, sec in sections:
+            if matches(heading, "preconditions"):
+                for _, clause in iter_clauses(sec, line_no):
+                    if body_is_unanswered(clause):
+                        continue
+                    pc_total += 1
+                    if not re.search(r"verified_by", "\n".join(clause), re.IGNORECASE):
+                        pc_no_verified += 1
+        f = validate(path)
+        errs += sum(1 for x in f if x.kind == "error")
+        warns += sum(1 for x in f if x.kind == "warn")
+
+    out = ["MTM contract summary — structure only, no file names or content", ""]
+    out.append("contracts               : %d" % n)
+    if tiers:
+        out.append("tiers                   : " + ", ".join(
+            "%s=%d" % (k, v) for k, v in sorted(tiers.items())))
+    out.append("clauses marked PASS     : %d" % pass_marks)
+    out.append("marked UNVERIFIED       : %d" % unver)
+    out.append("still PENDING           : %d" % pending)
+    out.append("preconditions           : %d (%d without verified_by)"
+               % (pc_total, pc_no_verified))
+    out.append("validator errors        : %d" % errs)
+    out.append("validator warnings      : %d" % warns)
+    if sections_seen:
+        out.append("")
+        out.append("field usage (how many contracts carry each):")
+        for k in ("intent", "escalation", "affected_layers", "preconditions",
+                  "schema_assumptions", "expected_outcome",
+                  "cross_module_contract", "grounding", "rollback_plan",
+                  "test_plan", "confidence"):
+            if k in sections_seen:
+                out.append("  %-22s %d" % (k, sections_seen[k]))
+    out.append("")
+    out.append("Nothing above identifies your project. Paste it into a field")
+    out.append("report if you like: github.com/jewanchen/mtm-contract/issues")
+    return "\n".join(out)
+
+
+def expand(paths):
+    """Accept directories as well as files."""
+    out = []
+    for p in paths:
+        if os.path.isdir(p):
+            for root, _, files in os.walk(p):
+                out += [os.path.join(root, f) for f in sorted(files)
+                        if f.endswith(".md")]
+        else:
+            out.append(p)
+    return out
+
+
 def main(argv):
     flags = {a for a in argv[1:] if a.startswith("--")}
     paths = [a for a in argv[1:] if a not in flags]
@@ -338,8 +419,17 @@ def main(argv):
         print(__doc__.strip())
         return 0
     if not paths:
-        print("usage: validate.py [--quiet] <contract.md> [...]", file=sys.stderr)
+        print("usage: validate.py [--quiet|--report] <contract.md|dir> [...]",
+              file=sys.stderr)
         return 2
+
+    if "--report" in flags:
+        found = expand(paths)
+        if not found:
+            print("no .md files found", file=sys.stderr)
+            return 2
+        print(build_report(found))
+        return 0
 
     failed = False
     for path in paths:

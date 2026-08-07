@@ -154,6 +154,14 @@ The claim that "CORE already covers MTM-Arch" was asserted from memory and **was
 
 *Escalation value: high — **the outside-report pattern held for a second time**, and this instance is stronger evidence than #20 for §12's "schedule adversarial review rather than waiting for cases to accumulate", because the reporter's self-assessment again refused its own promotion. The `git add -A` slip is the cheaper lesson and the more repeatable one: it cost nothing here and would have been invisible in a repo whose entire claim is that records can be trusted.* → **#21**, parked
 
+**2026-08-07 · Submitting to two directories — distribution facts asserted from memory, twice wrong** — T1 · ✅ · 0
+
+Submitted the plugin to the Claude community marketplace and recommended the repository to `awesome-claude-code`. **The executor twice stated a distribution fact from memory and was wrong both times**: it called the destination "the official plugin directory" when the form feeds the *community* marketplace (the official one is curated at Anthropic's discretion with no application process at all), and on 2026-08-03 it had already made the same class of error about how a plugin updates. Both were corrected the same way — by reading the actual documentation instead of recalling it. **This is the second instance of one shape**, which is the threshold #21's own graduation condition names: a claim about the *distribution surface* feels like a claim about the project, so it gets asserted with project-level confidence, but it is external, undocumented in the repository, and changes without notice.
+
+**One decision worth keeping**: the submission form offered two platform checkboxes, Claude Code and Claude Cowork, above the line "Test that the plugin works with these surfaces before submitting." Only Claude Code was ticked. The plugin had never been run on Cowork, and its validator depends on a shell that may not exist there. Ticking an untested surface would have been invariant 6 violated on the very form that distributes the rule against it.
+
+*Escalation value: medium — no code changed and nothing broke, but the pattern is now twice-attested and cheap to state: **the executor's confidence about a delivery channel is not evidence about that channel.** Where the specification says to verify by execution, the channel's own documentation is the execution. Also recorded so that the two submissions are traceable: community marketplace via the Console form, and `hesreallyhim/awesome-claude-code` issue #2460 (bot validation passed, maintainer review pending).*
+
 <!-- append new cases above this line -->
 
 ---

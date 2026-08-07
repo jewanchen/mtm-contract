@@ -434,7 +434,7 @@ Published: July 30, 2026.
 
 **皓品智慧有限公司 Vast Intelligence Limited**
 Email：jeremy.chen@vastitw.com
-網站：vastitw.com/mtm
+網站：https://nicemeetapp.com/mtm/
 
 複現研究、整合合作、或強制執行工具的協作，請由上述管道聯絡。
 

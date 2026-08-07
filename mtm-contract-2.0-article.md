@@ -435,7 +435,7 @@ Published: July 30, 2026.
 
 **Vast Intelligence Limited**
 Email: jeremy.chen@vastitw.com
-Website: vastitw.com/mtm
+Project page: https://nicemeetapp.com/mtm/
 
 For replication studies, integration partnerships, or enforcement tooling collaboration, use the channels above.
 

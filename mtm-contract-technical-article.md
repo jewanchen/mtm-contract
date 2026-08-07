@@ -12,7 +12,7 @@
 **Repository:** github.com/jewanchen/mtm-contract
 **License:** Apache 2.0 (see LICENSE), attribution required (see NOTICE)
 **Version:** Methodology v1.0 · 6 production trial samples · 11-field contract specification
-**Continued by:** [*MTM Contract 2.0 — Put the Cheap Checks Before the Expensive Generation*](./mtm-contract-2.0-article.md) (July 2026; 繁體中文：[`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md)). The current specification is **2.0** — see [`MTM-CORE.md`](./MTM-CORE.md). This article remains the published record of the methodology as of May 2026 and is not retro-edited.
+**Continued by:** [*MTM Contract 2.0 — Put the Cheap Checks Before the Expensive Generation*](./mtm-contract-2.0-article.md) (July 2026; 繁體中文：[`.zh-TW`](./mtm-contract-2.0-article.zh-TW.md)). The current specification is **2.5** — see [`MTM-CORE.md`](./MTM-CORE.md). This article remains the published record of the methodology as of May 2026 and is not retro-edited.
 
 ---
 
@@ -436,8 +436,7 @@ Published: May 14, 2026.
 
 **Company:** Vast Intelligence Limited
 **Email:** jeremy.chen@vastitw.com
-**Phone:** +886 2 2706 7590
-**Website:** vastitw.com/mtm
+**Project page:** https://nicemeetapp.com/mtm/
 
 For collaboration on Phase 2 and Phase 3 tooling, replication studies, or integration partnerships with AI coding tools and orchestrators, please use the contact channels above.
 

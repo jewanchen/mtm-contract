@@ -5,6 +5,8 @@
 > **A framework for preventing hallucination and architectural drift in agentic AI coding.**
 > A discipline for containing agentic AI's two recurring failure modes.
 > Markdown-only, zero dependencies, Apache 2.0. From **Vast Intelligence Limited**.
+>
+> **Project page: [nicemeetapp.com/mtm](https://nicemeetapp.com/mtm/)** — the same material as a page rather than a repository, in English and Traditional Chinese.
 
 ---
 
@@ -178,7 +180,6 @@ Published: May 14, 2026.
 
 **Vast Intelligence Limited**
 Email: jeremy.chen@vastitw.com
-Phone: +886 2 2706 7590
-Website: [vastitw.com/mtm](https://vastitw.com/mtm)
+Website: [nicemeetapp.com/mtm](https://nicemeetapp.com/mtm/)
 
 For replication studies, enforcement-tooling collaboration, or integration partnerships, please use the contact channels above. The most valuable contribution is a replication we cannot run ourselves: the same tasks, on a different codebase, with and without the discipline, judged by someone who did not write it.

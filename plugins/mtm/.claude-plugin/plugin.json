@@ -1,5 +1,6 @@
 {
   "name": "mtm",
+  "version": "2.5.0",
   "description": "Contract-first discipline for delegating implementation to an agent, with a bundled zero-dependency validator.",
   "author": {
     "name": "Vast Intelligence Limited",

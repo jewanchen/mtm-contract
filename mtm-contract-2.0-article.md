@@ -304,7 +304,7 @@ The review's value comes from a restricted view — and the same restriction mea
 
 So when the report arrives, the person or agent holding the full context owes it a judgement, not compliance. One question per finding: **is this a defect, or a decision?**
 
-A defect you fix. A decision is not yours to reverse — state the original reason and put the choice back to whoever made it. Quietly reverting something that was decided is the most expensive form of compliance, because it looks like rigour while discarding the one thing the delegating human was still contributing.
+A defect you fix. A decision is not yours to reverse — state the original reason and put the choice back to whoever made it. Quietly reverting something that was decided is the most expensive way to be cooperative: it looks like rigour, and it throws away the one thing the person delegating the work was still contributing.
 
 Two guards keep this from becoming a shield. **The same burden both ways**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **test on yourself**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands. If you *can* state it, ask whether that reason was ever checked. A decision resting on an unverified premise counts as an oversight too; otherwise this rule ends up shielding exactly the failure the review exists to expose.
 

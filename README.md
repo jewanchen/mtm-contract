@@ -1,6 +1,6 @@
 # MTM Contract
 
-> **MTM — *machine to machine*.** A contract is a handoff format: today usually written by a person for an agent, and by design between agents too. The encoding changes; the fields do not.
+> **MTM — *machine to machine*.** A contract is a handoff format. Today a person usually writes it for an agent; the same file works when one agent hands work to another. What has to be written down does not change either way.
 >
 > **A framework for preventing hallucination and architectural drift in agentic AI coding.**
 > A discipline for containing agentic AI's two recurring failure modes.
@@ -10,7 +10,7 @@
 
 ---
 
-## Is this your Tuesday?
+## A day you have probably had
 
 A join starts returning nothing for records that visibly exist. The obvious move is to reason about it: stale cache, wrong identity, the data layer inferring a column type wrong. Three hypotheses, three changes, three rebuilds, no information — every layer above the database was internally consistent, so no amount of reading application code was going to surface it. One query against the database's own catalogue of columns ended it: the two sides of the join were different types.
 
@@ -78,9 +78,9 @@ Agentic coding agents fail in two recurring ways that current tooling does not a
 
 Function-calling schemas and type checkers catch neither: both happen in the gap between intent and code generation.
 
-**MTM Contract** is a markdown specification the agent fills in *before* writing implementation code and audits *after* the code ships — around a dozen fields for high-risk work, three for ordinary work, none at all for a typo. It externalises intent into an artifact that survives the agent's context window, binds its later decisions to the scope it declared, and gives uncertainty a legal place to live.
+**MTM Contract** is a markdown specification the agent fills in *before* writing implementation code and audits *after* the code ships — around a dozen fields for high-risk work, three for ordinary work, none at all for a typo. It puts the intent into a file that outlives the agent's context window, holds its later decisions to the scope it declared, and gives the agent somewhere to say it is not sure instead of guessing.
 
-The specification is at **2.5**: one unified lifecycle, a greenfield branch, a debug branch, and an evolution engine.
+The specification is at **2.5**: one sequence for ordinary work, a branch for starting a project from nothing, a branch for bugs whose cause is not yet established, and a written process governing how the rules themselves are allowed to change.
 
 ### Papers
 
@@ -146,7 +146,7 @@ Rule of thumb: **if writing the contract is taking longer than writing the code,
 
 MTM Contract was observed working as a *human-AI clarification* tool: a markdown file mediating between an engineer and an AI agent. The same eleven-field shape applies, with a JSON encoding, to *AI-to-AI* coordination — function-calling schemas, multi-agent state handoff, MCP tool descriptions.
 
-The methodology is invariant across layers. See Section 6 of the [main article](./mtm-contract-technical-article.md#6-the-two-layers-human-ai-now-ai-to-ai-next) for the JSON-schema translation.
+The methodology does not change between the two. See Section 6 of the [main article](./mtm-contract-technical-article.md#6-the-two-layers-human-ai-now-ai-to-ai-next) for the JSON-schema translation.
 
 ---
 
@@ -158,7 +158,7 @@ The methodology is invariant across layers. See Section 6 of the [main article](
 | **Agent behaviour** | The same core delivered as instructions to your agent, an editor rules file, or a starting prompt — nothing to install | ✅ Available now: use `MTM-CORE.md` directly, or see [`integrations/`](./integrations/) |
 | **Enforcement tooling** | Mechanical checks: no empty fields, no clause marked passing while its evidence is a promise, no task closed without a ledger line | Planned, for continuous integration and advanced setups |
 
-**A correction to the roadmap published in the first article.** That version put a CLI next, gated on 20–50 trial samples. The sample gate has since been passed several times over, and the order was still wrong: the useful first conduit is agent *behaviour*, because the specification's own rule is that the machinery stays internal — the person delegating work should not have to operate a tool to benefit. Enforcement tooling remains valuable and is now positioned where it belongs: in CI and advanced setups rather than in a first-time user's path. Section 12 of the 2.0 article explains why enforcement matters more than we originally thought — a rule the specification called mandatory stopped being honoured within a month of promotion.
+**A correction to the roadmap published in the first article.** That version put a CLI next, gated on 20–50 trial samples. The sample gate has since been passed several times over, and the order was still wrong: the first thing to ship is agent *behaviour*, because the specification's own rule is that the machinery stays internal — the person delegating work should not have to operate a tool to benefit. Enforcement tooling remains valuable and is now positioned where it belongs: in CI and advanced setups rather than in a first-time user's path. Section 12 of the 2.0 article explains why enforcement matters more than we originally thought — a rule the specification called mandatory stopped being honoured within a month of promotion.
 
 ---
 

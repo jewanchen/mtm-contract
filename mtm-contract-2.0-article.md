@@ -7,8 +7,8 @@ Fewer wrong turns, less rework, more of the work correct on the first pass, and 
 
 **Published:** July 30, 2026
 **Author:** Vast Intelligence Limited
-**The name:** MTM is *machine to machine*. A contract is a handoff format — today usually written by a person for an agent, and by design between agents as well. The encoding changes; the fields do not.
-**Specification version:** 2.0 at publication; currently **2.4**, which adds the invariant described in §9 (and the requirement that a decision cited against a finding must itself be grounded), a debug branch for symptoms whose scope is not yet known, the rule that a gate is only hard if something mechanically enforces it, and a check that the work asked for actually serves the purpose the person stated. One lifecycle, a greenfield branch, and an evolution engine. Reference implementation: [`MTM-CORE.md`](./MTM-CORE.md); the one-page version to start from is [`MTM-LITE.md`](./MTM-LITE.md)
+**The name:** MTM is *machine to machine*. A contract is a handoff format — today a person usually writes it for an agent, and the same file works when one agent hands work to another. What has to be written down does not change either way.
+**Specification version:** 2.0 when this was published. It is **2.5** today, and every addition since came from the method being used or attacked, not from redesign. In order: what the agent has already established is not thrown away just because a reviewer objects; a separate route for bugs, because tasks are sorted by how far they reach and a bug's reach is exactly what you do not know yet; the finding that calling a rule mandatory does nothing unless something actually stops you; a check on the request itself, so that work which plainly contradicts the stated goal becomes a question instead of a build; and the rule that a recorded decision only settles an argument if the reason behind it was itself checked. Reference: [`MTM-CORE.md`](./MTM-CORE.md). To start, one page: [`MTM-LITE.md`](./MTM-LITE.md)
 **Repository:** github.com/jewanchen/mtm-contract
 **License:** Apache 2.0 ([`LICENSE`](./LICENSE)), attribution required ([`NOTICE`](./NOTICE))
 **繁體中文版本：** [`mtm-contract-2.0-article.zh-TW.md`](./mtm-contract-2.0-article.zh-TW.md)
@@ -26,7 +26,7 @@ MTM Contract is a discipline that reorders the work. One sentence:
 
 > **Move the cheap checks in front of the expensive generation.**
 
-Ordering is the spine, but it does not act alone. Two other properties carry weight and are named where they appear: the artifact lives in a file rather than in the conversation (§2), and a *claimed* check is never accepted as a *performed* one (§6.4). Four things follow from the three together. Each has a mechanism, and each has a boundary where it stops being true:
+Ordering does most of the work, but not all of it. Two other things carry weight, and each is pointed out where it comes up: what you write down lives in a file rather than in the chat (§2), and the agent saying it checked something is never accepted as having checked it (§6.4). Four things follow from the three together. Each has a mechanism, and each has a boundary where it stops being true:
 
 | What you get | The mechanism that produces it | Where it does not hold |
 |---|---|---|
@@ -113,7 +113,7 @@ Three properties of the pipeline are worth naming, because they are what make it
 
 ## 4. What you write down
 
-The artifact is a markdown file. Its fields are not a form; they are three verification chains plus the context needed to make them meaningful.
+The artifact is a markdown file. Its fields are not a form to fill in. Three of them do the real work, and each one is a *chain*: a claim on one end, and on the other, the specific thing that establishes it. Everything else is the context that makes those three mean something.
 
 **Chain 1 — premises.** `preconditions`, each with `verified_by`: the executable thing that established it. "The invitation acceptance path is idempotent — verified by reading it at this commit." Writing this line forces a search, a query, or an honest `UNKNOWN: what I would need to check`. This is where hallucinated APIs die.
 
@@ -121,7 +121,7 @@ The artifact is a markdown file. Its fields are not a form; they are three verif
 
 > A clause may not be marked passing while its evidence is still a promise. Either record what you ran this session — command output, query result, log line, observed value — or mark it `UNVERIFIED` and carry it into the audit as an open item. "Pending" is a waypoint, not a pass.
 
-Without that rule, a capable agent produces a document that is indistinguishable from diligence. With it, the two look different on the page.
+Without that rule, a capable agent produces a document that looks exactly like one produced by careful work. With it, the two look different on the page.
 
 **Chain 3 — assumptions.** `schema_assumptions`, each with `source`: where the belief about a data shape, default, or invariant comes from. No source means the assumption is marked speculative and reviewed first.
 
@@ -132,9 +132,9 @@ Around those three chains:
 | `intent` | One observable sentence. Stops "done when I say it's done." |
 | `affected_layers` | What changes *and what deliberately does not*. Stops collateral edits. |
 | `cross_module_contract` | What this emits, listens to, assumes of others, and promises callers. Stops the silent interface break. |
-| `confidence` | Overall, plus enumerated low-confidence sub-items. Gives uncertainty a legal place to live so the agent neither bluffs nor stalls. |
+| `confidence` | Overall, plus a list of the specific parts it is least sure about. Gives the agent somewhere to say it is not sure, so it neither bluffs nor stalls. |
 | `escalation` | What the agent must not decide alone, and what should halt it. Stops both the confident wrong answer and the silent stop. |
-| `grounding` | Citations for the contract's own claims. Unsourced claims are labelled, not laundered. |
+| `grounding` | Citations for the contract's own claims. A claim with no source is marked as such, rather than quietly passing as established. |
 | `rollback_plan` | Code, schema, environment. Also forces thinking about ship order (§10.5). |
 | `test_plan` | Local, staging, production. Pairs with phase 5 to make "it works" mean something. |
 | `status` header | Stage, blocked-on, unverified preconditions, open questions. The resume point after any context loss. |
@@ -156,7 +156,7 @@ A methodology that applies uniformly is a tax. The routing rules are the efficie
 
 **The tier is decided by observable triggers, not by the agent's sense of risk.** Does it touch authentication, permissions, or secrets? Is there a schema change? Does it span more than one domain? More than *n* files, where you pick *n*? Does it touch tenant visibility, payments, or store assets? Does the literal request fail to map one-to-one onto the data model? Any hit promotes the task, and the agent is not allowed to argue its way back down. The critical tier cannot be self-demoted at all.
 
-This looks like bureaucracy and is the opposite. Self-assessment is the one thing that cannot be trusted here, because the judgement being asked for — "is this risky enough to be careful about?" — is exactly the judgement that carefulness exists to backstop. Under deadline pressure it degrades precisely when it matters. A short list of observable triggers is both cheaper to apply and harder to rationalize around.
+This looks like bureaucracy and is the opposite. Self-assessment is the one thing that cannot be trusted here, because you are asking the agent to judge whether the task is risky enough to be careful about — which is the same judgement that being careful was there to protect you from getting wrong. Under deadline pressure it degrades precisely when it matters. A short list of observable triggers is both cheaper to apply and harder to rationalize around.
 
 **The table cannot classify a bug.** Every trigger above keys off scope — and a bug's scope is exactly what you do not know yet. That is what makes it a bug. So there is one route around the table, with two observable triggers of its own: **a fix has already failed once**, or **a value is displaying wrong and the cause is not established**. When either fires, stop changing code and write four things instead — the symptom; the guesses already made *and what each one returned*; the preconditions that would settle it, each with the check that would run; and where the evidence will come from, decided *before* the hypothesis. Mark the affected layers unknown until those close, then classify normally with the scope you now have.
 
@@ -306,7 +306,7 @@ So when the report arrives, the person or agent holding the full context owes it
 
 A defect you fix. A decision is not yours to reverse — state the original reason and put the choice back to whoever made it. Quietly reverting something that was decided is the most expensive form of compliance, because it looks like rigour while discarding the one thing the delegating human was still contributing.
 
-Two guards keep this from becoming a shield. **Symmetric burden**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **self-test**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands. If you *can* state it, ask whether that reason was ever checked. A decision resting on an unverified premise counts as an oversight too; otherwise this rule ends up shielding exactly the failure the review exists to expose.
+Two guards keep this from becoming a shield. **The same burden both ways**: to accept a finding, say what would break; to reject one, point at the decision. "The reviewer said so" is not a reason, and neither is "I had my reasons." And a **test on yourself**: if you cannot state the reason without inventing one, it was not a decision — it was an oversight, and the finding stands. If you *can* state it, ask whether that reason was ever checked. A decision resting on an unverified premise counts as an oversight too; otherwise this rule ends up shielding exactly the failure the review exists to expose.
 
 Afterwards, write the reason where the next reviewer will see it. A finding that collides with an unrecorded decision is itself a signal: that decision was under-recorded.
 
@@ -364,7 +364,7 @@ One authentication failure consumed a day. Every textbook check was performed an
 - **Thoroughness delays shipping.** One temporary workaround lived in production for weeks while the proper design converged. That is a real cost, and "we were being careful" does not refund it.
 - **Large efforts are still underestimated.** A localization effort was scoped as a client-side task and turned out to require substantial backend work. A contract makes assumptions explicit; it does not make you good at estimating.
 - **Hidden dependencies still get through.** One thorough contract missed a call made at screen-mount time, and it surfaced after shipping. The lesson became a standing check in that codebase's own contracts — draw the mount-time dependency graph. Note what did *not* happen: it did not become a rule in the specification. One incident is data, not a rule; §12 explains why it takes more than that.
-- **The instrument itself drifts.** Our own record-keeping has now degraded three times (§12). If a methodology cannot keep its own logs current, be suspicious of any of its claims that depend on complete logs. Ours do, and §13 says so.
+- **We stopped keeping our own records — three times.** (§12.) If a methodology cannot keep its own logs current, be suspicious of any of its claims that depend on complete logs. Ours do, and §13 says so.
 
 ---
 
@@ -387,7 +387,7 @@ Two honest observations about how this engine has actually behaved.
 
 **A rule that was promoted to fix decaying discipline then decayed itself.** The ledger requirement was originally soft: "append a line when you finish a task." It stopped happening. So it was promoted to a hard gate — a task is not complete until the line exists — on the argument that soft discipline reliably leaks. Within a month, the gate was being ignored: ten consecutive qualifying tasks shipped with no ledger entry. The rule was in the specification the whole time.
 
-The conclusion is uncomfortable and worth publishing: **a "hard" gate with no mechanical enforcement point is still soft discipline.** Calling a rule mandatory in a document does not make it mandatory. This is the strongest available argument for the enforcement tooling in §14, and it is an argument produced by the methodology failing rather than by it working.
+The conclusion is uncomfortable and worth publishing: **if nothing actually stops you, a rule you called mandatory is still just a habit.** Writing "mandatory" in a document does not make it so. This is the strongest available argument for the enforcement tooling in §14, and it is an argument produced by the methodology failing rather than by it working.
 
 ---
 
@@ -395,11 +395,11 @@ The conclusion is uncomfortable and worth publishing: **a "hard" gate with no me
 
 **What this is based on.** Around a hundred pre-execution contracts over eleven weeks, on one commercial codebase — mobile clients, a backend service, two web consoles — with AI agents doing most of the implementation. Plus one controlled comparison on a separate greenfield build.
 
-**The controlled comparison, including the part we lost.** The same one-sentence product request was given to two independent builds, one using this method and one not, then judged by a neutral agent shown both results and the original sentence. The method won where the decisions were hardest to reverse: it chose a native application over a web one, which the requester confirmed was the decision they cared about, and it got the primary interaction model right. It **lost** on something more embarrassing: the requester had named a specific core experience in their sentence, and the method-guided build shipped a placeholder for it while the unguided build wired up a real implementation immediately. Architecture correct, and the thing the person actually came for was not delivered. That result produced a new rule — a core experience the user named explicitly is a first-class deliverable and may not be downgraded to a placeholder — which is now part of the specification.
+**The controlled comparison — and the part where our own method did worse.** The same one-sentence product request was given to two independent builds, one using this method and one not, then judged by a neutral agent shown both results and the original sentence. The method won where the decisions were hardest to reverse: it chose a native application over a web one, which the requester confirmed was the decision they cared about, and it got the primary interaction model right. It **lost** on something more embarrassing: the requester had named a specific core experience in their sentence, and the method-guided build shipped a placeholder for it while the unguided build wired up a real implementation immediately. Architecture correct, and the thing the person actually came for was not delivered. That result produced a new rule — a core experience the user named explicitly is a first-class deliverable and may not be downgraded to a placeholder — which is now part of the specification.
 
 **What we did not measure.** Tokens. This article claims no numbers and no multipliers about token spend, because we never instrumented it. What was recorded is retries, rebuilds, and rounds-before-resolution — proxies, and readers should treat the §1 argument as reasoning about cost structure rather than as measurement.
 
-**What cannot be extrapolated.** The first twelve tasks were fully instrumented: twelve of twelve landed on the first attempt with no hallucination events. Those numbers are real and they **do not extend to the remaining tasks**, which were not counted the same way. Two hallucination events were recorded later, both involving assertions about third-party SDK surfaces that did not exist at the pinned version. Both were caught during the task, at the point where somebody actually ran the check — and one of them was produced by the audit phase itself, which is its own lesson about where verification has to bite. A stricter measure on a wider surface produces worse-looking numbers, and that is the honest direction of the correction.
+**What cannot be extrapolated.** The first twelve tasks were fully instrumented: twelve of twelve landed on the first attempt with no hallucination events. Those numbers are real and they **do not extend to the remaining tasks**, which were not counted the same way. Two hallucination events were recorded later, both involving assertions about third-party SDK surfaces that did not exist at the pinned version. Both were caught during the task, at the point where somebody actually ran the check — and one of them was produced by the audit phase itself, which is its own lesson about where verification has to happen. A stricter measure on a wider surface produces worse-looking numbers, and that is the honest direction of the correction.
 
 **Other limits.** One codebase, so domain effects cannot be separated from method effects. One human-AI pair throughout, so the audit's independence is context-level rather than organizational (§9). No benchmark suite: there is no reproducible task set with hidden traps that would let someone else measure this against a control. That remains the most valuable thing we cannot do alone.
 

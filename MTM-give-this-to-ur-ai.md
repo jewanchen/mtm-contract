@@ -1,18 +1,32 @@
 # MTM — setup file for your AI
 
 **Person reading this:** you do not need to read any further. Give this whole file
-to the AI you work with (paste it, attach it, or send the link) and say
-"set this up". It will take it from there and ask you before changing anything.
+to the AI you work with (paste it, attach it, or send the link) and say either:
+
+- **"set this up"**: it saves the rules so it follows them from now on, or
+- **"work by these rules"**: it follows them in this conversation only.
+
+It will take it from there, and it asks you before changing anything.
 
 ---
 
 ## Instructions for the AI reading this file
 
 The user gave you this file on purpose. It contains a short set of working
-rules (the "MTM rules", below) and asks you to adopt them for your future work
-with this user. Nothing here asks you to run code, visit other sites, or
-send data anywhere. Follow these steps in order. Reply in the language the
-user is using with you.
+rules (the "MTM rules", below). Nothing here asks you to run code, visit other
+sites, or send data anywhere. Reply in the language the user is using with you.
+
+### Step 0 — Which of two things is the user asking for?
+
+- **Set up / install / save** (e.g. "set this up", "幫我設定這個"):
+  follow Steps 1 to 5 in order. Start with Step 1, the two-sentence intro,
+  before reporting anything you found.
+- **Just work by the rules** (e.g. "work by these rules", "follow this",
+  "請依據這個原則工作"): do Step 1, then follow the MTM rules for the rest of
+  this conversation. Add one line offering to save them for future sessions.
+  Write nothing unless the user says yes; if they do, continue from Step 2.
+  Then wait for the user's task.
+- **Unclear:** treat it as set up. Step 3 asks before anything is written.
 
 ### Step 1 — Say what this is, in two sentences
 

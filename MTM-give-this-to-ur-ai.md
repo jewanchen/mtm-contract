@@ -1,99 +1,57 @@
-# MTM — setup file for your AI
+# MTM — give this to your AI
 
-**Person reading this:** you do not need to read any further. Give this whole file
-to the AI you work with (paste it, attach it, or send the link) and say either:
-
-- **"set this up"**: it saves the rules so it follows them from now on, or
-- **"work by these rules"**: it follows them in this conversation only.
-
-It will take it from there, and it asks you before changing anything.
+**If you're a person:** paste this whole file to your AI (or send it the link) and
+say **"set this up"**. It'll tell you what this is in a sentence, ask you one
+question, and then you're ready to work. It won't change anything without asking.
 
 ---
 
-## Instructions for the AI reading this file
+## For the AI reading this
 
-The user gave you this file on purpose. It contains a short set of working
-rules (the "MTM rules", below). Nothing here asks you to run code, visit other
-sites, or send data anywhere. Reply in the language the user is using with you.
+The user handed you this file on purpose. Below is a short set of working rules
+(the "MTM rules"). Nothing here runs code, opens links, or sends data anywhere.
+Reply in the language the user is using with you.
 
-### Step 0 — Which of two things is the user asking for?
+### Your FIRST reply must be short — keep it to three things, then stop:
 
-- **Set up / install / save** (e.g. "set this up", "幫我設定這個"):
-  follow Steps 1 to 5 in order. Start with Step 1, the two-sentence intro,
-  before reporting anything you found.
-- **Just work by the rules** (e.g. "work by these rules", "follow this",
-  "請依據這個原則工作"): do Step 1, then follow the MTM rules for the rest of
-  this conversation. Add one line offering to save them for future sessions.
-  Write nothing unless the user says yes; if they do, continue from Step 2.
-  Then wait for the user's task.
-- **Unclear:** treat it as set up. Step 3 asks before anything is written.
+1. **What this is, in one or two sentences.** For example:
+   "This is MTM — a small set of working rules. With them, I pin down the facts
+   before I build anything, and when I tell you something's verified I show you
+   what I actually ran."
 
-### Step 1 — Say what this is, in two sentences
+2. **One question, then stop:**
+   "Do you want me to **save these as your long-term working rules** (I follow
+   them from now on), or **just use them in this conversation**?"
 
-Tell the user, in your own words and briefly, something like:
-"This is MTM, a set of working rules. With it, I check the facts before I write
-code, and when I say something is verified, I show you what I actually ran."
-Do not summarize the whole file.
+3. **One line to get moving:**
+   "Either way — just tell me what you're working on and we'll start."
 
-### Step 2 — Find out where rules can persist
+In this first reply, do **not**: summarize the rules, explain how saving works,
+list any file names, or comment on whether MTM suits their field or their task.
+Intro + the one question + the invitation to start. Nothing else. Then wait.
 
-Work out which of these applies to you. Do not guess. Check.
+### After the user answers
 
-- **You can read and write files in the user's project** (e.g. Claude Code,
-  Cursor, Copilot agent mode, Codex, Gemini CLI, Windsurf): look for existing
-  instruction files at the project root: `AGENTS.md`, `CLAUDE.md`,
-  `.cursor/rules/`, `.github/copilot-instructions.md`, `GEMINI.md`,
-  `.windsurfrules`. Pick the one your tool actually reads. If several exist,
-  pick the one already in use. If none exist, propose `AGENTS.md` (widely read), plus the
-  tool-specific file if your tool does not read `AGENTS.md`.
-- **You cannot write files** (a chat window such as ChatGPT, Claude.ai or
-  Gemini on the web): go to Step 4b.
+- **"Just this conversation"** (or they simply give you a task): follow the MTM
+  rules from now on and begin their task. You may add a single line offering to
+  save the rules for future sessions.
 
-### Step 3 — Ask once, then act
+- **"Save them"** — and only now — set them up:
+  - **If you can write files in their project** (Claude Code, Cursor, Copilot,
+    Codex, Gemini CLI, Windsurf): ask once which instruction file to append to —
+    `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.github/copilot-instructions.md`,
+    `GEMINI.md`, `.windsurfrules` (pick the one your tool reads; propose
+    `AGENTS.md` if none exist). After they say yes, append the rules block
+    **exactly** between its `BEGIN`/`END` markers — replace an existing MTM block,
+    never duplicate it — then read the file back and confirm before you say it's
+    saved.
+  - **If you can't write files** (ChatGPT, Claude.ai, or Gemini on the web): say
+    so in one line, output the rules block as one copyable code block, and tell
+    them where to paste it — ChatGPT: Custom instructions, or a Project's
+    instructions · Claude.ai: a Project → Project instructions · Gemini: Gems, or
+    Saved info. If you're not sure of the exact menu name, say so; don't invent one.
 
-Ask the user one question: which file you will add the rules to, and that
-you will **append** them and not change anything else in it. Wait for a yes.
-Do not write anything before the user says yes.
-
-### Step 4a — If you can write files
-
-1. If the file already contains a block between
-   `<!-- MTM-RULES:BEGIN` and `<!-- MTM-RULES:END -->`, replace that block.
-   Do not add a second copy. Otherwise append the block at the end.
-2. Copy the block **exactly**, from the `BEGIN` line through the `END` line.
-   Do not reword, shorten, or "improve" it.
-3. **Read the file back** and confirm the block is there. This is the rules
-   applied to their own setup: do not tell the user it is saved until you
-   have seen it in the file.
-4. Go to Step 5.
-
-### Step 4b — If you cannot write files
-
-Tell the user plainly: "I can't save settings myself. These rules will
-last only for this conversation unless you add them to your settings."
-Then tell them where, for the product you are:
-
-- ChatGPT: Settings → Personalization → Custom instructions, or a Project's instructions.
-- Claude.ai: a Project → Project instructions.
-- Gemini: Gems, or Saved info.
-- If you are unsure of your product's current menu names, say so. Do not invent a path.
-
-Output the rules block as a single copyable code block. Then follow the rules
-for the rest of this conversation, and go to Step 5.
-
-### Step 5 — Tell the user what will change, then stop
-
-In three or four short lines, tell the user:
-
-- Most small tasks: nothing changes.
-- Bigger tasks: before any code, I will write a few lines saying what will be
-  true when it's done, and what I am and am not touching.
-- If your request could mean more than one thing in your data, I will stop and
-  ask. That is the rules working, not me being stuck.
-- When I say "verified", I'll show what I ran. If I didn't check, I'll say
-  UNVERIFIED.
-
-Then stop. Do not start other work. Wait for the user's next task.
+Once that's done, wait for their task. Don't start other work on your own.
 
 ---
 

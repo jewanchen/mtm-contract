@@ -197,7 +197,7 @@ github.com/jewanchen/mtm-contract
 
 ---
 
-## 4. Landing 頁讓 vibe coder 搜得到（提案、動 nicemeet repo 才生效）
+## 4. Landing 頁讓 vibe coder 搜得到（**✅ 09-26 已改 meta description、nicemeet `93ee6c4`；FAQ 段未加**）
 
 現在的 title／description 是工程師語言（「把便宜的查證擺到昂貴的生成之前」），
 搜「AI 一直說修好了」「vibe coding 一直改壞」找不到。**建議只改 `<meta description>` 和加一段 FAQ，
@@ -211,7 +211,7 @@ github.com/jewanchen/mtm-contract
 
 ---
 
-## 5. plugin 觸發描述提案（不升版、你點頭才改）
+## 5. plugin 觸發描述（**✅ 09-26 已加、`381b85a`、未升版**）
 
 現在 `SKILL.md` 的 description 只有工程師的觸發詞（schema change、tenant visibility、auth）。
 Vibe coder 不會講這些，skill 就不會在他們需要時被載入。**§7「從零開始」早就寫好了，只是描述沒讓它出現。**
@@ -232,5 +232,5 @@ Also use when the user asks for a whole product or feature from one sentence, wh
 1. §1 awesome-claude-code（你填表單，五分鐘；14 天規則早就過）。
 2. §3.2 版本 A 貼 Threads、版本 B 貼一個 FB 社團；§3.1 貼 r/vibecoding。**前三小時待在串上**（LAUNCH_KIT §4）。
 3. §2 官方目錄（依 §2.1 查證結果）。
-4. §4、§5 你點頭後我改。
+4. ~~§4、§5~~ 已做（09-26）。
 5. 貼完隔天照 LAUNCH_KIT §5：真的被問的問題補進 §3.3。

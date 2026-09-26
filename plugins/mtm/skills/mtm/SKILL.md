@@ -1,6 +1,6 @@
 ---
 name: mtm
-description: Contract-first discipline for delegating implementation to an agent — classify the task by observable triggers, ground your assumptions before generating any code, never mark a check passed on a promise, and get a clean-context review before merging risky work. Use when starting a non-trivial implementation task (several files, a schema change, auth or permissions, payments, tenant visibility), when a fix has already failed once, when a request's wording may not map one-to-one onto the data model, or when the user asks for MTM.
+description: Contract-first discipline for delegating implementation to an agent — classify the task by observable triggers, ground your assumptions before generating any code, never mark a check passed on a promise, and get a clean-context review before merging risky work. Use when starting a non-trivial implementation task (several files, a schema change, auth or permissions, payments, tenant visibility), when a fix has already failed once, when a request's wording may not map one-to-one onto the data model, or when the user asks for MTM. Also use when the user asks for a whole product or feature from one sentence, when the same bug is being fixed a second time, when the user says they do not read the code and are relying on the agent's own word, or when a request would silently pick one interpretation of ambiguous data.
 ---
 
 # MTM — put the cheap checks before the expensive generation

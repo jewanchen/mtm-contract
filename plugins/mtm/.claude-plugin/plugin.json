@@ -1,10 +1,21 @@
 {
   "name": "mtm",
+  "displayName": "MTM Contract",
   "version": "2.5.0",
   "description": "Contract-first discipline for delegating implementation to an agent, with a bundled zero-dependency validator.",
   "author": {
     "name": "Vast Intelligence Limited",
     "email": "jeremy.chen@vastitw.com"
   },
-  "homepage": "https://github.com/jewanchen/mtm-contract"
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/jewanchen/mtm-contract",
+  "repository": "https://github.com/jewanchen/mtm-contract",
+  "keywords": [
+    "contract-first",
+    "verification",
+    "hallucination",
+    "code-review",
+    "workflow",
+    "vibe-coding"
+  ]
 }

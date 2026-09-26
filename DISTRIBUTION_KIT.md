@@ -18,7 +18,7 @@
 
 ---
 
-## 1. awesome-claude-code（效果最直接、規則最嚴）
+## 1. awesome-claude-code（**✅ 已投：issue #2460、bot 驗證 passed、等 maintainer——別再開第二筆**）
 
 **入口**：只收 GitHub **issue form**（不收 PR、不收 `gh` CLI）。
 `https://github.com/hesreallyhim/awesome-claude-code` → Issues → 「submit a new resource」。

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="MTM Contract">
+  <title>MTM Contract</title>
+  <rect width="256" height="256" rx="48" fill="#16242E"/>
+  <!-- a contract line: the check comes before the code -->
+  <path d="M52 132l28 28 52-56" fill="none" stroke="#1E9FD0" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156 92h48M156 128h48M156 164h32" fill="none" stroke="#F6F7F9" stroke-width="14" stroke-linecap="round" opacity="0.9"/>
+</svg>
